@@ -16,17 +16,17 @@ await server.listen()
 let browser
 try {
   browser = await chromium.launch({
-    headless: !process.env.WEBGPU_SOFTWARE,
+    headless: true,
     args: [
       "--enable-unsafe-webgpu",
       ...(process.env.WEBGPU_SOFTWARE
         ? [
             "--enable-gpu",
-            "--use-angle=vulkan",
+            "--use-angle=swiftshader",
             "--use-vulkan=swiftshader",
-            "--enable-features=Vulkan,VulkanFromANGLE,DefaultANGLEVulkan",
-            "--disable-vulkan-surface",
-            "--use-webgpu-adapter=swiftshader",
+            "--enable-features=Vulkan",
+            "--enable-unsafe-swiftshader",
+            "--ignore-gpu-blocklist",
           ]
         : []),
     ],
