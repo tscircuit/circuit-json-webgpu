@@ -67,11 +67,11 @@ bun run snapshots:update # inspect changes before committing new baselines
 bun run dev              # fixture gallery
 ```
 
-The browser suite executes real WebGPU shaders, compares 13 committed PNG
-snapshots, checks cutout/pour-hole pixels independently, verifies that camera
+The browser suite executes real WebGPU shaders, compares 13 visual snapshot cases, checks cutout/pour-hole pixels independently, verifies that camera
 changes do not upload geometry, and exercises resize/empty-scene/disposal. It
 writes actual images, diffs, and a device/performance report to `tests/actual/`.
-Use `WEBGPU_SOFTWARE=1` to request SwiftShader in CI; performance measurements from
+Use `xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:visual` on Linux to
+request SwiftShader; performance measurements from
 software adapters should not be compared with hardware results.
 `PLAYWRIGHT_CHROMIUM_EXECUTABLE` can select an already-installed Chromium.
 

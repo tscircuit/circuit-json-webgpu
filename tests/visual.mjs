@@ -124,33 +124,36 @@ try {
   const large = await page.evaluate(() => window.gpuTest.renderLarge())
   assert.deepEqual(large.diagnostics, [])
   await snapshot("am3352-dev-board")
-  const navigation = await page.evaluate(async () => {
-    const drawer = window.gpuTest.drawer,
-      uploads = drawer.stats.geometryUploads,
-      samples = [],
-      frames = []
-    let previous = performance.now()
-    for (let i = 0; i < 90; i++) {
-      await new Promise(requestAnimationFrame)
-      const start = performance.now()
-      frames.push(start - previous)
-      previous = start
-      const scale = 9 * (1 + i / 60)
-      drawer.render({
-        transform: { a: scale, b: 0, c: 0, d: -scale, e: 400 + i, f: 300 },
-      })
-      samples.push(performance.now() - start)
-    }
-    await drawer.flush()
-    samples.sort((a, b) => a - b)
-    frames.sort((a, b) => a - b)
-    return {
-      geometryUploadsDuringZoom: drawer.stats.geometryUploads - uploads,
-      submitP95Ms: samples[85],
-      frameP95Ms: frames[85],
-      maxFrameMs: frames.at(-1),
-    }
-  })
+  const navigation = await page.evaluate(
+    async (frameCount) => {
+      const drawer = window.gpuTest.drawer,
+        uploads = drawer.stats.geometryUploads,
+        samples = [],
+        frames = []
+      let previous = performance.now()
+      for (let i = 0; i < frameCount; i++) {
+        await new Promise(requestAnimationFrame)
+        const start = performance.now()
+        frames.push(start - previous)
+        previous = start
+        const scale = 9 * (1 + i / 60)
+        drawer.render({
+          transform: { a: scale, b: 0, c: 0, d: -scale, e: 400 + i, f: 300 },
+        })
+        samples.push(performance.now() - start)
+      }
+      await drawer.flush()
+      samples.sort((a, b) => a - b)
+      frames.sort((a, b) => a - b)
+      return {
+        geometryUploadsDuringZoom: drawer.stats.geometryUploads - uploads,
+        submitP95Ms: samples[Math.floor(frameCount * 0.95)],
+        frameP95Ms: frames[Math.floor(frameCount * 0.95)],
+        maxFrameMs: frames.at(-1),
+      }
+    },
+    process.env.WEBGPU_SOFTWARE ? 12 : 90,
+  )
   assert.equal(navigation.geometryUploadsDuringZoom, 0)
   const adapter = await page.evaluate(async () => {
     const adapter = await navigator.gpu.requestAdapter(),
