@@ -56,6 +56,44 @@ try {
   })
   await page.goto(server.resolvedUrls!.local[0])
   await page.waitForFunction(() => window.gpuTest, null, { timeout: 30000 })
+  const visibility = await page.evaluate(() =>
+    window.gpuTest.checkBoardVisibility(),
+  )
+  const pixel = (png: string, x: number, y: number) => {
+    const image = PNG.sync.read(Buffer.from(png, "base64"))
+    return [
+      ...image.data.subarray(
+        (y * image.width + x) * 4,
+        (y * image.width + x) * 4 + 4,
+      ),
+    ]
+  }
+  assert.deepEqual(pixel(visibility.transparent, 70, 70), [0, 0, 0, 0])
+  for (const png of [
+    visibility.black,
+    visibility.maskOff,
+    visibility.independentDraw,
+  ]) {
+    assert.deepEqual(
+      pixel(png, 70, 70),
+      [0, 0, 0, 255],
+      "Empty board area must stay black with material/mask off",
+    )
+    assert.deepEqual(
+      pixel(png, 100, 100),
+      [200, 52, 52, 255],
+      "Copper must remain visible",
+    )
+    assert(pixel(png, 40, 70)[0] > 40, "Board outline must remain visible")
+  }
+  assert.deepEqual(pixel(visibility.maskOn, 70, 70), [12, 55, 33, 255])
+  assert.deepEqual(pixel(visibility.retainedMask, 70, 70), [12, 55, 33, 255])
+  assert.deepEqual(pixel(visibility.substrate, 70, 70), [70, 72, 72, 255])
+  assert.equal(
+    visibility.geometryUploads,
+    1,
+    "Visibility changes must not rebuild geometry",
+  )
   const names = await page.evaluate(() => window.gpuTest.names)
   await mkdir(new URL("./actual/", import.meta.url), { recursive: true })
   async function snapshot(name: string) {

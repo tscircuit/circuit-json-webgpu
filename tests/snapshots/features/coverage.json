@@ -248,163 +248,163 @@
       "file": "pcb-via-tenting-76b5c6b0f75a.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-fd252039f6d7.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-e5e1f6cf13ea.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-280d66e191bf.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-244bf17a4894.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-285b6b4239ba.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-9e8058ed52b9.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-430bf706117a.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-04da778bfd97.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-8a5736673dae.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-60fd70772c34.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-742e4636a3d5.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-445897fd420a.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-b0e39b1d0fb6.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-1351e52343fc.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-69b19f7c10f5.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-03c49407ca19.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-14bb53cfb5f1.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-4f4c38406f83.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-eb33c8db108a.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-1a99e4691e6e.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-477473435b82.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-04639338c5ef.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-0cd880fc16f6.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-dde828556f75.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-ecebd4c34292.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-ec7cda8ad02a.png",
       "test": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
       "path": "tests/elements/pcb-via-tenting.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-via-tenting-4aa897d05f57.png",
@@ -3398,19 +3398,19 @@
       "file": "pcb-board-525cb8ff0837.png",
       "test": "draw rectangular board",
       "path": "tests/elements/pcb-board.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-board-b977738472be.png",
       "test": "draw board with custom outline",
       "path": "tests/elements/pcb-board.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-board-b7f1f4dee132.png",
       "test": "draw board with elements",
       "path": "tests/elements/pcb-board.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-fabrication-note-text-full-charset-33f857d6831b.png",
@@ -3488,7 +3488,7 @@
       "file": "pcb-plated-hole-rotated-rect-pad-04e82f9803c0.png",
       "test": "draw circular hole with rotated rect pad",
       "path": "tests/elements/pcb-plated-hole-rotated-rect-pad.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-fabrication-note-rect-dashed-c9969653d685.png",
@@ -3506,19 +3506,19 @@
       "file": "pcb-plated-hole-64ea730c22dd.png",
       "test": "draw circular plated hole",
       "path": "tests/elements/pcb-plated-hole.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-plated-hole-8321b7d20173.png",
       "test": "draw oval plated hole",
       "path": "tests/elements/pcb-plated-hole.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-plated-hole-ad8a53504d4e.png",
       "test": "draw pill plated hole",
       "path": "tests/elements/pcb-plated-hole.test.ts",
-      "status": "mismatch"
+      "status": "pass"
     },
     {
       "file": "pcb-note-path-627df0cc9110.png",

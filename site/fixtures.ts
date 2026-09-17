@@ -233,6 +233,11 @@ const annotations = [
   },
 ]
 export const fixtures: Record<string, Fixture> = {
+  "board-material-off": { elements: [board] as CircuitJson },
+  "board-material-on": {
+    elements: [board] as CircuitJson,
+    options: { showBoardMaterial: true },
+  },
   "pads-and-rotations": { elements: rectPads as CircuitJson },
   "drills-slots-offsets": { elements: holes as CircuitJson },
   "multilayer-routing": { elements: routing as CircuitJson },
