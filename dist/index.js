@@ -1,0 +1,889 @@
+// lib/compile-circuit.ts
+import { lineAlphabet } from "@tscircuit/alphabet";
+
+// lib/colors.ts
+var rgb = (r, g, b) => [
+  r / 255,
+  g / 255,
+  b / 255,
+  1
+];
+var DEFAULT_LAYER_COLORS = {
+  board: rgb(70, 72, 72),
+  top: rgb(200, 52, 52),
+  bottom: rgb(77, 127, 196),
+  inner1: rgb(127, 200, 127),
+  inner2: rgb(206, 125, 44),
+  inner3: rgb(79, 203, 203),
+  inner4: rgb(219, 98, 139),
+  inner5: rgb(167, 165, 198),
+  inner6: rgb(40, 204, 217),
+  inner7: rgb(232, 178, 167),
+  inner8: rgb(242, 237, 161),
+  drill: rgb(255, 38, 226),
+  top_silkscreen: rgb(242, 237, 161),
+  bottom_silkscreen: rgb(242, 237, 161),
+  soldermask_top: rgb(12, 55, 33),
+  soldermask_bottom: rgb(12, 55, 33),
+  top_fabrication: rgb(175, 175, 175),
+  bottom_fabrication: rgb(88, 93, 132),
+  top_notes: rgb(89, 148, 220),
+  bottom_notes: rgb(89, 148, 220),
+  top_courtyard: rgb(255, 0, 245),
+  bottom_courtyard: rgb(38, 233, 255),
+  edge_cuts: rgb(208, 210, 205)
+};
+var normalizeLayer = (layer) => layer.replace(/_copper$/, "");
+
+// lib/geometry.ts
+import earcut from "earcut";
+var MeshBuilder = class {
+  constructor(color = [1, 1, 1, 1], element = 0, category = 0) {
+    this.color = color;
+    this.element = element;
+    this.category = category;
+  }
+  color;
+  element;
+  category;
+  vertices = [];
+  indices = [];
+  polygon(rings) {
+    if (!rings[0] || rings[0].length < 3) return;
+    const points = [], holes = [];
+    for (const [i, ring] of rings.entries()) {
+      if (i) holes.push(points.length / 2);
+      for (const p of ring) {
+        if (!Number.isFinite(p.x) || !Number.isFinite(p.y))
+          throw new Error("Non-finite polygon vertex");
+        points.push(p.x, p.y);
+      }
+    }
+    const triangles = earcut(points, holes, 2), base = this.vertices.length / 8;
+    for (let i = 0; i < points.length; i += 2)
+      this.vertices.push(
+        points[i],
+        points[i + 1],
+        ...this.color,
+        this.element,
+        this.category
+      );
+    for (const index of triangles) this.indices.push(base + index);
+  }
+  line(a, b, width) {
+    if (!(width > 0)) return;
+    const angle = Math.atan2(b.y - a.y, b.x - a.x), r = width / 2;
+    const points = [];
+    for (let i = 0; i <= 12; i++) {
+      const t = angle + Math.PI / 2 + i * Math.PI / 12;
+      points.push({ x: a.x + r * Math.cos(t), y: a.y + r * Math.sin(t) });
+    }
+    for (let i = 0; i <= 12; i++) {
+      const t = angle - Math.PI / 2 + i * Math.PI / 12;
+      points.push({ x: b.x + r * Math.cos(t), y: b.y + r * Math.sin(t) });
+    }
+    this.polygon([points]);
+  }
+  path(points, width, closed = false) {
+    for (let i = 1; i < points.length; i++)
+      this.line(points[i - 1], points[i], width);
+    if (closed && points.length > 2) this.line(points.at(-1), points[0], width);
+  }
+  build() {
+    return {
+      vertices: new Float32Array(this.vertices),
+      indices: new Uint32Array(this.indices)
+    };
+  }
+};
+function rotate(p, center2, degrees = 0) {
+  const t = degrees * Math.PI / 180, x = p.x - center2.x, y = p.y - center2.y;
+  return {
+    x: center2.x + x * Math.cos(t) - y * Math.sin(t),
+    y: center2.y + x * Math.sin(t) + y * Math.cos(t)
+  };
+}
+function ellipse(center2, width, height = width, rotation = 0) {
+  if (!(width > 0 && height > 0)) return [];
+  return Array.from({ length: 96 }, (_, i) => {
+    const t = i * 2 * Math.PI / 96;
+    return rotate(
+      {
+        x: center2.x + Math.cos(t) * width / 2,
+        y: center2.y + Math.sin(t) * height / 2
+      },
+      center2,
+      rotation
+    );
+  });
+}
+function rectangle(center2, width, height, radius = 0, rotation = 0) {
+  if (!(width > 0 && height > 0)) return [];
+  radius = Math.max(0, Math.min(radius, width / 2, height / 2));
+  const points = [];
+  for (let corner = 0; corner < 4; corner++) {
+    const sx = corner === 0 || corner === 3 ? 1 : -1;
+    const sy = corner < 2 ? 1 : -1;
+    const steps = radius ? 24 : 1;
+    for (let i = 0; i < steps; i++) {
+      const t = (corner + i / (steps - 1 || 1)) * Math.PI / 2;
+      points.push(
+        rotate(
+          {
+            x: center2.x + sx * (width / 2 - radius) + radius * Math.cos(t),
+            y: center2.y + sy * (height / 2 - radius) + radius * Math.sin(t)
+          },
+          center2,
+          rotation
+        )
+      );
+    }
+  }
+  return points;
+}
+function expandBrepRing(vertices) {
+  const points = [];
+  for (let i = 0; i < vertices.length; i++) {
+    const a = vertices[i], b = vertices[(i + 1) % vertices.length];
+    points.push({ x: a.x, y: a.y });
+    const bulge = a.bulge ?? 0, dx = b.x - a.x, dy = b.y - a.y;
+    if (!bulge || !dx && !dy) continue;
+    const sweep = 4 * Math.atan(bulge);
+    const center2 = {
+      x: (a.x + b.x) / 2 - dy * (1 - bulge * bulge) / (4 * bulge),
+      y: (a.y + b.y) / 2 + dx * (1 - bulge * bulge) / (4 * bulge)
+    };
+    const angle = Math.atan2(a.y - center2.y, a.x - center2.x), r = Math.hypot(a.x - center2.x, a.y - center2.y);
+    const steps = Math.max(2, Math.ceil(Math.abs(sweep) / (Math.PI / 48)));
+    for (let j = 1; j < steps; j++)
+      points.push({
+        x: center2.x + r * Math.cos(angle + sweep * j / steps),
+        y: center2.y + r * Math.sin(angle + sweep * j / steps)
+      });
+  }
+  return points;
+}
+
+// lib/compile-circuit.ts
+function getElementId(element, index = 0) {
+  return element[`${element.type}_id`] ?? `${element.type}:${index}`;
+}
+function center(e) {
+  return e.center ?? e.anchor_position ?? { x: e.x ?? 0, y: e.y ?? 0 };
+}
+function shape(e, hole = false) {
+  if (e.brep_shape)
+    return [e.brep_shape.outer_ring, ...e.brep_shape.inner_rings ?? []].map(
+      (r) => expandBrepRing(r.vertices)
+    );
+  if (e.outline?.length) return [e.outline];
+  const kind = hole ? e.hole_shape ?? e.shape : e.shape;
+  if (kind === "polygon") return [e.points ?? e.vertices ?? []];
+  const base = center(e), rotation = e.rect_ccw_rotation ?? e.ccw_rotation ?? e.rotation ?? 0;
+  const c = hole ? rotate(
+    {
+      x: base.x + (e.hole_offset_x ?? 0),
+      y: base.y + (e.hole_offset_y ?? 0)
+    },
+    base,
+    rotation
+  ) : base;
+  if (kind === "circle" || kind === "circular_hole_with_rect_pad" && hole || e.type === "pcb_via") {
+    const diameter = hole ? e.hole_diameter : e.outer_diameter ?? (e.radius != null ? e.radius * 2 : e.diameter);
+    return [
+      ellipse(c, diameter || e.diameter || e.hole_diameter || e.radius * 2)
+    ];
+  }
+  const width = hole ? e.hole_width ?? e.hole_diameter : e.rect_pad_width ?? e.outer_width ?? e.width;
+  const height = hole ? e.hole_height ?? e.hole_diameter : e.rect_pad_height ?? e.outer_height ?? e.height;
+  if (kind === "oval") return [ellipse(c, width, height, rotation)];
+  if ([
+    "rect",
+    "rotated_rect",
+    "roundrect",
+    "rounded_rect",
+    "pill",
+    "rotated_pill",
+    "circular_hole_with_rect_pad",
+    "pill_hole_with_rect_pad",
+    void 0
+  ].includes(kind)) {
+    const pill = kind?.includes("pill") && !(kind === "pill_hole_with_rect_pad" && !hole);
+    const radius = pill ? Math.min(width, height) / 2 : e.corner_radius ?? e.rect_border_radius ?? 0;
+    return [rectangle(c, width, height, radius, rotation)];
+  }
+  throw new Error(`Unsupported shape: ${kind}`);
+}
+function drawText(mesh, e) {
+  if (e.is_knockout) throw new Error("Knockout text is not supported yet");
+  const c = center(e), height = (e.font_size ?? e.size ?? 1) * 0.7;
+  const lines = String(e.text ?? "").split(/\r?\n/), step = height * 0.8;
+  const maxWidth = Math.max(
+    ...lines.map((l) => Math.max(0, l.length * step - height * 0.2))
+  );
+  const totalHeight = lines.length * height + (lines.length - 1) * height * 0.2;
+  const align = e.anchor_alignment ?? "center";
+  const dx = align.includes("left") ? 0 : align.includes("right") ? -maxWidth : -maxWidth / 2;
+  const dy = align.startsWith("top") ? -height : align.startsWith("bottom") ? totalHeight - height : totalHeight / 2 - height;
+  const mirrored = e.is_mirrored ?? e.layer === "bottom";
+  const transform = (p) => rotate(
+    { x: c.x + (mirrored ? -p.x : p.x), y: c.y + p.y },
+    c,
+    e.ccw_rotation ?? 0
+  );
+  for (const [row, line] of lines.entries()) {
+    const width = Math.max(0, line.length * step - height * 0.2);
+    for (const [col, char] of [...line].entries()) {
+      for (const segment of lineAlphabet[char] ?? lineAlphabet[char.toUpperCase()] ?? []) {
+        const x = dx + (maxWidth - width) / 2 + col * step, y = dy - row * height * 1.2;
+        mesh.line(
+          transform({
+            x: x + segment.x1 * height * 0.6,
+            y: y + segment.y1 * height
+          }),
+          transform({
+            x: x + segment.x2 * height * 0.6,
+            y: y + segment.y2 * height
+          }),
+          e.stroke_width ?? height / 12
+        );
+      }
+    }
+  }
+}
+function compileCircuitJson(elements) {
+  const builders = /* @__PURE__ */ new Map();
+  const diagnostics = [], elementIds = elements.map(getElementId);
+  const board = elements.find((e) => e.type === "pcb_board");
+  const copper = [
+    "top",
+    ...Array.from(
+      { length: Math.max(0, Math.min(8, (board?.num_layers ?? 2) - 2)) },
+      (_, i) => `inner${i + 1}`
+    ),
+    "bottom"
+  ];
+  const get = (name, index, erase = false, category = 0) => {
+    name = normalizeLayer(name);
+    if (!builders.has(name))
+      builders.set(name, { paint: new MeshBuilder(), erase: new MeshBuilder() });
+    const mesh = builders.get(name)[erase ? "erase" : "paint"];
+    mesh.color = DEFAULT_LAYER_COLORS[name] ?? [0.75, 0.75, 0.75, 1];
+    mesh.element = index;
+    mesh.category = category;
+    return mesh;
+  };
+  const openings = [];
+  const cutouts = [];
+  for (const [index, input] of elements.entries()) {
+    const e = input, type = e.type;
+    try {
+      if (type === "pcb_board" || type === "pcb_panel") {
+        const rings = shape(e);
+        get("board", index).polygon(rings);
+        for (const side of ["top", "bottom"])
+          get(`soldermask_${side}`, index).polygon(rings);
+      } else if (type === "pcb_cutout") {
+        cutouts.push({ rings: shape(e), index });
+        get("edge_cuts", index).path(shape(e)[0], 0.05, true);
+      } else if (type === "pcb_smtpad") {
+        get(e.layer, index).polygon(shape(e));
+        if (!e.is_covered_with_solder_mask)
+          get(`soldermask_${e.layer}`, index, true).polygon(shape(e));
+      } else if (type === "pcb_via" || type === "pcb_plated_hole") {
+        let layers2 = e.layers ?? copper;
+        if (type === "pcb_via" && !e.layers && e.from_layer && e.to_layer) {
+          const from = copper.indexOf(e.from_layer), to = copper.indexOf(e.to_layer);
+          layers2 = copper.slice(Math.min(from, to), Math.max(from, to) + 1);
+        }
+        for (const layer of layers2) get(layer, index).polygon(shape(e));
+        openings.push({ element: e, index, layers: layers2 });
+        for (const side of ["top", "bottom"])
+          if (layers2.includes(side) && !e.is_covered_with_solder_mask)
+            get(`soldermask_${side}`, index, true).polygon(shape(e));
+      } else if (type === "pcb_hole") {
+        openings.push({
+          element: { ...e, shape: e.hole_shape },
+          index,
+          layers: copper
+        });
+      } else if (type === "pcb_trace") {
+        const route = e.route ?? [];
+        if (e.route_thickness_mode === "interpolated" || route.some((p) => p.route_type === "through_pad"))
+          throw new Error(
+            "Interpolated/through-pad traces are not supported yet"
+          );
+        for (let i = 1; i < route.length; i++) {
+          const a = route[i - 1], b = route[i];
+          const layer = a.route_type === "wire" && b.route_type === "wire" && a.layer === b.layer ? a.layer : a.route_type === "wire" && b.route_type === "via" && [b.from_layer, b.to_layer].includes(a.layer) ? a.layer : a.route_type === "via" && b.route_type === "wire" && [a.from_layer, a.to_layer].includes(b.layer) ? b.layer : void 0;
+          if (layer) get(layer, index).line(a, b, a.width ?? b.width ?? 0.15);
+        }
+      } else if (type === "pcb_copper_pour") {
+        get(e.layer, index, false, 1).polygon(shape(e));
+      } else if (type === "pcb_copper_text") {
+        drawText(get(e.layer, index), e);
+      } else if (/^pcb_(silkscreen|fabrication_note|courtyard|note|user_note)_/.test(
+        type
+      )) {
+        const group = type.match(
+          /^pcb_(silkscreen|fabrication_note|courtyard|note|user_note)_/
+        )[1];
+        const suffix = {
+          silkscreen: "silkscreen",
+          fabrication_note: "fabrication",
+          courtyard: "courtyard",
+          note: "notes",
+          user_note: "notes"
+        }[group];
+        const layer = `${e.layer ?? "top"}_${suffix}`, mesh = get(layer, index);
+        if (type.endsWith("_text")) drawText(mesh, e);
+        else if (type.endsWith("_path") || type.endsWith("_line") || type.endsWith("_outline")) {
+          const points = e.route ?? e.points ?? e.outline ?? [e.start, e.end].filter(Boolean);
+          mesh.path(
+            points,
+            e.stroke_width ?? e.width ?? 0.05,
+            type.endsWith("_outline")
+          );
+        } else if (type.endsWith("_rect")) {
+          const points = rectangle(
+            center(e),
+            e.width,
+            e.height,
+            e.corner_radius ?? 0,
+            e.ccw_rotation ?? 0
+          );
+          if (e.is_filled) mesh.polygon([points]);
+          else mesh.path(points, e.stroke_width ?? 0.05, true);
+        } else if (type.endsWith("_circle")) {
+          const points = ellipse(center(e), (e.radius ?? 0) * 2);
+          if (e.is_filled) mesh.polygon([points]);
+          else mesh.path(points, e.stroke_width ?? 0.05, true);
+        } else throw new Error("Unsupported annotation geometry");
+      } else if (type === "pcb_keepout") {
+        for (const layer of e.layers ?? [e.layer ?? "top"])
+          get(layer, index).path(shape(e)[0], e.stroke_width ?? 0.1, true);
+      } else if (type.startsWith("pcb_") && ![
+        "pcb_component",
+        "pcb_port",
+        "pcb_group",
+        "pcb_solder_paste",
+        "pcb_debug_object",
+        "pcb_trace_hint",
+        "pcb_anchor"
+      ].includes(type) && !/_(error|warning)$/.test(type)) {
+        throw new Error("Unsupported PCB element");
+      }
+    } catch (error) {
+      diagnostics.push({
+        elementId: elementIds[index],
+        type,
+        message: String(error)
+      });
+    }
+  }
+  for (const { element, index, layers: layers2 } of openings) {
+    const rings = shape(element, true);
+    for (const layer of layers2) get(layer, index, true).polygon(rings);
+    const isThrough = layers2.includes("top") && layers2.includes("bottom");
+    if (isThrough) {
+      get("board", index, true).polygon(rings);
+      get("drill", index).polygon(rings);
+    }
+    for (const side of ["top", "bottom"])
+      if (layers2.includes(side))
+        get(`soldermask_${side}`, index, true).polygon(rings);
+  }
+  for (const { rings, index } of cutouts)
+    for (const name of builders.keys())
+      if (name !== "edge_cuts") get(name, index, true).polygon(rings);
+  const layers = [...builders].map(([name, mesh]) => ({
+    name,
+    paint: mesh.paint.build(),
+    erase: mesh.erase.build()
+  }));
+  return {
+    layers,
+    elementIds,
+    diagnostics,
+    triangleCount: layers.reduce(
+      (sum, l) => sum + (l.paint.indices.length + l.erase.indices.length) / 3,
+      0
+    )
+  };
+}
+
+// lib/shaders.ts
+var geometryShader = (
+  /* wgsl */
+  `
+struct Camera { rowX: vec4f, rowY: vec4f, viewport: vec4f }
+@group(0) @binding(0) var<uniform> camera: Camera;
+@group(0) @binding(1) var<storage, read> highlights: array<u32>;
+struct VertexOut {
+  @builtin(position) position: vec4f,
+  @location(0) color: vec4f,
+  @location(1) @interpolate(flat) category: u32,
+}
+@vertex fn vertexMain(@location(0) p: vec2f, @location(1) color: vec4f,
+  @location(2) element: f32, @location(3) category: f32) -> VertexOut {
+  let pixel = vec2f(dot(camera.rowX.xyz, vec3f(p, 1)), dot(camera.rowY.xyz, vec3f(p, 1)));
+  var out: VertexOut;
+  out.position = vec4f(pixel.x / camera.viewport.x * 2 - 1, 1 - pixel.y / camera.viewport.y * 2, 0, 1);
+  let highlight = select(0.0, 1.0, highlights[u32(element)] != 0u);
+  out.color = vec4f(mix(color.rgb, min(vec3f(1), color.rgb * 1.5), highlight), color.a);
+  out.category = u32(category);
+  return out;
+}
+@fragment fn fragmentMain(in: VertexOut) -> @location(0) vec4f {
+  if (in.category == 1u && camera.viewport.z == 0) { discard; }
+  return vec4f(in.color.rgb * in.color.a, in.color.a);
+}
+`
+);
+var compositeShader = (
+  /* wgsl */
+  `
+@group(0) @binding(0) var image: texture_2d<f32>;
+@group(0) @binding(1) var imageSampler: sampler;
+@group(0) @binding(2) var<uniform> fade: vec4f;
+struct Out { @builtin(position) position: vec4f, @location(0) uv: vec2f }
+@vertex fn vertexMain(@builtin(vertex_index) index: u32) -> Out {
+  let points = array<vec2f, 6>(vec2f(0,0),vec2f(1,0),vec2f(0,1),vec2f(0,1),vec2f(1,0),vec2f(1,1));
+  var out: Out;
+  out.uv = points[index];
+  out.position = vec4f(out.uv.x * 2 - 1, 1 - out.uv.y * 2, 0, 1);
+  return out;
+}
+@fragment fn fragmentMain(in: Out) -> @location(0) vec4f {
+  return textureSample(image, imageSampler, in.uv) * fade.x;
+}
+`
+);
+
+// lib/CircuitToWebGpuDrawer.ts
+var over = {
+  color: { srcFactor: "one", dstFactor: "one-minus-src-alpha" },
+  alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" }
+};
+var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
+  constructor(canvas, device, context, format, config) {
+    this.canvas = canvas;
+    this.device = device;
+    this.context = context;
+    this.config = config;
+    this.uniform = device.createBuffer({
+      size: 48,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+    });
+    this.highlights = device.createBuffer({
+      size: 4,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+    });
+    const module = device.createShaderModule({ code: geometryShader });
+    const layout = device.createPipelineLayout({
+      bindGroupLayouts: [
+        device.createBindGroupLayout({
+          entries: [
+            {
+              binding: 0,
+              visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+              buffer: { type: "uniform" }
+            },
+            {
+              binding: 1,
+              visibility: GPUShaderStage.VERTEX,
+              buffer: { type: "read-only-storage" }
+            }
+          ]
+        })
+      ]
+    });
+    const geometry = (blend) => ({
+      layout,
+      vertex: {
+        module,
+        entryPoint: "vertexMain",
+        buffers: [
+          {
+            arrayStride: 32,
+            attributes: [
+              { shaderLocation: 0, offset: 0, format: "float32x2" },
+              { shaderLocation: 1, offset: 8, format: "float32x4" },
+              { shaderLocation: 2, offset: 24, format: "float32" },
+              { shaderLocation: 3, offset: 28, format: "float32" }
+            ]
+          }
+        ]
+      },
+      fragment: {
+        module,
+        entryPoint: "fragmentMain",
+        targets: [{ format: "rgba8unorm", blend }]
+      },
+      primitive: { topology: "triangle-list" },
+      multisample: { count: config.sampleCount ?? 4 }
+    });
+    this.paintPipeline = device.createRenderPipeline(geometry(over));
+    this.erasePipeline = device.createRenderPipeline(
+      geometry({
+        color: { srcFactor: "zero", dstFactor: "one-minus-src-alpha" },
+        alpha: { srcFactor: "zero", dstFactor: "one-minus-src-alpha" }
+      })
+    );
+    const composite = device.createShaderModule({ code: compositeShader });
+    this.compositePipeline = device.createRenderPipeline({
+      layout: "auto",
+      vertex: { module: composite, entryPoint: "vertexMain" },
+      fragment: {
+        module: composite,
+        entryPoint: "fragmentMain",
+        targets: [{ format, blend: over }]
+      },
+      primitive: { topology: "triangle-list" }
+    });
+    this.sampler = device.createSampler({
+      minFilter: "linear",
+      magFilter: "linear"
+    });
+    device.lost.then((info) => {
+      this.lost = true;
+      if (!this.disposed) config.onDeviceLost?.(info.message || info.reason);
+    });
+  }
+  canvas;
+  device;
+  context;
+  config;
+  realToCanvasMat = { a: 1, b: 0, c: 0, d: -1, e: 0, f: 0 };
+  stats = {
+    geometryUploads: 0,
+    frames: 0,
+    triangleCount: 0,
+    compileMs: 0,
+    vertexBytes: 0
+  };
+  circuit;
+  scene;
+  layers = [];
+  uniform;
+  highlights;
+  cameraGroup;
+  highlightKey = "";
+  highlightIndices = /* @__PURE__ */ new Map();
+  sample;
+  size = "";
+  disposed = false;
+  adapterInfo;
+  lost = false;
+  paintPipeline;
+  erasePipeline;
+  compositePipeline;
+  sampler;
+  options = {};
+  static async create(canvas, options = {}) {
+    if (!globalThis.navigator?.gpu) throw new Error("WebGPU is unavailable");
+    const adapter = await navigator.gpu.requestAdapter({
+      powerPreference: "high-performance"
+    });
+    if (!adapter) throw new Error("No WebGPU adapter available");
+    const device = await adapter.requestDevice();
+    const context = canvas.getContext("webgpu");
+    if (!context) {
+      device.destroy();
+      throw new Error("WebGPU canvas context is unavailable");
+    }
+    const format = navigator.gpu.getPreferredCanvasFormat();
+    context.configure({ device, format, alphaMode: "premultiplied" });
+    device.pushErrorScope("validation");
+    try {
+      const drawer = new _CircuitToWebGpuDrawer(
+        canvas,
+        device,
+        context,
+        format,
+        options
+      );
+      const error = await device.popErrorScope();
+      if (error) {
+        drawer.dispose();
+        throw new Error(error.message);
+      }
+      device.addEventListener(
+        "uncapturederror",
+        (event) => options.onDeviceLost?.(event.error.message)
+      );
+      drawer.adapterInfo = adapter.info;
+      return drawer;
+    } catch (error) {
+      context.unconfigure();
+      device.destroy();
+      throw error;
+    }
+  }
+  get diagnostics() {
+    return this.scene?.diagnostics ?? [];
+  }
+  setCircuitJson(circuitJson) {
+    this.assertLive();
+    if (this.circuit === circuitJson) return;
+    const start = performance.now(), scene = compileCircuitJson(circuitJson);
+    this.releaseLayers();
+    this.highlights.destroy();
+    this.highlights = this.device.createBuffer({
+      size: Math.max(4, scene.elementIds.length * 4),
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+    });
+    this.highlightIndices = new Map(
+      scene.elementIds.map((id, index) => [id, index])
+    );
+    this.highlightKey = "!";
+    this.cameraGroup = this.device.createBindGroup({
+      layout: this.paintPipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: this.uniform } },
+        { binding: 1, resource: { buffer: this.highlights } }
+      ]
+    });
+    this.stats.vertexBytes = 0;
+    const upload = (mesh) => {
+      const make = (data, usage) => {
+        const buffer = this.device.createBuffer({
+          size: Math.max(4, data.byteLength),
+          usage: usage | GPUBufferUsage.COPY_DST
+        });
+        if (data.byteLength)
+          this.device.queue.writeBuffer(
+            buffer,
+            0,
+            data.buffer,
+            data.byteOffset,
+            data.byteLength
+          );
+        this.stats.vertexBytes += data.byteLength;
+        return buffer;
+      };
+      return {
+        vertices: make(mesh.vertices, GPUBufferUsage.VERTEX),
+        indices: make(mesh.indices, GPUBufferUsage.INDEX),
+        count: mesh.indices.length
+      };
+    };
+    this.layers = scene.layers.map((layer) => ({
+      name: layer.name,
+      paint: upload(layer.paint),
+      erase: upload(layer.erase),
+      opacity: this.device.createBuffer({
+        size: 16,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+      })
+    }));
+    this.scene = scene;
+    this.circuit = circuitJson;
+    this.size = "";
+    this.stats.geometryUploads++;
+    this.stats.triangleCount = scene.triangleCount;
+    this.stats.compileMs = performance.now() - start;
+  }
+  /** Similar to circuit-to-canvas; repeated draws with the same array reuse all buffers. */
+  drawElements(elements, options = {}) {
+    this.setCircuitJson(elements);
+    this.render(options);
+  }
+  render(options = {}) {
+    this.assertLive();
+    this.options = { ...this.options, ...options };
+    const o = this.options;
+    if (o.transform) this.realToCanvasMat = o.transform;
+    const t = this.realToCanvasMat, width = this.canvas.width, height = this.canvas.height;
+    if (!width || !height) return;
+    if (![...Object.values(t), width, height].every(Number.isFinite))
+      throw new Error("Invalid camera or canvas dimensions");
+    if (width > this.device.limits.maxTextureDimension2D || height > this.device.limits.maxTextureDimension2D)
+      throw new Error("Canvas exceeds GPU texture limits");
+    this.resize(width, height);
+    this.device.queue.writeBuffer(
+      this.uniform,
+      0,
+      new Float32Array([
+        t.a,
+        t.c,
+        t.e,
+        0,
+        t.b,
+        t.d,
+        t.f,
+        0,
+        width,
+        height,
+        o.showCopperPours === false ? 0 : 1,
+        0
+      ])
+    );
+    const ids = o.highlightedElementIds ?? [], key = JSON.stringify(ids);
+    if (key !== this.highlightKey) {
+      const mask = new Uint32Array(
+        Math.max(1, this.scene?.elementIds.length ?? 0)
+      );
+      for (const id of ids) {
+        const i = this.highlightIndices.get(id);
+        if (i !== void 0) mask[i] = 1;
+      }
+      this.device.queue.writeBuffer(this.highlights, 0, mask);
+      this.highlightKey = key;
+    }
+    const selected = normalizeLayer(o.selectedLayer ?? "top"), filter = o.layers ? new Set(o.layers.map(normalizeLayer)) : void 0;
+    const visible = this.layers.filter((l) => {
+      if (filter && !filter.has(l.name)) return false;
+      if (l.name.startsWith("soldermask_") && (!o.showSolderMask || l.name !== `soldermask_${selected}`))
+        return false;
+      if (l.name.includes("silkscreen") && o.showSilkscreen === false)
+        return false;
+      if (l.name.includes("fabrication") && !o.showFabricationNotes)
+        return false;
+      if (l.name.includes("notes") && o.showPcbNotes === false) return false;
+      if (l.name.includes("courtyard") && !o.showCourtyards) return false;
+      return this.opacity(l.name, selected, o.hiddenLayerOpacity ?? 0.4) > 0;
+    }).sort(
+      (a, b) => this.order(a.name, selected) - this.order(b.name, selected)
+    );
+    const encoder = this.device.createCommandEncoder();
+    for (const layer of visible) {
+      this.ensureTexture(layer, width, height);
+      const target = layer.texture.createView(), msaa = (this.config.sampleCount ?? 4) > 1;
+      const pass2 = encoder.beginRenderPass({
+        colorAttachments: [
+          {
+            view: msaa ? this.sample.createView() : target,
+            ...msaa ? { resolveTarget: target } : {},
+            clearValue: [0, 0, 0, 0],
+            loadOp: "clear",
+            storeOp: msaa ? "discard" : "store"
+          }
+        ]
+      });
+      pass2.setBindGroup(0, this.cameraGroup);
+      for (const [mesh, pipeline] of [
+        [layer.paint, this.paintPipeline],
+        [layer.erase, this.erasePipeline]
+      ]) {
+        if (!mesh.count) continue;
+        pass2.setPipeline(pipeline);
+        pass2.setVertexBuffer(0, mesh.vertices);
+        pass2.setIndexBuffer(mesh.indices, "uint32");
+        pass2.drawIndexed(mesh.count);
+      }
+      pass2.end();
+      this.device.queue.writeBuffer(
+        layer.opacity,
+        0,
+        new Float32Array([
+          this.opacity(layer.name, selected, o.hiddenLayerOpacity ?? 0.4),
+          0,
+          0,
+          0
+        ])
+      );
+    }
+    const pass = encoder.beginRenderPass({
+      colorAttachments: [
+        {
+          view: this.context.getCurrentTexture().createView(),
+          clearValue: o.background ?? [0, 0, 0, 0],
+          loadOp: "clear",
+          storeOp: "store"
+        }
+      ]
+    });
+    pass.setPipeline(this.compositePipeline);
+    for (const layer of visible) {
+      pass.setBindGroup(0, layer.composite);
+      pass.draw(6);
+    }
+    pass.end();
+    this.device.queue.submit([encoder.finish()]);
+    this.stats.frames++;
+  }
+  async flush() {
+    this.assertLive();
+    await this.device.queue.onSubmittedWorkDone();
+  }
+  opacity(layer, selected, hidden) {
+    return ["board", "drill", "edge_cuts"].includes(layer) || layer === selected || layer.startsWith(`${selected}_`) || layer.endsWith(`_${selected}`) ? 1 : Math.max(0, Math.min(1, hidden));
+  }
+  order(layer, selected) {
+    if (layer === "board") return -100;
+    if (layer === "drill") return 200;
+    if (layer === "edge_cuts") return 150;
+    const base = layer === selected ? 100 : layer.startsWith("inner") ? 20 - Number(layer.slice(5)) : layer === "bottom" ? 30 : 40;
+    if (layer.includes("soldermask")) return 110;
+    if (layer.startsWith(`${selected}_`)) return 120;
+    return base;
+  }
+  resize(width, height) {
+    const size = `${width}:${height}`;
+    if (size === this.size) return;
+    this.sample?.destroy();
+    this.sample = (this.config.sampleCount ?? 4) > 1 ? this.device.createTexture({
+      size: [width, height],
+      format: "rgba8unorm",
+      sampleCount: this.config.sampleCount ?? 4,
+      usage: GPUTextureUsage.RENDER_ATTACHMENT
+    }) : void 0;
+    for (const layer of this.layers) {
+      layer.texture?.destroy();
+      layer.texture = void 0;
+      layer.composite = void 0;
+    }
+    this.size = size;
+  }
+  ensureTexture(layer, width, height) {
+    if (layer.texture) return;
+    layer.texture = this.device.createTexture({
+      size: [width, height],
+      format: "rgba8unorm",
+      usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING
+    });
+    layer.composite = this.device.createBindGroup({
+      layout: this.compositePipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: layer.texture.createView() },
+        { binding: 1, resource: this.sampler },
+        { binding: 2, resource: { buffer: layer.opacity } }
+      ]
+    });
+  }
+  assertLive() {
+    if (this.disposed || this.lost)
+      throw new Error(this.lost ? "WebGPU device lost" : "Renderer disposed");
+  }
+  releaseLayers() {
+    for (const layer of this.layers) {
+      for (const mesh of [layer.paint, layer.erase]) {
+        mesh.vertices.destroy();
+        mesh.indices.destroy();
+      }
+      layer.opacity.destroy();
+      layer.texture?.destroy();
+    }
+    this.layers = [];
+  }
+  dispose() {
+    if (this.disposed) return;
+    this.disposed = true;
+    this.releaseLayers();
+    this.sample?.destroy();
+    this.uniform.destroy();
+    this.highlights.destroy();
+    this.context.unconfigure();
+    this.device.destroy();
+    this.circuit = void 0;
+    this.scene = void 0;
+  }
+};
+export {
+  CircuitToWebGpuDrawer,
+  DEFAULT_LAYER_COLORS,
+  compileCircuitJson,
+  getElementId,
+  normalizeLayer
+};

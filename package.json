@@ -23,7 +23,6 @@
     "test:visual": "node tests/visual.mjs",
     "snapshots:update": "UPDATE_SNAPSHOTS=1 node tests/visual.mjs",
     "dev": "vite --host 127.0.0.1",
-    "prepare": "bun run build",
     "format": "biome format lib site tests/geometry.test.ts tests/visual.mjs --write",
     "format:check": "biome format lib site tests/geometry.test.ts tests/visual.mjs"
   },

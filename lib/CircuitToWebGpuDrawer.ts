@@ -45,6 +45,7 @@ export class CircuitToWebGpuDrawer {
   private sample?: GPUTexture
   private size = ""
   private disposed = false
+  adapterInfo?: GPUAdapterInfo
   private lost = false
   private paintPipeline: GPURenderPipeline
   private erasePipeline: GPURenderPipeline
@@ -86,6 +87,7 @@ export class CircuitToWebGpuDrawer {
       device.addEventListener("uncapturederror", (event) =>
         options.onDeviceLost?.(event.error.message),
       )
+      drawer.adapterInfo = adapter.info
       return drawer
     } catch (error) {
       context.unconfigure()

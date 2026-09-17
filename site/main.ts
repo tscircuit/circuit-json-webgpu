@@ -12,7 +12,6 @@ const drawer = await CircuitToWebGpuDrawer.create(canvas, {
     throw new Error(message)
   },
 })
-const adapter = await navigator.gpu.requestAdapter()
 const defaultOptions: RenderOptions = {
   transform: { a: 14, b: 0, c: 0, d: -14, e: 400, f: 300 },
   selectedLayer: "top",
@@ -63,7 +62,7 @@ Object.assign(window, {
     renderLarge,
     drawer,
     names: Object.keys(fixtures),
-    adapterInfo: adapter?.info,
+    adapterInfo: drawer.adapterInfo,
   },
 })
 await renderFixture(Object.keys(fixtures)[0])
