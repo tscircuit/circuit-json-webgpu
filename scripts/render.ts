@@ -66,7 +66,15 @@ const { scene, reason } = prepareComparison({
   width,
   height,
   elements: [...elements],
-  options: {},
+  options: {
+    layers: [
+      "copper",
+      "silkscreen",
+      "fabrication_note",
+      "user_note",
+      "courtyard",
+    ].map((kind) => `${values.layer}_${kind}`),
+  },
   contextTransform: { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 },
   matrix: {
     a: width / (maxX - minX),
@@ -96,20 +104,23 @@ if (
 scene.layer = values.layer as NonNullable<typeof scene.layer>
 const out = resolve(values.output)
 await mkdir(out, { recursive: true })
-const svg = convertCircuitJsonToPcbSvg([...elements], {
-  width,
-  height,
-  viewport: scene.viewport,
-  layer: scene.layer,
-  backgroundColor: "#000000",
-  drawPaddingOutsideBoard: false,
-  includeVersion: false,
-  showSolderMask: false,
-  showCourtyards: true,
-  showPcbNotes: true,
-  shouldDrawErrors: false,
-  shouldDrawRatsNest: false,
-})
+const svg = convertCircuitJsonToPcbSvg(
+  scene.elements as unknown as Parameters<typeof convertCircuitJsonToPcbSvg>[0],
+  {
+    width,
+    height,
+    viewport: scene.viewport,
+    layer: scene.layer,
+    backgroundColor: "#000000",
+    drawPaddingOutsideBoard: false,
+    includeVersion: false,
+    showSolderMask: false,
+    showCourtyards: true,
+    showPcbNotes: true,
+    shouldDrawErrors: false,
+    shouldDrawRatsNest: false,
+  },
+)
 await writeFile(resolve(out, "circuit-to-svg.svg"), svg)
 const server = await createServer({
   cacheDir: ".vite/local-render",
