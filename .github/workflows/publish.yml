@@ -29,6 +29,8 @@ jobs:
           scope: '@tscircuit'
       - run: bun install
       - run: bun run typecheck && bun run test && bun run build
+      # pver rebases the release commit; remove ignored files that existed in older commits.
+      - run: rm -rf tests/upstream bun.lock
       - run: npm install -g pver
       - name: Publish package and release tag
         run: pver release increment --current-method=package.json --no-push-main
