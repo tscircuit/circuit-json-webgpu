@@ -25,12 +25,13 @@
     "dev": "vite --host 127.0.0.1",
     "format": "biome format lib site tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.mjs tests/parity-prepare.test.mjs tests/upstream-integrity.test.ts tests/parity tests/visual.mjs --write",
     "format:check": "biome format lib site tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.mjs tests/parity-prepare.test.mjs tests/upstream-integrity.test.ts tests/parity tests/visual.mjs",
-    "test:reference": "bun test --preload ./tests/upstream/circuit-to-canvas/tests/fixtures/preload.ts ./tests/upstream/circuit-to-canvas/tests",
+    "test:reference": "node tests/parity/prepare-upstream.mjs && bun test --preload ./tests/upstream/circuit-to-canvas/tests/fixtures/preload.ts ./tests/upstream/circuit-to-canvas/tests",
     "test:parity": "node tests/parity/audit.mjs",
     "test:parity-layout": "node tests/parity/check-layout.mjs"
   },
   "dependencies": {
     "@tscircuit/alphabet": "^0.0.25",
+    "circuit-to-canvas": "github:tscircuit/circuit-to-canvas#fa8405c67634e287b79a1506eedde077ef6accb0",
     "earcut": "^3.0.2"
   },
   "peerDependencies": {

@@ -152,7 +152,7 @@ function expandBrepRing(vertices) {
   return points;
 }
 
-// lib/text/getAlphabetLayout.ts
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getAlphabetLayout.ts
 import {
   glyphAdvanceRatio,
   kerningRatio,
@@ -197,7 +197,7 @@ function getAlphabetLayout(text, fontSize) {
   };
 }
 
-// lib/text/getAlphabetOutlineGroups.ts
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getAlphabetOutlineGroups.ts
 import glyphOutlineAlphabet from "@tscircuit/alphabet/outline-polygons";
 function getAlphabetOutlineGroups(params) {
   const { line, fontSize, startX, startY } = params;
@@ -224,7 +224,7 @@ function getAlphabetOutlineGroups(params) {
   return groups;
 }
 
-// lib/text/getPolygonBounds.ts
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getPolygonBounds.ts
 function getPolygonBounds(polygons) {
   let minX = Number.POSITIVE_INFINITY;
   let minY = Number.POSITIVE_INFINITY;
@@ -244,7 +244,7 @@ function getPolygonBounds(polygons) {
   return { minX, minY, maxX, maxY };
 }
 
-// lib/text/getTextStartPosition.ts
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getTextStartPosition.ts
 function getTextGeometry(alignment, layout, fontSize) {
   const baseLinePlacements = getBaseLinePlacements(alignment, layout);
   const baseGlyphGroups = getGlyphGroupsForLinePlacements(

@@ -9,10 +9,11 @@ import {
 import { createHash } from "node:crypto"
 import { fileURLToPath } from "node:url"
 import { resolve, relative } from "node:path"
+import "./prepare-upstream.mjs"
 const root = fileURLToPath(new URL("../../", import.meta.url))
 const upstream = resolve(root, "tests/upstream/circuit-to-canvas")
 const manifest = JSON.parse(
-  readFileSync(resolve(upstream, "manifest.json"), "utf8"),
+  readFileSync(resolve(root, "tests/parity/upstream-manifest.json"), "utf8"),
 )
 for (const [path, hash] of Object.entries(manifest.files)) {
   if (
@@ -51,7 +52,7 @@ const result = spawnSync("node", ["tests/parity/run.mjs"], {
   env: process.env,
 })
 // The unchanged upstream matcher writes diff/missing files next to its goldens.
-// Move those into the audit artifacts and keep the vendored tree pristine.
+// Move those into the audit artifacts and keep the generated test workspace pristine.
 for (const entry of readdirSync(upstream, {
   recursive: true,
   withFileTypes: true,

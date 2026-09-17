@@ -2,8 +2,9 @@ import { expect, test } from "bun:test"
 import { readFileSync } from "node:fs"
 import { createHash } from "node:crypto"
 import { resolve } from "node:path"
-import manifest from "./upstream/circuit-to-canvas/manifest.json"
-test("every upstream test, fixture, snapshot, and reference source is preserved byte-for-byte", () => {
+import "./parity/prepare-upstream.mjs"
+import manifest from "./parity/upstream-manifest.json"
+test("every upstream test, fixture, snapshot, and reference source matches the installed pinned dependency byte-for-byte", () => {
   expect(
     Object.keys(manifest.files).filter((p) => p.endsWith(".test.ts")),
   ).toHaveLength(116)

@@ -1,8 +1,8 @@
 import { fillEvenOdd } from "./fill-even-odd"
 import { MeshBuilder, rotate } from "../geometry"
 import type { Point } from "../types"
-import { getAlphabetLayout } from "./getAlphabetLayout"
-import { getTextGeometry } from "./getTextStartPosition"
+import { getAlphabetLayout } from "circuit-to-canvas/lib/drawer/shapes/text/getAlphabetLayout"
+import { getTextGeometry } from "circuit-to-canvas/lib/drawer/shapes/text/getTextStartPosition"
 
 /** Layout matches circuit-to-canvas; only the final primitive sink is GPU triangles. */
 export function drawText(

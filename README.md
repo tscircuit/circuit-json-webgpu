@@ -86,9 +86,11 @@ For initial Git-pinned consumers, the built `dist/` is committed so installation
 
 ## SVG / WebGPU comparison report
 
-The complete original `circuit-to-canvas` test tree is preserved byte-for-byte
-under `tests/upstream/circuit-to-canvas`, pinned to
-`fa8405c67634e287b79a1506eedde077ef6accb0`. The manifest verifies every file.
+`circuit-to-canvas` is installed as a Git dependency pinned to
+`fa8405c67634e287b79a1506eedde077ef6accb0`. The harness prepares its complete
+original test suite in ignored `tests/upstream/circuit-to-canvas` from the
+installed package. The manifest verifies every file; no upstream source or
+snapshots are vendored in this repository.
 Its original assertions run separately from the visual comparison.
 
 ```sh
