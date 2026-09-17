@@ -66,3 +66,15 @@ Object.assign(window, {
   },
 })
 await renderFixture(Object.keys(fixtures)[0])
+
+declare global {
+  interface Window {
+    gpuTest: {
+      renderFixture: typeof renderFixture
+      renderLarge: typeof renderLarge
+      drawer: CircuitToWebGpuDrawer
+      names: string[]
+      adapterInfo: GPUAdapterInfo | undefined
+    }
+  }
+}

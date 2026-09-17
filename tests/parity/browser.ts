@@ -1,7 +1,9 @@
+import type { prepareComparison } from "./prepare"
+type Scene = NonNullable<ReturnType<typeof prepareComparison>["scene"]>
 import { CircuitToWebGpuDrawer } from "../../lib"
 let canvas: HTMLCanvasElement
 let drawer: CircuitToWebGpuDrawer
-async function render(scene: any) {
+async function render(scene: Scene) {
   if (!drawer) {
     canvas = document.createElement("canvas")
     document.body.append(canvas)
@@ -9,7 +11,9 @@ async function render(scene: any) {
   }
   canvas.width = scene.width
   canvas.height = scene.height
-  drawer.setCircuitJson(scene.elements)
+  drawer.setCircuitJson(
+    scene.elements as unknown as Parameters<typeof drawer.setCircuitJson>[0],
+  )
   drawer.render({
     transform: scene.transform,
     layers: scene.layers,
@@ -35,3 +39,9 @@ Object.assign(window, {
     },
   },
 })
+
+declare global {
+  interface Window {
+    parity: { render: typeof render; dispose(): void }
+  }
+}

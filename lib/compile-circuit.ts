@@ -50,14 +50,15 @@ function shape(e: Element, hole = false): Point[][] {
   }
   const width = hole
     ? (e.hole_width ?? e.hole_diameter)
-    : (e.rect_pad_width ?? e.outer_width ?? e.width)
+    : (e.rect_pad_width ?? e.outer_width ?? e.width ?? e.hole_diameter)
   const height = hole
     ? (e.hole_height ?? e.hole_diameter)
-    : (e.rect_pad_height ?? e.outer_height ?? e.height)
+    : (e.rect_pad_height ?? e.outer_height ?? e.height ?? e.hole_diameter)
   if (kind === "oval") return [ellipse(c, width, height, rotation)]
   if (
     [
       "rect",
+      "square",
       "rotated_rect",
       "roundrect",
       "rounded_rect",

@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
+      - run: bun install
       - run: bunx playwright install --with-deps chromium
       - run: xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:parity
       - run: bun run test:parity-layout
