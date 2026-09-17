@@ -80,7 +80,6 @@ The AM3352 PCB fixture is derived from
 retaining its PCB elements. New shape support should include geometry tests and a
 small, inspectable fixture in `site/fixtures.ts` before updating snapshots.
 
-Until the first registry release, the viewer pins a Git commit. This repository's
-`prepare` script builds the package for Git dependencies (requires Bun).
+Until the first registry release, the viewer pins a Git commit.
 
 For initial Git-pinned consumers, the built `dist/` is committed so installation needs no lifecycle scripts or development tools. Run `bun run build` and commit updated artifacts with renderer changes.
