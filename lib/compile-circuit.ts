@@ -120,6 +120,7 @@ export function compileCircuitJson(
       if (type === "pcb_board" || type === "pcb_panel") {
         const rings = shape(e)
         get("board", index).polygon(rings)
+        for (const ring of rings) get("edge_cuts", index).path(ring, 0.1, true)
         for (const side of ["top", "bottom"])
           get(`soldermask_${side}`, index).polygon(rings)
       } else if (type === "pcb_cutout") {

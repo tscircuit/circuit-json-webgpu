@@ -16,6 +16,8 @@ export type RenderOptions = {
   selectedLayer?: string
   hiddenLayerOpacity?: number
   showCopperPours?: boolean
+  /** Board substrate is hidden by default; outlines remain visible. */
+  showBoardMaterial?: boolean
   showSolderMask?: boolean
   showSilkscreen?: boolean
   showFabricationNotes?: boolean

@@ -18,6 +18,7 @@ const defaultOptions: RenderOptions = {
   hiddenLayerOpacity: 0.4,
   showCopperPours: true,
   showSolderMask: false,
+  showBoardMaterial: false,
   showSilkscreen: true,
   showFabricationNotes: false,
   showPcbNotes: true,
@@ -59,6 +60,7 @@ select.onchange = () => {
 Object.assign(window, {
   gpuTest: {
     renderFixture,
+    checkBoardVisibility,
     renderLarge,
     drawer,
     names: Object.keys(fixtures),
@@ -70,11 +72,68 @@ await renderFixture(Object.keys(fixtures)[0])
 declare global {
   interface Window {
     gpuTest: {
+      checkBoardVisibility: typeof checkBoardVisibility
       renderFixture: typeof renderFixture
       renderLarge: typeof renderLarge
       drawer: CircuitToWebGpuDrawer
       names: string[]
       adapterInfo: GPUAdapterInfo | undefined
     }
+  }
+}
+
+async function checkBoardVisibility() {
+  const target = document.createElement("canvas")
+  target.width = target.height = 200
+  const renderer = await CircuitToWebGpuDrawer.create(target)
+  const elements = [
+    {
+      type: "pcb_board",
+      pcb_board_id: "board",
+      center: { x: 0, y: 0 },
+      width: 12,
+      height: 12,
+    },
+    {
+      type: "pcb_smtpad",
+      pcb_smtpad_id: "pad",
+      shape: "rect",
+      x: 0,
+      y: 0,
+      width: 2,
+      height: 2,
+      layer: "top",
+    },
+  ] as CircuitJson
+  const camera = { transform: { a: 10, b: 0, c: 0, d: -10, e: 100, f: 100 } }
+  const capture = () => target.toDataURL("image/png").split(",")[1]
+  try {
+    renderer.drawElements(elements, camera)
+    const transparent = capture()
+    renderer.render({ background: [0, 0, 0, 1] })
+    const black = capture()
+    renderer.render({ showSolderMask: true })
+    const maskOn = capture()
+    renderer.render({ transform: camera.transform })
+    const retainedMask = capture()
+    renderer.render({ showSolderMask: false })
+    const maskOff = capture()
+    renderer.render({ showBoardMaterial: true })
+    const substrate = capture()
+    renderer.render({ showSolderMask: true })
+    renderer.drawElements(elements, { ...camera, background: [0, 0, 0, 1] })
+    const independentDraw = capture()
+    return {
+      transparent,
+      black,
+      maskOn,
+      retainedMask,
+      maskOff,
+      substrate,
+      independentDraw,
+      geometryUploads: renderer.stats.geometryUploads,
+    }
+  } finally {
+    renderer.dispose()
   }
 }

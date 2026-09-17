@@ -185,3 +185,16 @@ baselines. Generated pairs, differences, and the HTML report are written to
 artifacts even when a check fails. Thirteen SVG references use separate Linux
 font baselines because Arial/sans-serif fallback differs from macOS. Their GPU
 halves matched the shared baselines; the pixel tolerance is unchanged.
+
+
+### Board background and retained render options
+
+Boards and panels draw their outlines without filling the interior by default,
+so empty board areas show the configured background (or remain transparent).
+Set `showBoardMaterial: true` to explicitly draw substrate. Soldermask is also
+opt-in via `showSolderMask: true`, independent of substrate visibility.
+
+`drawElements(circuit, options)` starts an independent draw with default display
+options. A previous draw's enabled soldermask/material does not leak into the
+next draw when those options are omitted. `render(partialOptions)` intentionally
+retains display options so camera-only updates preserve visibility settings.

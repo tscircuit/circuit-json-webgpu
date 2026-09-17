@@ -252,6 +252,8 @@ export class CircuitToWebGpuDrawer {
   /** Similar to circuit-to-canvas; repeated draws with the same array reuse all buffers. */
   drawElements(elements: CircuitJson, options: RenderOptions = {}) {
     this.setCircuitJson(elements)
+    // Independent draws use defaults; render() retains options for camera updates.
+    this.options = {}
     this.render(options)
   }
 
@@ -308,6 +310,7 @@ export class CircuitToWebGpuDrawer {
     const visible = this.layers
       .filter((l) => {
         if (filter && !filter.has(l.name)) return false
+        if (l.name === "board" && !o.showBoardMaterial) return false
         if (
           l.name.startsWith("soldermask_") &&
           (!o.showSolderMask || l.name !== `soldermask_${selected}`)

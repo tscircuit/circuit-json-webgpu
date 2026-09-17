@@ -566,6 +566,7 @@ function compileCircuitJson(elements, options = {}) {
       if (type === "pcb_board" || type === "pcb_panel") {
         const rings = shape(e);
         get("board", index).polygon(rings);
+        for (const ring of rings) get("edge_cuts", index).path(ring, 0.1, true);
         for (const side of ["top", "bottom"])
           get(`soldermask_${side}`, index).polygon(rings);
       } else if (type === "pcb_cutout") {
@@ -975,6 +976,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
   /** Similar to circuit-to-canvas; repeated draws with the same array reuse all buffers. */
   drawElements(elements, options = {}) {
     this.setCircuitJson(elements);
+    this.options = {};
     this.render(options);
   }
   render(options = {}) {
@@ -1022,6 +1024,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
     const selected = normalizeLayer(o.selectedLayer ?? "top"), filter = o.layers ? new Set(o.layers.map(normalizeLayer)) : void 0;
     const visible = this.layers.filter((l) => {
       if (filter && !filter.has(l.name)) return false;
+      if (l.name === "board" && !o.showBoardMaterial) return false;
       if (l.name.startsWith("soldermask_") && (!o.showSolderMask || l.name !== `soldermask_${selected}`))
         return false;
       if (l.name.includes("silkscreen") && o.showSilkscreen === false)
