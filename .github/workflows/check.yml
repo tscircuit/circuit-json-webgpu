@@ -1,0 +1,17 @@
+name: Check renderer
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck && bun test && bun run build
+      - run: bunx playwright install --with-deps chromium
+      - run: WEBGPU_SOFTWARE=1 bun run test:visual
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-results
+          path: tests/actual/
