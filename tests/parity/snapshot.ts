@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises"
+import { access, mkdir, readFile, writeFile } from "node:fs/promises"
 import { PNG } from "pngjs"
 import { Resvg } from "@resvg/resvg-js"
 import { compare } from "./compare"
@@ -32,7 +32,17 @@ export async function featureSnapshot(
     new URL(`../actual/parity/${id}.pair.png`, import.meta.url),
     buffer,
   )
-  const baseline = new URL(`${key}.png`, baselineDir)
+  let baseline = new URL(`${key}.png`, baselineDir)
+  if (process.platform === "linux") {
+    const linux = new URL(`linux/${key}.png`, baselineDir)
+    if (
+      await access(linux).then(
+        () => true,
+        () => false,
+      )
+    )
+      baseline = linux
+  }
   if (process.env.UPDATE_SNAPSHOTS) {
     await writeFile(baseline, buffer)
     return { pass: true, updated: true }

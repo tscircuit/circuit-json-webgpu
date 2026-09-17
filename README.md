@@ -53,6 +53,14 @@ and debug objects are intentionally ignored. Keepouts currently render outlines.
 Device loss requires disposing/recreating the drawer or using a fallback. The
 renderer never silently switches to Canvas 2D.
 
+## Installation
+
+```sh
+bun add -D https://jscdn.tscircuit.com/@tscircuit/circuit-json-webgpu/0.0.2.tgz
+```
+
+The `.tgz` suffix selects the installable tarball; the URL without it serves JavaScript.
+
 ## Development and visual snapshots
 
 ```sh
@@ -174,4 +182,6 @@ parity audit separately reports SVG/GPU differences and original upstream
 assertion failures; these are never converted into parity passes by updating
 baselines. Generated pairs, differences, and the HTML report are written to
 `tests/actual/parity/`. CI renders through Chromium/SwiftShader and uploads
-artifacts even when a check fails.
+artifacts even when a check fails. Thirteen SVG references use separate Linux
+font baselines because Arial/sans-serif fallback differs from macOS. Their GPU
+halves matched the shared baselines; the pixel tolerance is unchanged.

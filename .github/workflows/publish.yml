@@ -43,4 +43,4 @@ jobs:
       - name: Record jscdn install URL
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          echo "Install: bun add -D https://jscdn.tscircuit.com/@tscircuit/circuit-json-webgpu/$VERSION" >> "$GITHUB_STEP_SUMMARY"
+          echo "Install: bun add -D https://jscdn.tscircuit.com/@tscircuit/circuit-json-webgpu/$VERSION.tgz" >> "$GITHUB_STEP_SUMMARY"

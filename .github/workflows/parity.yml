@@ -1,5 +1,8 @@
 name: SVG / WebGPU parity audit
 on: [push, pull_request, workflow_dispatch]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   parity:
     runs-on: ubuntu-latest
