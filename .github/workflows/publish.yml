@@ -1,0 +1,41 @@
+# Based on the handbook's @tscircuit/plop bun-pver-release-ghp template.
+name: Publish to GitHub Packages
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Tested branch or commit to publish
+        required: true
+        default: main
+permissions:
+  contents: write
+  packages: write
+concurrency:
+  group: publish-package
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref }}
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://npm.pkg.github.com
+          scope: '@tscircuit'
+      - run: bun install
+      - run: bun run typecheck && bun run test && bun run build
+      - run: npm install -g pver
+      - name: Publish package and release tag
+        run: pver release increment --current-method=package.json --no-push-main
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Record jscdn install URL
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Install: bun add -D https://jscdn.tscircuit.com/@tscircuit/circuit-json-webgpu/$VERSION" >> "$GITHUB_STEP_SUMMARY"
