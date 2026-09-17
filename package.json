@@ -19,14 +19,15 @@
   "scripts": {
     "build": "tsup lib/index.ts --format esm --dts --clean",
     "typecheck": "tsc --noEmit",
-    "test": "bun test tests/geometry.test.ts tests/text.test.ts tests/upstream-integrity.test.ts tests/parity-comparison.test.mjs",
+    "test": "bun test tests/geometry.test.ts tests/text.test.ts tests/upstream-integrity.test.ts tests/parity-comparison.test.mjs tests/parity-prepare.test.mjs",
     "test:visual": "node tests/visual.mjs",
     "snapshots:update": "UPDATE_SNAPSHOTS=1 node tests/visual.mjs",
     "dev": "vite --host 127.0.0.1",
-    "format": "biome format lib site tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.mjs tests/upstream-integrity.test.ts tests/parity tests/visual.mjs --write",
-    "format:check": "biome format lib site tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.mjs tests/upstream-integrity.test.ts tests/parity tests/visual.mjs",
+    "format": "biome format lib site tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.mjs tests/parity-prepare.test.mjs tests/upstream-integrity.test.ts tests/parity tests/visual.mjs --write",
+    "format:check": "biome format lib site tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.mjs tests/parity-prepare.test.mjs tests/upstream-integrity.test.ts tests/parity tests/visual.mjs",
     "test:reference": "bun test --preload ./tests/upstream/circuit-to-canvas/tests/fixtures/preload.ts ./tests/upstream/circuit-to-canvas/tests",
-    "test:parity": "node tests/parity/audit.mjs"
+    "test:parity": "node tests/parity/audit.mjs",
+    "test:parity-layout": "node tests/parity/check-layout.mjs"
   },
   "dependencies": {
     "@tscircuit/alphabet": "^0.0.25",

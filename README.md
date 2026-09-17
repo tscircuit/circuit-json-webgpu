@@ -84,48 +84,47 @@ Until the first registry release, the viewer pins a Git commit.
 For initial Git-pinned consumers, the built `dist/` is committed so installation needs no lifecycle scripts or development tools. Run `bun run build` and commit updated artifacts with renderer changes.
 
 
-## Canvas parity audit
+## SVG / WebGPU comparison report
 
-The full `circuit-to-canvas` test tree, including all fixtures and original
-snapshots, is preserved byte-for-byte under `tests/upstream/circuit-to-canvas`.
-It is pinned to commit `fa8405c67634e287b79a1506eedde077ef6accb0`; the manifest
-and integrity test detect changes or omitted files. The reference implementation
-is test-only and is not bundled into the renderer.
+The complete original `circuit-to-canvas` test tree is preserved byte-for-byte
+under `tests/upstream/circuit-to-canvas`, pinned to
+`fa8405c67634e287b79a1506eedde077ef6accb0`. The manifest verifies every file.
+Its original assertions run separately from the visual comparison.
 
 ```sh
-bun run test:reference # all 164 original tests in 116 files, original assertions
-bun run test:parity    # executes all tests, then compares every captured draw
+bun run test:reference # 164 original tests in 116 files
+bun run test:parity    # capture inputs, then render SVG and WebGPU independently
 ```
 
-The audit captures 616 rendering calls, including direct shape/element calls,
-and compares real WebGPU output against fresh Canvas output from the same data,
-camera, background, and visibility options. Two tests (the SVG matcher example
-and board ownership unit test) have no drawing operation and are explicitly
-reported as reference-only. The native SVG debug render is additionally replayed
-on a raster reference surface without altering its original SVG assertion.
+Each comparable case shows **circuit-to-svg on the left** and
+**circuit-json-webgpu on the right**, in two fixed columns. Both use the same
+Circuit JSON subset, explicit viewport, image dimensions, canonical PCB y-up
+camera, layer selection, and black background. The left image is rasterized
+from freshly generated SVG (linked from the image). The right is a fresh GPU
+render. Neither side uses Canvas pixels, original snapshots, stacked comparison
+PNGs, or prior rendering passes. Diffs are behind a separate disclosure.
 
-The report contains reference/GPU/diff PNGs and a side-by-side HTML gallery in
-`tests/actual/parity/index.html`. Raw pixel differences are retained. A Gaussian
-filter with sigma 1 (radius 2), pixelmatch threshold 0.1, and an ink-relative
-allowance distinguish analytic Canvas antialiasing from GPU MSAA. The allowance
-is the ceiling of the smaller of 0.2% of image pixels and 2% of ink pixels, with
-a four-pixel floor. Regression tests ensure the filter still rejects missing
-labels/punctuation, compressed or shifted text, and incorrect colors. Original
-snapshots are never updated by the audit.
+Canvas-only primitive helpers, isolated soldermask/trace passes, separate clip
+contexts, and mixed-side selections unsupported by the SVG API are explicitly
+listed as **not comparable**, rather than assigned misleading images or counted
+as passes. All original tests remain present and execute.
 
-**Full rendering parity is not achieved.** The recorded Metal run in
-[`latest-report.json`](tests/parity/latest-report.json) passes all 26 text-only
-render cases, but only 65 of 616 overall render comparisons pass. Remaining
-failures cover soldermask/tenting, layer filtering and colors, trace clipping,
-keepouts, annotations, and unsupported shapes. Ten original reference tests also
-fail their frozen snapshots in this environment; those failures are recorded
-separately from GPU parity failures. The separate Canvas parity audit CI check
-intentionally fails while these mismatches remain and always uploads its report.
-No tests or mismatches are skipped to make it green.
+Open `tests/actual/parity/index.html` for the report, or inspect
+[`latest-report.json`](tests/parity/latest-report.json). The old Canvas-reference
+statistics do not describe this SVG comparison and have been superseded.
+Full renderer parity is still incomplete; CI fails on comparison errors and
+mismatches and uploads all artifacts. Native Canvas assertion failures are
+reported separately.
 
-Text layout now follows the upstream glyph advances, kerning, actual ink bounds,
-nine-point anchors, multiline alignment, mirroring, and knockout padding. Glyph
-contours preserve disconnected parts and counters, and translucent glyphs are
+Raw pixel differences are retained alongside an antialiasing-aware metric
+(Gaussian sigma 1, radius 2; pixelmatch threshold 0.1). The allowance is the
+ceiling of the smaller of 0.2% of image pixels and 2% of ink pixels, with a
+four-pixel floor. Regression tests reject missing punctuation, shifted/compressed
+text, and incorrect colors. No original snapshots are updated by the audit.
+
+Text layout follows upstream glyph advances, kerning, actual ink bounds,
+nine-point anchors, multiline alignment, mirroring, and knockout padding.
+Disconnected glyph contours and counters are preserved; translucent glyphs are
 filled without accumulating opacity at stroke joins. `DrawerOptions.textYAxis`
-can be set to `"down"` for Canvas-style coordinates; the default `"up"` uses PCB
-world coordinates. `layerColors` accepts per-layer RGBA overrides.
+accepts `"down"` for Canvas coordinates (default `"up"` for PCB coordinates),
+and `layerColors` accepts per-layer RGBA overrides.
