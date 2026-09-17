@@ -49,6 +49,9 @@ type CompiledScene = {
     triangleCount: number;
 };
 type DrawerOptions = {
+    /** Use down for Canvas-style coordinates; PCB world coordinates default to up. */
+    textYAxis?: "up" | "down";
+    layerColors?: Record<string, Color>;
     sampleCount?: 1 | 4;
     onDeviceLost?: (message: string) => void;
 };
@@ -105,7 +108,10 @@ declare class CircuitToWebGpuDrawer {
 type Element = Record<string, any>;
 declare function getElementId(element: Element, index?: number): string;
 /** Pure, DOM-free compiler. Exposes unsupported geometry rather than silently hiding it. */
-declare function compileCircuitJson(elements: CircuitJson): CompiledScene;
+declare function compileCircuitJson(elements: CircuitJson, options?: {
+    textYAxis?: "up" | "down";
+    layerColors?: Record<string, Color>;
+}): CompiledScene;
 
 declare const DEFAULT_LAYER_COLORS: Record<string, Color>;
 declare const normalizeLayer: (layer: string) => string;

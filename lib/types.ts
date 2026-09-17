@@ -34,6 +34,9 @@ export type CompiledScene = {
   triangleCount: number
 }
 export type DrawerOptions = {
+  /** Use down for Canvas-style coordinates; PCB world coordinates default to up. */
+  textYAxis?: "up" | "down"
+  layerColors?: Record<string, Color>
   sampleCount?: 1 | 4
   onDeviceLost?: (message: string) => void
 }

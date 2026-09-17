@@ -190,7 +190,7 @@ export class CircuitToWebGpuDrawer {
     this.assertLive()
     if (this.circuit === circuitJson) return
     const start = performance.now(),
-      scene = compileCircuitJson(circuitJson)
+      scene = compileCircuitJson(circuitJson, this.config)
     this.releaseLayers()
     this.highlights.destroy()
     this.highlights = this.device.createBuffer({

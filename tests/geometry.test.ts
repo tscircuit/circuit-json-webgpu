@@ -101,3 +101,23 @@ test("wire-to-via segments stay on the adjacent layer without bridging other run
     1,
   )
 })
+
+test("square holes compile, including rotated holes", () => {
+  for (const ccw_rotation of [0, 45]) {
+    const scene = compileCircuitJson([
+      {
+        type: "pcb_hole",
+        pcb_hole_id: "square",
+        hole_shape: "square",
+        hole_diameter: 2,
+        x: 0,
+        y: 0,
+        ccw_rotation,
+      },
+    ] as any)
+    expect(scene.diagnostics).toEqual([])
+    const erase = scene.layers.flatMap((l) => [...l.erase.vertices])
+    expect(erase.length).toBeGreaterThan(0)
+    expect(erase.every(Number.isFinite)).toBe(true)
+  }
+})

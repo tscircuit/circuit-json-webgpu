@@ -1,5 +1,5 @@
-import { lineAlphabet } from "@tscircuit/alphabet"
-import { DEFAULT_LAYER_COLORS, normalizeLayer } from "./colors"
+import { drawText } from "./text/draw-text"
+import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
 import {
   ellipse,
   expandBrepRing,
@@ -50,14 +50,15 @@ function shape(e: Element, hole = false): Point[][] {
   }
   const width = hole
     ? (e.hole_width ?? e.hole_diameter)
-    : (e.rect_pad_width ?? e.outer_width ?? e.width)
+    : (e.rect_pad_width ?? e.outer_width ?? e.width ?? e.hole_diameter)
   const height = hole
     ? (e.hole_height ?? e.hole_diameter)
-    : (e.rect_pad_height ?? e.outer_height ?? e.height)
+    : (e.rect_pad_height ?? e.outer_height ?? e.height ?? e.hole_diameter)
   if (kind === "oval") return [ellipse(c, width, height, rotation)]
   if (
     [
       "rect",
+      "square",
       "rotated_rect",
       "roundrect",
       "rounded_rect",
@@ -77,60 +78,14 @@ function shape(e: Element, hole = false): Point[][] {
   }
   throw new Error(`Unsupported shape: ${kind}`)
 }
-function drawText(mesh: MeshBuilder, e: Element) {
-  if (e.is_knockout) throw new Error("Knockout text is not supported yet")
-  const c = center(e),
-    height = (e.font_size ?? e.size ?? 1) * 0.7
-  const lines = String(e.text ?? "").split(/\r?\n/),
-    step = height * 0.8
-  const maxWidth = Math.max(
-    ...lines.map((l) => Math.max(0, l.length * step - height * 0.2)),
-  )
-  const totalHeight = lines.length * height + (lines.length - 1) * height * 0.2
-  const align: string = e.anchor_alignment ?? "center"
-  const dx = align.includes("left")
-    ? 0
-    : align.includes("right")
-      ? -maxWidth
-      : -maxWidth / 2
-  const dy = align.startsWith("top")
-    ? -height
-    : align.startsWith("bottom")
-      ? totalHeight - height
-      : totalHeight / 2 - height
-  const mirrored = e.is_mirrored ?? e.layer === "bottom"
-  const transform = (p: Point) =>
-    rotate(
-      { x: c.x + (mirrored ? -p.x : p.x), y: c.y + p.y },
-      c,
-      e.ccw_rotation ?? 0,
-    )
-  for (const [row, line] of lines.entries()) {
-    const width = Math.max(0, line.length * step - height * 0.2)
-    for (const [col, char] of [...line].entries()) {
-      for (const segment of lineAlphabet[char] ??
-        lineAlphabet[char.toUpperCase()] ??
-        []) {
-        const x = dx + (maxWidth - width) / 2 + col * step,
-          y = dy - row * height * 1.2
-        mesh.line(
-          transform({
-            x: x + segment.x1 * height * 0.6,
-            y: y + segment.y1 * height,
-          }),
-          transform({
-            x: x + segment.x2 * height * 0.6,
-            y: y + segment.y2 * height,
-          }),
-          e.stroke_width ?? height / 12,
-        )
-      }
-    }
-  }
-}
-
 /** Pure, DOM-free compiler. Exposes unsupported geometry rather than silently hiding it. */
-export function compileCircuitJson(elements: CircuitJson): CompiledScene {
+export function compileCircuitJson(
+  elements: CircuitJson,
+  options: {
+    textYAxis?: "up" | "down"
+    layerColors?: Record<string, import("./types").Color>
+  } = {},
+): CompiledScene {
   const builders = new Map<string, { paint: MeshBuilder; erase: MeshBuilder }>()
   const diagnostics: Diagnostic[] = [],
     elementIds = elements.map(getElementId)
@@ -150,7 +105,8 @@ export function compileCircuitJson(elements: CircuitJson): CompiledScene {
     if (!builders.has(name))
       builders.set(name, { paint: new MeshBuilder(), erase: new MeshBuilder() })
     const mesh = builders.get(name)![erase ? "erase" : "paint"]
-    mesh.color = DEFAULT_LAYER_COLORS[name] ?? [0.75, 0.75, 0.75, 1]
+    mesh.color = options.layerColors?.[name] ??
+      DEFAULT_LAYER_COLORS[name] ?? [0.75, 0.75, 0.75, 1]
     mesh.element = index
     mesh.category = category
     return mesh
@@ -224,7 +180,7 @@ export function compileCircuitJson(elements: CircuitJson): CompiledScene {
       } else if (type === "pcb_copper_pour") {
         get(e.layer, index, false, 1).polygon(shape(e))
       } else if (type === "pcb_copper_text") {
-        drawText(get(e.layer, index), e)
+        drawText(get(e.layer, index), e, options.textYAxis)
       } else if (
         /^pcb_(silkscreen|fabrication_note|courtyard|note|user_note)_/.test(
           type,
@@ -242,8 +198,11 @@ export function compileCircuitJson(elements: CircuitJson): CompiledScene {
         }[group]!
         const layer = `${e.layer ?? "top"}_${suffix}`,
           mesh = get(layer, index)
-        if (type.endsWith("_text")) drawText(mesh, e)
-        else if (
+        if (type.endsWith("_text")) {
+          if (e.color && (group === "note" || group === "fabrication_note"))
+            mesh.color = parseColor(e.color)
+          drawText(mesh, e, options.textYAxis)
+        } else if (
           type.endsWith("_path") ||
           type.endsWith("_line") ||
           type.endsWith("_outline")

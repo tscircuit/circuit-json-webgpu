@@ -1,3 +1,7 @@
 node_modules/
 .vite/
 tests/actual/
+tests/upstream/
+bun.lock
+.cursor/
+*.tgz

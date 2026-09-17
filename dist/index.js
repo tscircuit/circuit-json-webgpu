@@ -1,39 +1,27 @@
-// lib/compile-circuit.ts
-import { lineAlphabet } from "@tscircuit/alphabet";
-
-// lib/colors.ts
-var rgb = (r, g, b) => [
-  r / 255,
-  g / 255,
-  b / 255,
-  1
-];
-var DEFAULT_LAYER_COLORS = {
-  board: rgb(70, 72, 72),
-  top: rgb(200, 52, 52),
-  bottom: rgb(77, 127, 196),
-  inner1: rgb(127, 200, 127),
-  inner2: rgb(206, 125, 44),
-  inner3: rgb(79, 203, 203),
-  inner4: rgb(219, 98, 139),
-  inner5: rgb(167, 165, 198),
-  inner6: rgb(40, 204, 217),
-  inner7: rgb(232, 178, 167),
-  inner8: rgb(242, 237, 161),
-  drill: rgb(255, 38, 226),
-  top_silkscreen: rgb(242, 237, 161),
-  bottom_silkscreen: rgb(242, 237, 161),
-  soldermask_top: rgb(12, 55, 33),
-  soldermask_bottom: rgb(12, 55, 33),
-  top_fabrication: rgb(175, 175, 175),
-  bottom_fabrication: rgb(88, 93, 132),
-  top_notes: rgb(89, 148, 220),
-  bottom_notes: rgb(89, 148, 220),
-  top_courtyard: rgb(255, 0, 245),
-  bottom_courtyard: rgb(38, 233, 255),
-  edge_cuts: rgb(208, 210, 205)
-};
-var normalizeLayer = (layer) => layer.replace(/_copper$/, "");
+// lib/text/fill-even-odd.ts
+function contains(ring, p) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const a = ring[i], b = ring[j];
+    if (a.y > p.y !== b.y > p.y && p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x)
+      inside = !inside;
+  }
+  return inside;
+}
+function fillEvenOdd(mesh, rings) {
+  const contours = rings.filter((r) => r.length >= 3).map((ring) => ({ ring, parents: [] }));
+  for (const [i, c] of contours.entries())
+    c.parents = contours.flatMap(
+      (other, j) => i !== j && contains(other.ring, c.ring[0]) ? [j] : []
+    );
+  for (const [i, c] of contours.entries())
+    if (c.parents.length % 2 === 0) {
+      const holes = contours.filter(
+        (h) => h.parents.length === c.parents.length + 1 && h.parents.includes(i)
+      );
+      mesh.polygon([c.ring, ...holes.map((h) => h.ring)]);
+    }
+}
 
 // lib/geometry.ts
 import earcut from "earcut";
@@ -164,6 +152,339 @@ function expandBrepRing(vertices) {
   return points;
 }
 
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getAlphabetLayout.ts
+import {
+  glyphAdvanceRatio,
+  kerningRatio,
+  textMetrics
+} from "@tscircuit/alphabet";
+var getAdvanceRatio = (char) => glyphAdvanceRatio[char] ?? (char === " " ? textMetrics.spaceWidthRatio : textMetrics.glyphWidthRatio);
+function getAlphabetAdvanceWidth(char, nextChar, fontSize) {
+  const advanceRatio = getAdvanceRatio(char);
+  const letterSpacingRatio = nextChar ? textMetrics.letterSpacingRatio : 0;
+  const kerningAdjustmentRatio = nextChar ? kerningRatio[char]?.[nextChar] ?? 0 : 0;
+  return fontSize * (advanceRatio + letterSpacingRatio + kerningAdjustmentRatio);
+}
+function getAlphabetLayout(text, fontSize) {
+  const glyphWidth = fontSize * textMetrics.glyphWidthRatio;
+  const letterSpacing = fontSize * textMetrics.letterSpacingRatio;
+  const spaceWidth = fontSize * textMetrics.spaceWidthRatio;
+  const strokeWidth = fontSize * textMetrics.strokeWidthRatio;
+  const lineHeight = fontSize * textMetrics.lineHeightRatio;
+  const lines = text.replace(/\\n/g, "\n").split("\n");
+  const lineWidths = lines.map((line) => {
+    const characters = Array.from(line);
+    return characters.reduce(
+      (sum, char, index) => sum + getAlphabetAdvanceWidth(char, characters[index + 1], fontSize),
+      0
+    );
+  });
+  const width = lineWidths.reduce(
+    (maxWidth, lineWidth) => Math.max(maxWidth, lineWidth),
+    0
+  );
+  const height = lines.length > 1 ? fontSize + (lines.length - 1) * lineHeight : fontSize;
+  return {
+    width,
+    height,
+    glyphWidth,
+    letterSpacing,
+    spaceWidth,
+    strokeWidth,
+    lineHeight,
+    lines,
+    lineWidths
+  };
+}
+
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getAlphabetOutlineGroups.ts
+import glyphOutlineAlphabet from "@tscircuit/alphabet/outline-polygons";
+function getAlphabetOutlineGroups(params) {
+  const { line, fontSize, startX, startY } = params;
+  const height = fontSize;
+  const glyphScaleX = fontSize;
+  const characters = Array.from(line);
+  const groups = [];
+  let cursor = startX + params.layout.strokeWidth / 2;
+  characters.forEach((char, index) => {
+    const glyphRings = glyphOutlineAlphabet[char];
+    if (glyphRings?.length) {
+      const rings = [];
+      for (const ring of glyphRings) {
+        const points = ring.map((point) => ({
+          x: cursor + point.x * glyphScaleX,
+          y: startY + (1 - point.y) * height
+        }));
+        if (points.length >= 3) rings.push(points);
+      }
+      if (rings.length > 0) groups.push(rings);
+    }
+    cursor += getAlphabetAdvanceWidth(char, characters[index + 1], fontSize);
+  });
+  return groups;
+}
+
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getPolygonBounds.ts
+function getPolygonBounds(polygons) {
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+  for (const polygon of polygons) {
+    for (const point of polygon) {
+      minX = Math.min(minX, point.x);
+      minY = Math.min(minY, point.y);
+      maxX = Math.max(maxX, point.x);
+      maxY = Math.max(maxY, point.y);
+    }
+  }
+  if (minX === Number.POSITIVE_INFINITY || minY === Number.POSITIVE_INFINITY || maxX === Number.NEGATIVE_INFINITY || maxY === Number.NEGATIVE_INFINITY) {
+    return null;
+  }
+  return { minX, minY, maxX, maxY };
+}
+
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getTextStartPosition.ts
+function getTextGeometry(alignment, layout, fontSize) {
+  const baseLinePlacements = getBaseLinePlacements(alignment, layout);
+  const baseGlyphGroups = getGlyphGroupsForLinePlacements(
+    baseLinePlacements,
+    layout,
+    fontSize
+  );
+  const baseBounds = getPolygonBounds(baseGlyphGroups.flat());
+  const startOffset = getStartOffset(alignment, layout, baseBounds);
+  return {
+    bounds: baseBounds ? translateBounds(baseBounds, startOffset) : null,
+    glyphGroups: translateGlyphGroups(baseGlyphGroups, startOffset),
+    linePlacements: baseLinePlacements.map(({ line, startX, startY }) => ({
+      line,
+      startX: startX + startOffset.x,
+      startY: startY + startOffset.y
+    })),
+    startOffset
+  };
+}
+function getApproximateTextStartPosition(alignment, layout) {
+  const totalWidth = layout.width + layout.strokeWidth;
+  const totalHeight = layout.height + layout.strokeWidth;
+  let x = 0;
+  let y = 0;
+  if (alignment === "center" || alignment === "top_center" || alignment === "bottom_center") {
+    x = -totalWidth / 2;
+  } else if (alignment === "top_left" || alignment === "bottom_left" || alignment === "center_left") {
+    x = 0;
+  } else if (alignment === "top_right" || alignment === "bottom_right" || alignment === "center_right") {
+    x = -totalWidth;
+  } else if (alignment === "top_center" || alignment === "bottom_center") {
+    x = -totalWidth / 2;
+  }
+  if (alignment === "center" || alignment === "center_left" || alignment === "center_right") {
+    y = -totalHeight / 2;
+  } else if (alignment === "top_left" || alignment === "top_right" || alignment === "top_center") {
+    y = 0;
+  } else if (alignment === "bottom_left" || alignment === "bottom_right" || alignment === "bottom_center") {
+    y = -totalHeight;
+  }
+  return { x, y };
+}
+function getBaseLinePlacements(alignment, layout) {
+  return layout.lines.map((line, lineIndex) => ({
+    line,
+    startX: getLineStartX({
+      alignment,
+      lineWidth: layout.lineWidths[lineIndex],
+      maxWidth: layout.width,
+      strokeWidth: layout.strokeWidth
+    }),
+    startY: lineIndex * layout.lineHeight
+  }));
+}
+function getGlyphGroupsForLinePlacements(linePlacements, layout, fontSize) {
+  return linePlacements.flatMap(
+    ({ line, startX, startY }) => getAlphabetOutlineGroups({
+      line,
+      fontSize,
+      startX,
+      startY,
+      layout
+    })
+  );
+}
+function getStartOffset(alignment, layout, bounds) {
+  if (!bounds) {
+    return getApproximateTextStartPosition(alignment, layout);
+  }
+  return {
+    x: -getHorizontalAnchorPosition(alignment, bounds),
+    y: -getVerticalAnchorPosition(alignment, bounds)
+  };
+}
+function getHorizontalAnchorPosition(alignment, bounds) {
+  if (alignment === "top_left" || alignment === "bottom_left" || alignment === "center_left") {
+    return bounds.minX;
+  }
+  if (alignment === "top_right" || alignment === "bottom_right" || alignment === "center_right") {
+    return bounds.maxX;
+  }
+  return (bounds.minX + bounds.maxX) / 2;
+}
+function getVerticalAnchorPosition(alignment, bounds) {
+  if (alignment === "top_left" || alignment === "top_right" || alignment === "top_center") {
+    return bounds.minY;
+  }
+  if (alignment === "bottom_left" || alignment === "bottom_right" || alignment === "bottom_center") {
+    return bounds.maxY;
+  }
+  return (bounds.minY + bounds.maxY) / 2;
+}
+function translateGlyphGroups(glyphGroups, offset) {
+  if (offset.x === 0 && offset.y === 0) {
+    return glyphGroups;
+  }
+  return glyphGroups.map(
+    (group) => group.map(
+      (polygon) => polygon.map((point) => ({
+        x: point.x + offset.x,
+        y: point.y + offset.y
+      }))
+    )
+  );
+}
+function translateBounds(bounds, offset) {
+  return {
+    minX: bounds.minX + offset.x,
+    minY: bounds.minY + offset.y,
+    maxX: bounds.maxX + offset.x,
+    maxY: bounds.maxY + offset.y
+  };
+}
+function getLineStartX(params) {
+  const { alignment, lineWidth, maxWidth, strokeWidth } = params;
+  const totalLineWidth = lineWidth + strokeWidth;
+  const totalMaxWidth = maxWidth + strokeWidth;
+  if (alignment === "top_left" || alignment === "bottom_left" || alignment === "center_left") {
+    return 0;
+  }
+  if (alignment === "top_right" || alignment === "bottom_right" || alignment === "center_right") {
+    return totalMaxWidth - totalLineWidth;
+  }
+  return (totalMaxWidth - totalLineWidth) / 2;
+}
+
+// lib/text/draw-text.ts
+function drawText(mesh, e, yAxis = "up") {
+  const text = String(e.text ?? "");
+  if (!text) return;
+  const c = e.anchor_position ?? e.center ?? { x: e.x ?? 0, y: e.y ?? 0 };
+  const fontSize = e.font_size ?? 1;
+  const layout = getAlphabetLayout(text, fontSize);
+  const geometry = getTextGeometry(
+    e.anchor_alignment ?? "center",
+    layout,
+    fontSize
+  );
+  const isNote = e.type === "pcb_note_text";
+  const isFabrication = e.type === "pcb_fabrication_note_text";
+  const mirrored = isFabrication ? false : isNote ? e.is_mirrored_from_top_view ?? e.layer === "bottom" : e.type === "pcb_silkscreen_text" ? e.layer === "bottom" : e.is_mirrored ?? e.layer === "bottom";
+  const rotation = isNote || isFabrication ? 0 : e.ccw_rotation ?? 0;
+  const sign = yAxis === "up" ? -1 : 1;
+  const transform = (p) => rotate(
+    { x: c.x + (mirrored ? -p.x : p.x), y: c.y + sign * p.y },
+    c,
+    -sign * rotation
+  );
+  if (e.is_knockout && !isNote && !isFabrication) {
+    const b = geometry.bounds;
+    if (!b) return;
+    const p = {
+      left: 0.2,
+      right: 0.2,
+      top: 0.2,
+      bottom: 0.2,
+      ...e.knockout_padding
+    };
+    const outer = [
+      { x: b.minX - p.left, y: b.minY - p.top },
+      { x: b.maxX + p.right, y: b.minY - p.top },
+      { x: b.maxX + p.right, y: b.maxY + p.bottom },
+      { x: b.minX - p.left, y: b.maxY + p.bottom }
+    ];
+    fillEvenOdd(mesh, [
+      outer.map(transform),
+      ...geometry.glyphGroups.flatMap(
+        (group) => group.map((ring) => ring.map(transform))
+      )
+    ]);
+    return;
+  }
+  for (const group of geometry.glyphGroups)
+    fillEvenOdd(
+      mesh,
+      group.map((ring) => ring.map(transform))
+    );
+}
+
+// lib/colors.ts
+var rgb = (r, g, b) => [
+  r / 255,
+  g / 255,
+  b / 255,
+  1
+];
+var DEFAULT_LAYER_COLORS = {
+  board: rgb(70, 72, 72),
+  top: rgb(200, 52, 52),
+  bottom: rgb(77, 127, 196),
+  inner1: rgb(127, 200, 127),
+  inner2: rgb(206, 125, 44),
+  inner3: rgb(79, 203, 203),
+  inner4: rgb(219, 98, 139),
+  inner5: rgb(167, 165, 198),
+  inner6: rgb(40, 204, 217),
+  inner7: rgb(232, 178, 167),
+  inner8: rgb(242, 237, 161),
+  drill: rgb(255, 38, 226),
+  top_silkscreen: rgb(242, 237, 161),
+  bottom_silkscreen: rgb(93, 169, 233),
+  soldermask_top: rgb(12, 55, 33),
+  soldermask_bottom: rgb(12, 55, 33),
+  top_fabrication: [1, 1, 1, 0.5],
+  bottom_fabrication: [1, 1, 1, 0.5],
+  top_notes: rgb(89, 148, 220),
+  bottom_notes: rgb(89, 148, 220),
+  top_courtyard: rgb(255, 0, 245),
+  bottom_courtyard: rgb(38, 233, 255),
+  edge_cuts: rgb(208, 210, 205)
+};
+var normalizeLayer = (layer) => layer.replace(/_copper$/, "");
+function parseColor(value) {
+  const hex = value.match(/^#([0-9a-f]{3,8})$/i)?.[1];
+  if (hex) {
+    const full = hex.length <= 4 ? [...hex].map((c) => c + c).join("") : hex;
+    if (full.length !== 6 && full.length !== 8)
+      throw new Error(`Unsupported color: ${value}`);
+    return [
+      parseInt(full.slice(0, 2), 16) / 255,
+      parseInt(full.slice(2, 4), 16) / 255,
+      parseInt(full.slice(4, 6), 16) / 255,
+      full.length === 8 ? parseInt(full.slice(6), 16) / 255 : 1
+    ];
+  }
+  const match = value.match(/^rgba?\(([^)]+)\)$/);
+  if (match) {
+    const channels = match[1].split(",").map((v) => Number(v.trim()));
+    if ((channels.length === 3 || channels.length === 4) && channels.every(Number.isFinite))
+      return [
+        channels[0] / 255,
+        channels[1] / 255,
+        channels[2] / 255,
+        channels[3] ?? 1
+      ];
+  }
+  throw new Error(`Unsupported color: ${value}`);
+}
+
 // lib/compile-circuit.ts
 function getElementId(element, index = 0) {
   return element[`${element.type}_id`] ?? `${element.type}:${index}`;
@@ -194,11 +515,12 @@ function shape(e, hole = false) {
       ellipse(c, diameter || e.diameter || e.hole_diameter || e.radius * 2)
     ];
   }
-  const width = hole ? e.hole_width ?? e.hole_diameter : e.rect_pad_width ?? e.outer_width ?? e.width;
-  const height = hole ? e.hole_height ?? e.hole_diameter : e.rect_pad_height ?? e.outer_height ?? e.height;
+  const width = hole ? e.hole_width ?? e.hole_diameter : e.rect_pad_width ?? e.outer_width ?? e.width ?? e.hole_diameter;
+  const height = hole ? e.hole_height ?? e.hole_diameter : e.rect_pad_height ?? e.outer_height ?? e.height ?? e.hole_diameter;
   if (kind === "oval") return [ellipse(c, width, height, rotation)];
   if ([
     "rect",
+    "square",
     "rotated_rect",
     "roundrect",
     "rounded_rect",
@@ -214,44 +536,7 @@ function shape(e, hole = false) {
   }
   throw new Error(`Unsupported shape: ${kind}`);
 }
-function drawText(mesh, e) {
-  if (e.is_knockout) throw new Error("Knockout text is not supported yet");
-  const c = center(e), height = (e.font_size ?? e.size ?? 1) * 0.7;
-  const lines = String(e.text ?? "").split(/\r?\n/), step = height * 0.8;
-  const maxWidth = Math.max(
-    ...lines.map((l) => Math.max(0, l.length * step - height * 0.2))
-  );
-  const totalHeight = lines.length * height + (lines.length - 1) * height * 0.2;
-  const align = e.anchor_alignment ?? "center";
-  const dx = align.includes("left") ? 0 : align.includes("right") ? -maxWidth : -maxWidth / 2;
-  const dy = align.startsWith("top") ? -height : align.startsWith("bottom") ? totalHeight - height : totalHeight / 2 - height;
-  const mirrored = e.is_mirrored ?? e.layer === "bottom";
-  const transform = (p) => rotate(
-    { x: c.x + (mirrored ? -p.x : p.x), y: c.y + p.y },
-    c,
-    e.ccw_rotation ?? 0
-  );
-  for (const [row, line] of lines.entries()) {
-    const width = Math.max(0, line.length * step - height * 0.2);
-    for (const [col, char] of [...line].entries()) {
-      for (const segment of lineAlphabet[char] ?? lineAlphabet[char.toUpperCase()] ?? []) {
-        const x = dx + (maxWidth - width) / 2 + col * step, y = dy - row * height * 1.2;
-        mesh.line(
-          transform({
-            x: x + segment.x1 * height * 0.6,
-            y: y + segment.y1 * height
-          }),
-          transform({
-            x: x + segment.x2 * height * 0.6,
-            y: y + segment.y2 * height
-          }),
-          e.stroke_width ?? height / 12
-        );
-      }
-    }
-  }
-}
-function compileCircuitJson(elements) {
+function compileCircuitJson(elements, options = {}) {
   const builders = /* @__PURE__ */ new Map();
   const diagnostics = [], elementIds = elements.map(getElementId);
   const board = elements.find((e) => e.type === "pcb_board");
@@ -268,7 +553,7 @@ function compileCircuitJson(elements) {
     if (!builders.has(name))
       builders.set(name, { paint: new MeshBuilder(), erase: new MeshBuilder() });
     const mesh = builders.get(name)[erase ? "erase" : "paint"];
-    mesh.color = DEFAULT_LAYER_COLORS[name] ?? [0.75, 0.75, 0.75, 1];
+    mesh.color = options.layerColors?.[name] ?? DEFAULT_LAYER_COLORS[name] ?? [0.75, 0.75, 0.75, 1];
     mesh.element = index;
     mesh.category = category;
     return mesh;
@@ -321,7 +606,7 @@ function compileCircuitJson(elements) {
       } else if (type === "pcb_copper_pour") {
         get(e.layer, index, false, 1).polygon(shape(e));
       } else if (type === "pcb_copper_text") {
-        drawText(get(e.layer, index), e);
+        drawText(get(e.layer, index), e, options.textYAxis);
       } else if (/^pcb_(silkscreen|fabrication_note|courtyard|note|user_note)_/.test(
         type
       )) {
@@ -336,8 +621,11 @@ function compileCircuitJson(elements) {
           user_note: "notes"
         }[group];
         const layer = `${e.layer ?? "top"}_${suffix}`, mesh = get(layer, index);
-        if (type.endsWith("_text")) drawText(mesh, e);
-        else if (type.endsWith("_path") || type.endsWith("_line") || type.endsWith("_outline")) {
+        if (type.endsWith("_text")) {
+          if (e.color && (group === "note" || group === "fabrication_note"))
+            mesh.color = parseColor(e.color);
+          drawText(mesh, e, options.textYAxis);
+        } else if (type.endsWith("_path") || type.endsWith("_line") || type.endsWith("_outline")) {
           const points = e.route ?? e.points ?? e.outline ?? [e.start, e.end].filter(Boolean);
           mesh.path(
             points,
@@ -626,7 +914,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
   setCircuitJson(circuitJson) {
     this.assertLive();
     if (this.circuit === circuitJson) return;
-    const start = performance.now(), scene = compileCircuitJson(circuitJson);
+    const start = performance.now(), scene = compileCircuitJson(circuitJson, this.config);
     this.releaseLayers();
     this.highlights.destroy();
     this.highlights = this.device.createBuffer({
