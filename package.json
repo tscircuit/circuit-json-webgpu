@@ -1,6 +1,6 @@
 {
   "name": "@tscircuit/circuit-json-webgpu",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Retained WebGPU renderer for Circuit JSON PCB geometry",
   "type": "module",
   "main": "dist/index.js",
