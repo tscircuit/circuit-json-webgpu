@@ -18,7 +18,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsup lib/index.ts --format esm --dts --clean",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "bun tests/parity/prepare-upstream.ts && tsc --noEmit",
     "test": "bun test tests/geometry.test.ts tests/text.test.ts tests/upstream-integrity.test.ts tests/parity-comparison.test.ts tests/parity-prepare.test.ts",
     "test:visual": "bun tests/visual.ts",
     "snapshots:update": "UPDATE_SNAPSHOTS=1 bun tests/visual.ts",
