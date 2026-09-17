@@ -61,7 +61,12 @@ try {
         ),
     )
     const buffer = await page.locator("canvas").screenshot()
-    const file = new URL(`./snapshots/${name}.png`, import.meta.url)
+    // SwiftShader uses different MSAA sample positions on the subpixel courtyard edge.
+    const baseline =
+      process.env.WEBGPU_SOFTWARE && name === "annotations"
+        ? `${name}.swiftshader`
+        : name
+    const file = new URL(`./snapshots/${baseline}.png`, import.meta.url)
     if (process.env.UPDATE_SNAPSHOTS) await writeFile(file, buffer)
     else {
       const expected = PNG.sync.read(await readFile(file)),
