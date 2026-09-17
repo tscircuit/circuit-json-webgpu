@@ -3030,253 +3030,183 @@
       "path": "tests/shapes/dimension-line.test.ts",
       "status": "failed",
       "error": "Error: \n\nPNG snapshot differs by 14.110% (threshold: 5%). Diff saved at ./tests/upstream/circuit-to-canvas/tests/shapes/__snapshots__/dimension-line.diff.png. Use BUN_UPDATE_SNAPSHOTS=1 to update the snapshot.",
-      "caseIds": [
-        "case-0000",
-        "case-0001"
-      ]
+      "caseIds": ["case-0000", "case-0001"]
     },
     {
       "name": "draw rect",
       "path": "tests/shapes/rect.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0002"
-      ]
+      "caseIds": ["case-0002"]
     },
     {
       "name": "draw rect with border radius",
       "path": "tests/shapes/rect.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0003"
-      ]
+      "caseIds": ["case-0003"]
     },
     {
       "name": "draw horizontal pill",
       "path": "tests/shapes/pill.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0004"
-      ]
+      "caseIds": ["case-0004"]
     },
     {
       "name": "draw vertical pill",
       "path": "tests/shapes/pill.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0005"
-      ]
+      "caseIds": ["case-0005"]
     },
     {
       "name": "draw circle",
       "path": "tests/shapes/circle.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0006"
-      ]
+      "caseIds": ["case-0006"]
     },
     {
       "name": "draw oval",
       "path": "tests/shapes/oval.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0007"
-      ]
+      "caseIds": ["case-0007"]
     },
     {
       "name": "draw variable-width trace with port hints",
       "path": "tests/elements/pcb-trace-hints.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0008"
-      ]
+      "caseIds": ["case-0008"]
     },
     {
       "name": "draw fabrication note rect with all features",
       "path": "tests/elements/pcb-fabrication-note-rect-all-features.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0009"
-      ]
+      "caseIds": ["case-0009"]
     },
     {
       "name": "hide inner1 trace covered by its copper pour",
       "path": "tests/elements/pcb-copper-pour-inner-layers.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0010",
-        "case-0011"
-      ]
+      "caseIds": ["case-0010", "case-0011"]
     },
     {
       "name": "hide inner2 trace covered by its copper pour",
       "path": "tests/elements/pcb-copper-pour-inner-layers.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0012",
-        "case-0013"
-      ]
+      "caseIds": ["case-0012", "case-0013"]
     },
     {
       "name": "hide inner3 trace covered by its copper pour",
       "path": "tests/elements/pcb-copper-pour-inner-layers.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0014",
-        "case-0015"
-      ]
+      "caseIds": ["case-0014", "case-0015"]
     },
     {
       "name": "hide inner4 trace covered by its copper pour",
       "path": "tests/elements/pcb-copper-pour-inner-layers.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0016",
-        "case-0017"
-      ]
+      "caseIds": ["case-0016", "case-0017"]
     },
     {
       "name": "hide inner5 trace covered by its copper pour",
       "path": "tests/elements/pcb-copper-pour-inner-layers.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0018",
-        "case-0019"
-      ]
+      "caseIds": ["case-0018", "case-0019"]
     },
     {
       "name": "hide inner6 trace covered by its copper pour",
       "path": "tests/elements/pcb-copper-pour-inner-layers.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0020",
-        "case-0021"
-      ]
+      "caseIds": ["case-0020", "case-0021"]
     },
     {
       "name": "hide inner7 trace covered by its copper pour",
       "path": "tests/elements/pcb-copper-pour-inner-layers.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0022",
-        "case-0023"
-      ]
+      "caseIds": ["case-0022", "case-0023"]
     },
     {
       "name": "hide inner8 trace covered by its copper pour",
       "path": "tests/elements/pcb-copper-pour-inner-layers.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0024",
-        "case-0025"
-      ]
+      "caseIds": ["case-0024", "case-0025"]
     },
     {
       "name": "draw courtyard rect",
       "path": "tests/elements/pcb-courtyard-rect.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0026"
-      ]
+      "caseIds": ["case-0026"]
     },
     {
       "name": "draw fabrication note path with custom color",
       "path": "tests/elements/pcb-fabrication-note-path-custom-color.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0027"
-      ]
+      "caseIds": ["case-0027"]
     },
     {
       "name": "draw multiline copper text with left alignment",
       "path": "tests/elements/pcb-copper-text-multiline-left.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0028"
-      ]
+      "caseIds": ["case-0028"]
     },
     {
       "name": "draw pcb note text with different anchor alignments",
       "path": "tests/elements/pcb-note-text-anchor-alignment.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0029"
-      ]
+      "caseIds": ["case-0029"]
     },
     {
       "name": "renders copper pour where same-net trace is fully covered",
       "path": "tests/elements/copper-pour-same-net-trace-fully-covered.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0030",
-        "case-0031"
-      ]
+      "caseIds": ["case-0030", "case-0031"]
     },
     {
       "name": "draw fabrication note rect with custom color",
       "path": "tests/elements/pcb-fabrication-note-rect-custom-color.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0032"
-      ]
+      "caseIds": ["case-0032"]
     },
     {
       "name": "draw fabrication note rect with default color",
       "path": "tests/elements/pcb-fabrication-note-rect-default-color.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0033"
-      ]
+      "caseIds": ["case-0033"]
     },
     {
       "name": "draw silkscreen path",
       "path": "tests/elements/pcb-silkscreen-path.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0034"
-      ]
+      "caseIds": ["case-0034"]
     },
     {
       "name": "draw copper text",
       "path": "tests/elements/pcb-copper-text.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0035"
-      ]
+      "caseIds": ["case-0035"]
     },
     {
       "name": "draw bottom copper text auto-mirrored when is_mirrored is omitted",
       "path": "tests/elements/pcb-copper-text.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0036"
-      ]
+      "caseIds": ["case-0036"]
     },
     {
       "name": "draw copper text knockout mirrored with padding",
       "path": "tests/elements/pcb-copper-text.test.ts",
       "status": "failed",
       "error": "Error: \n\nPNG snapshot differs by 9.713% (threshold: 5%). Diff saved at ./tests/upstream/circuit-to-canvas/tests/elements/__snapshots__/pcb-copper-text-knockout.diff.png. Use BUN_UPDATE_SNAPSHOTS=1 to update the snapshot.",
-      "caseIds": [
-        "case-0037"
-      ]
+      "caseIds": ["case-0037"]
     },
     {
       "name": "draw multiline silkscreen text",
       "path": "tests/elements/pcb-silkscreen-text-multiline.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0038"
-      ]
+      "caseIds": ["case-0038"]
     },
     {
       "name": "draw silkscreen text knockout",
       "path": "tests/elements/pcb-silkscreen-text-knockout.test.ts",
       "status": "failed",
       "error": "Error: \n\nPNG snapshot differs by 24.544% (threshold: 5%). Diff saved at ./tests/upstream/circuit-to-canvas/tests/elements/__snapshots__/pcb-silkscreen-text-knockout.diff.png. Use BUN_UPDATE_SNAPSHOTS=1 to update the snapshot.",
-      "caseIds": [
-        "case-0039"
-      ]
+      "caseIds": ["case-0039"]
     },
     {
       "name": "via soldermask respects per-side tenting, legacy overrides, and physical layers",
@@ -3722,193 +3652,145 @@
       "name": "draw fabrication note path with thick stroke",
       "path": "tests/elements/pcb-fabrication-note-path-thick-stroke.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0472"
-      ]
+      "caseIds": ["case-0472"]
     },
     {
       "name": "draw pill smt pad",
       "path": "tests/elements/pcb-smtpad-pill.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0473"
-      ]
+      "caseIds": ["case-0473"]
     },
     {
       "name": "pcb keepout multiple layers",
       "path": "tests/elements/pcb-keepout-multiple-layers.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0474"
-      ]
+      "caseIds": ["case-0474"]
     },
     {
       "name": "draw rectangular smt pad",
       "path": "tests/elements/pcb-smtpad-rect.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0475"
-      ]
+      "caseIds": ["case-0475"]
     },
     {
       "name": "draw pcb note line with all features",
       "path": "tests/elements/pcb-note-line-all-features.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0476"
-      ]
+      "caseIds": ["case-0476"]
     },
     {
       "name": "draw pcb silkscreen graphic",
       "path": "tests/elements/pcb-silkscreen-graphic.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0477"
-      ]
+      "caseIds": ["case-0477"]
     },
     {
       "name": "draw pcb note line with custom color",
       "path": "tests/elements/pcb-note-line-custom-color.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0478"
-      ]
+      "caseIds": ["case-0478"]
     },
     {
       "name": "soldermask over covered copper pour cuts openings without rendering other components",
       "path": "tests/elements/pcb-copper-pour-soldermask-cutouts-only.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0479"
-      ]
+      "caseIds": ["case-0479"]
     },
     {
       "name": "draw pcb note dimension - with offset",
       "path": "tests/elements/pcb-note-dimension-with-offset.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0480"
-      ]
+      "caseIds": ["case-0480"]
     },
     {
       "name": "draw rectangular copper pour",
       "path": "tests/elements/pcb-copper-pour.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0481"
-      ]
+      "caseIds": ["case-0481"]
     },
     {
       "name": "draw polygon copper pour",
       "path": "tests/elements/pcb-copper-pour.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0482"
-      ]
+      "caseIds": ["case-0482"]
     },
     {
       "name": "draw copper pour with trace",
       "path": "tests/elements/pcb-copper-pour.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0483"
-      ]
+      "caseIds": ["case-0483"]
     },
     {
       "name": "draw brep copper pours",
       "path": "tests/elements/pcb-copper-pour.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0484"
-      ]
+      "caseIds": ["case-0484"]
     },
     {
       "name": "pcb keepout rect and circle",
       "path": "tests/elements/pcb-keepout-rect-and-circle.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0485"
-      ]
+      "caseIds": ["case-0485"]
     },
     {
       "name": "draw bottom pcb note text auto-mirrored when is_mirrored is omitted",
       "path": "tests/elements/pcb-note-text-bottom-auto-mirror.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0486"
-      ]
+      "caseIds": ["case-0486"]
     },
     {
       "name": "draw hole with polygon pad - circle hole",
       "path": "tests/elements/pcb-plated-hole-polygon.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0487"
-      ]
+      "caseIds": ["case-0487"]
     },
     {
       "name": "draw hole with polygon pad - pill hole with offset",
       "path": "tests/elements/pcb-plated-hole-polygon.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0488"
-      ]
+      "caseIds": ["case-0488"]
     },
     {
       "name": "draw hole with polygon pad - pill hole",
       "path": "tests/elements/pcb-plated-hole-polygon.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0489"
-      ]
+      "caseIds": ["case-0489"]
     },
     {
       "name": "pcb_note elements are rendered by default (showPcbNotes defaults to true)",
       "path": "tests/elements/show-pcb-notes-toggle.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0490"
-      ]
+      "caseIds": ["case-0490"]
     },
     {
       "name": "pcb_note elements are hidden when showPcbNotes is false",
       "path": "tests/elements/show-pcb-notes-toggle.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0491"
-      ]
+      "caseIds": ["case-0491"]
     },
     {
       "name": "render top copper pour with soldermask-over-copper color",
       "path": "tests/elements/pcb-copper-pour-soldermask.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0492"
-      ]
+      "caseIds": ["case-0492"]
     },
     {
       "name": "render bottom copper pour with soldermask-over-copper color",
       "path": "tests/elements/pcb-copper-pour-soldermask.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0493"
-      ]
+      "caseIds": ["case-0493"]
     },
     {
       "name": "draw copper knockout text with different anchor alignments",
       "path": "tests/elements/pcb-copper-text-knockout-anchor-alignment.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0494"
-      ]
+      "caseIds": ["case-0494"]
     },
     {
       "name": "draw via on bottom layer uses bottom copper color",
       "path": "tests/elements/pcb-via-bottom-layer.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0495"
-      ]
+      "caseIds": ["case-0495"]
     },
     {
       "name": "board ownership is precomputed from IDs regardless of positions or element order",
@@ -3920,876 +3802,649 @@
       "name": "draw silkscreen text",
       "path": "tests/elements/pcb-silkscreen-text.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0496"
-      ]
+      "caseIds": ["case-0496"]
     },
     {
       "name": "draw pcb note rect with dashed stroke and no fill",
       "path": "tests/elements/pcb-note-rect-dashed-stroke.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0497"
-      ]
+      "caseIds": ["case-0497"]
     },
     {
       "name": "draw pcb fabrication note dimension - basic",
       "path": "tests/elements/pcb-fabrication-note-dimension.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0498"
-      ]
+      "caseIds": ["case-0498"]
     },
     {
       "name": "solder paste is hidden by default and filtered by selected layer",
       "path": "tests/elements/pcb-solder-paste.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0499",
-        "case-0500",
-        "case-0501"
-      ]
+      "caseIds": ["case-0499", "case-0500", "case-0501"]
     },
     {
       "name": "draws every supported solder paste shape using circuit-to-svg color",
       "path": "tests/elements/pcb-solder-paste.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0502"
-      ]
+      "caseIds": ["case-0502"]
     },
     {
       "name": "draws solder paste apertures over SMT pads",
       "path": "tests/elements/pcb-solder-paste.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0503"
-      ]
+      "caseIds": ["case-0503"]
     },
     {
       "name": "draw rectangular cutout",
       "path": "tests/elements/pcb-cutout.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0504"
-      ]
+      "caseIds": ["case-0504"]
     },
     {
       "name": "draw rectangular cutout with corner radius",
       "path": "tests/elements/pcb-cutout.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0505"
-      ]
+      "caseIds": ["case-0505"]
     },
     {
       "name": "draw circular cutout",
       "path": "tests/elements/pcb-cutout.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0506"
-      ]
+      "caseIds": ["case-0506"]
     },
     {
       "name": "draw polygon cutout",
       "path": "tests/elements/pcb-cutout.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0507"
-      ]
+      "caseIds": ["case-0507"]
     },
     {
       "name": "draw circular hole",
       "path": "tests/elements/pcb-hole.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0508"
-      ]
+      "caseIds": ["case-0508"]
     },
     {
       "name": "draw square hole",
       "path": "tests/elements/pcb-hole.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0509"
-      ]
+      "caseIds": ["case-0509"]
     },
     {
       "name": "draw oval hole",
       "path": "tests/elements/pcb-hole.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0510"
-      ]
+      "caseIds": ["case-0510"]
     },
     {
       "name": "draw pill hole",
       "path": "tests/elements/pcb-hole.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0511"
-      ]
+      "caseIds": ["case-0511"]
     },
     {
       "name": "draw rotated oval hole",
       "path": "tests/elements/pcb-hole.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0512"
-      ]
+      "caseIds": ["case-0512"]
     },
     {
       "name": "draw rotated rect hole",
       "path": "tests/elements/pcb-hole.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0513"
-      ]
+      "caseIds": ["case-0513"]
     },
     {
       "name": "draw rotated square hole",
       "path": "tests/elements/pcb-hole.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0514"
-      ]
+      "caseIds": ["case-0514"]
     },
     {
       "name": "draw rotated pill hole",
       "path": "tests/elements/pcb-hole.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0515"
-      ]
+      "caseIds": ["case-0515"]
     },
     {
       "name": "draw fabrication note rect with corner radius",
       "path": "tests/elements/pcb-fabrication-note-rect-corner-radius.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0516"
-      ]
+      "caseIds": ["case-0516"]
     },
     {
       "name": "draw courtyard circle",
       "path": "tests/elements/pcb-courtyard-circle.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0517"
-      ]
+      "caseIds": ["case-0517"]
     },
     {
       "name": "draw silkscreen text with rotation",
       "path": "tests/elements/pcb-silkscreen-text-rotated.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0518"
-      ]
+      "caseIds": ["case-0518"]
     },
     {
       "name": "render bottom soldermask layer with openings",
       "path": "tests/elements/pcb-bottom-soldermask-only.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0519"
-      ]
+      "caseIds": ["case-0519"]
     },
     {
       "name": "draw bottom layer smt pad",
       "path": "tests/elements/pcb-smtpad-bottom-layer.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0520"
-      ]
+      "caseIds": ["case-0520"]
     },
     {
       "name": "layer filter only draws elements on specified layers",
       "path": "tests/elements/layer-filter.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0521"
-      ]
+      "caseIds": ["case-0521"]
     },
     {
       "name": "draw smt pads fully covered with soldermask and board with soldermask",
       "path": "tests/elements/pcb-smtpad-soldermask-coverage.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0522"
-      ]
+      "caseIds": ["case-0522"]
     },
     {
       "name": "draw pcb note dimension - basic",
       "path": "tests/elements/pcb-note-dimension-basic.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0523"
-      ]
+      "caseIds": ["case-0523"]
     },
     {
       "name": "draw pcb note text with small font size",
       "path": "tests/elements/pcb-note-text-small.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0524"
-      ]
+      "caseIds": ["case-0524"]
     },
     {
       "name": "route via tenting works without a board and only with soldermask enabled",
       "path": "tests/elements/pcb-trace-via-tenting-without-board.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0525",
-        "case-0526",
-        "case-0527"
-      ]
+      "caseIds": ["case-0525", "case-0526", "case-0527"]
     },
     {
       "name": "draw pcb note text with custom color",
       "path": "tests/elements/pcb-note-text-custom-color.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0528"
-      ]
+      "caseIds": ["case-0528"]
     },
     {
       "name": "draw pcb note dimension - angled",
       "path": "tests/elements/pcb-note-dimension-angled-and-vertical.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0529"
-      ]
+      "caseIds": ["case-0529"]
     },
     {
       "name": "draw silkscreen rect",
       "path": "tests/elements/pcb-silkscreen-rect.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0530"
-      ]
+      "caseIds": ["case-0530"]
     },
     {
       "name": "draw silkscreen pill",
       "path": "tests/elements/pcb-silkscreen-pill.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0531"
-      ]
+      "caseIds": ["case-0531"]
     },
     {
       "name": "draw silkscreen pill bottom layer",
       "path": "tests/elements/pcb-silkscreen-pill.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0532"
-      ]
+      "caseIds": ["case-0532"]
     },
     {
       "name": "renders copper pour with same-net trace",
       "path": "tests/elements/copper-pour-same-net.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0533"
-      ]
+      "caseIds": ["case-0533"]
     },
     {
       "name": "draw multiline copper text with right alignment",
       "path": "tests/elements/pcb-copper-text-multiline-right.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0534"
-      ]
+      "caseIds": ["case-0534"]
     },
     {
       "name": "draw lowercase text with descenders",
       "path": "tests/elements/pcb-fabrication-note-text-descenders.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0535"
-      ]
+      "caseIds": ["case-0535"]
     },
     {
       "name": "draw an explicitly interpolated trace necking into pads",
       "path": "tests/elements/pcb-trace-necking.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0536"
-      ]
+      "caseIds": ["case-0536"]
     },
     {
       "name": "cutout removes overlapping SMT pad copper",
       "path": "tests/elements/pcb-smtpad-cutout.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0537"
-      ]
+      "caseIds": ["case-0537"]
     },
     {
       "name": "draw pcb note line with dashed stroke",
       "path": "tests/elements/pcb-note-line-dashed.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0538"
-      ]
+      "caseIds": ["case-0538"]
     },
     {
       "name": "draw rectangular smt pad with border radius",
       "path": "tests/elements/pcb-smtpad-rect-border-radius.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0539"
-      ]
+      "caseIds": ["case-0539"]
     },
     {
       "name": "draw pcb note dimension - vertical with rotation",
       "path": "tests/elements/pcb-note-dimension-vertical.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0540"
-      ]
+      "caseIds": ["case-0540"]
     },
     {
       "name": "draw via",
       "path": "tests/elements/pcb-via.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0541"
-      ]
+      "caseIds": ["case-0541"]
     },
     {
       "name": "draw multiple vias",
       "path": "tests/elements/pcb-via.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0542"
-      ]
+      "caseIds": ["case-0542"]
     },
     {
       "name": "draw courtyard outline",
       "path": "tests/elements/pcb-courtyard-outline.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0543"
-      ]
+      "caseIds": ["case-0543"]
     },
     {
       "name": "draw silkscreen mixed-case alphabet pairs",
       "path": "tests/elements/pcb-silkscreen-text-mixed-case-alphabet.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0544"
-      ]
+      "caseIds": ["case-0544"]
     },
     {
       "name": "draw simple trace",
       "path": "tests/elements/pcb-trace.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0545"
-      ]
+      "caseIds": ["case-0545"]
     },
     {
       "name": "draw multi-segment trace",
       "path": "tests/elements/pcb-trace.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0546"
-      ]
+      "caseIds": ["case-0546"]
     },
     {
       "name": "draw trace on bottom layer",
       "path": "tests/elements/pcb-trace.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0547"
-      ]
+      "caseIds": ["case-0547"]
     },
     {
       "name": "draw multiple traces",
       "path": "tests/elements/pcb-trace.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0548"
-      ]
+      "caseIds": ["case-0548"]
     },
     {
       "name": "draw silkscreen line",
       "path": "tests/elements/pcb-silkscreen-line.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0549"
-      ]
+      "caseIds": ["case-0549"]
     },
     {
       "name": "draw plated hole on bottom layer uses bottom copper color",
       "path": "tests/elements/pcb-plated-hole-bottom-layer.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0550"
-      ]
+      "caseIds": ["case-0550"]
     },
     {
       "name": "panel vias inherit their own board defaults and preserve explicit overrides",
       "path": "tests/elements/pcb-via-board-tenting.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0551",
-        "case-0552"
-      ]
+      "caseIds": ["case-0551", "case-0552"]
     },
     {
       "name": "draw buried via only on layers in its span",
       "path": "tests/elements/pcb-via-inner-layer.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0553",
-        "case-0554",
-        "case-0555"
-      ]
+      "caseIds": ["case-0553", "case-0554", "case-0555"]
     },
     {
       "name": "clips a trace exactly where it enters a rectangular copper pour",
       "path": "tests/elements/copper-pour-trace-clipping.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0556",
-        "case-0557"
-      ]
+      "caseIds": ["case-0556", "case-0557"]
     },
     {
       "name": "preserves a trace inside a BRep copper-pour clearance ring",
       "path": "tests/elements/copper-pour-trace-clipping.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0558",
-        "case-0559"
-      ]
+      "caseIds": ["case-0558", "case-0559"]
     },
     {
       "name": "draw multiline copper text with center alignment",
       "path": "tests/elements/pcb-copper-text-multiline.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0560"
-      ]
+      "caseIds": ["case-0560"]
     },
     {
       "name": "draw fabrication note text with rgba color",
       "path": "tests/elements/pcb-fabrication-note-text-rgba-color.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0561"
-      ]
+      "caseIds": ["case-0561"]
     },
     {
       "name": "draw plated holes with positive and negative soldermask margins",
       "path": "tests/elements/pcb-plated-hole-soldermask-margin.test.ts",
       "status": "failed",
       "error": "Error: \n\nPNG snapshot differs by 47.881% (threshold: 5%). Diff saved at ./tests/upstream/circuit-to-canvas/tests/elements/__snapshots__/pcb-plated-hole-soldermask-margin.diff.png. Use BUN_UPDATE_SNAPSHOTS=1 to update the snapshot.",
-      "caseIds": [
-        "case-0562"
-      ]
+      "caseIds": ["case-0562"]
     },
     {
       "name": "draw pcb note rect with all features",
       "path": "tests/elements/pcb-note-rect-all-features.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0563"
-      ]
+      "caseIds": ["case-0563"]
     },
     {
       "name": "draw silkscreen text with different anchor alignments on top and bottom layers",
       "path": "tests/elements/pcb-silkscreen-text-anchor-alignment.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0564"
-      ]
+      "caseIds": ["case-0564"]
     },
     {
       "name": "draw rectangular board",
       "path": "tests/elements/pcb-board.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0565"
-      ]
+      "caseIds": ["case-0565"]
     },
     {
       "name": "draw board with custom outline",
       "path": "tests/elements/pcb-board.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0566"
-      ]
+      "caseIds": ["case-0566"]
     },
     {
       "name": "draw board with elements",
       "path": "tests/elements/pcb-board.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0567"
-      ]
+      "caseIds": ["case-0567"]
     },
     {
       "name": "draw full character set",
       "path": "tests/elements/pcb-fabrication-note-text-full-charset.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0568",
-        "case-0569",
-        "case-0570",
-        "case-0571"
-      ]
+      "caseIds": ["case-0568", "case-0569", "case-0570", "case-0571"]
     },
     {
       "name": "drawPcbPanel with board and components",
       "path": "tests/elements/draw-pcb-panel.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0572"
-      ]
+      "caseIds": ["case-0572"]
     },
     {
       "name": "draw smt pads with positive and negative soldermask margins",
       "path": "tests/elements/pcb-smtpad-soldermask-margin.test.ts",
       "status": "failed",
       "error": "Error: \n\nPNG snapshot differs by 39.163% (threshold: 5%). Diff saved at ./tests/upstream/circuit-to-canvas/tests/elements/__snapshots__/pcb-smtpad-soldermask-margin.diff.png. Use BUN_UPDATE_SNAPSHOTS=1 to update the snapshot.",
-      "caseIds": [
-        "case-0573"
-      ]
+      "caseIds": ["case-0573"]
     },
     {
       "name": "PCB debug objects are opt-in",
       "path": "tests/elements/pcb-debug-object.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0574"
-      ]
+      "caseIds": ["case-0574"]
     },
     {
       "name": "draws labeled PCB debug objects",
       "path": "tests/elements/pcb-debug-object.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0575"
-      ]
+      "caseIds": ["case-0575"]
     },
     {
       "name": "matches the labeled PCB debug object visual snapshot",
       "path": "tests/elements/pcb-debug-object.test.ts",
       "status": "failed",
       "error": "Error: \n\nSnapshot does not match. Diff saved at ./tests/upstream/circuit-to-canvas/tests/elements/__snapshots__/pcb-debug-object.diff.png",
-      "caseIds": [
-        "case-0576"
-      ]
+      "caseIds": ["case-0576"]
     },
     {
       "name": "places rectangle labels above the top-left corner",
       "path": "tests/elements/pcb-debug-object.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0577"
-      ]
+      "caseIds": ["case-0577"]
     },
     {
       "name": "stacks labels for overlapping rectangles",
       "path": "tests/elements/pcb-debug-object.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0578"
-      ]
+      "caseIds": ["case-0578"]
     },
     {
       "name": "draw silkscreen text bottom layer with rotation - tests transform order",
       "path": "tests/elements/pcb-silkscreen-text-bottom-rotated.test.ts",
       "status": "failed",
       "error": "Error: \n\nPNG snapshot differs by 10.880% (threshold: 5%). Diff saved at ./tests/upstream/circuit-to-canvas/tests/elements/__snapshots__/pcb-silkscreen-text-bottom-rotated.diff.png. Use BUN_UPDATE_SNAPSHOTS=1 to update the snapshot.",
-      "caseIds": [
-        "case-0579"
-      ]
+      "caseIds": ["case-0579"]
     },
     {
       "name": "draw circular hole with rotated rect pad",
       "path": "tests/elements/pcb-plated-hole-rotated-rect-pad.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0580"
-      ]
+      "caseIds": ["case-0580"]
     },
     {
       "name": "draw fabrication note rect with dashed stroke",
       "path": "tests/elements/pcb-fabrication-note-rect-dashed.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0581"
-      ]
+      "caseIds": ["case-0581"]
     },
     {
       "name": "draw silkscreen text bottom layer",
       "path": "tests/elements/pcb-silkscreen-text-bottom.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0582"
-      ]
+      "caseIds": ["case-0582"]
     },
     {
       "name": "draw circular plated hole",
       "path": "tests/elements/pcb-plated-hole.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0583"
-      ]
+      "caseIds": ["case-0583"]
     },
     {
       "name": "draw oval plated hole",
       "path": "tests/elements/pcb-plated-hole.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0584"
-      ]
+      "caseIds": ["case-0584"]
     },
     {
       "name": "draw pill plated hole",
       "path": "tests/elements/pcb-plated-hole.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0585"
-      ]
+      "caseIds": ["case-0585"]
     },
     {
       "name": "draw pcb note path",
       "path": "tests/elements/pcb-note-path.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0586"
-      ]
+      "caseIds": ["case-0586"]
     },
     {
       "name": "draw polygon smt pad",
       "path": "tests/elements/pcb-smtpad-polygon.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0587"
-      ]
+      "caseIds": ["case-0587"]
     },
     {
       "name": "draw silkscreen on component",
       "path": "tests/elements/pcb-silkscreen-on-component.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0588"
-      ]
+      "caseIds": ["case-0588"]
     },
     {
       "name": "repeated board context preserves the rendered board's tenting defaults",
       "path": "tests/elements/pcb-via-tenting-with-clip-context.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0589",
-        "case-0590"
-      ]
+      "caseIds": ["case-0589", "case-0590"]
     },
     {
       "name": "draw smt pads with asymmetric soldermask margins",
       "path": "tests/elements/pcb-smtpad-asymmetric-soldermask-margin.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0591"
-      ]
+      "caseIds": ["case-0591"]
     },
     {
       "name": "renders copper pour with different-net traces",
       "path": "tests/elements/copper-pour-different-net.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0592"
-      ]
+      "caseIds": ["case-0592"]
     },
     {
       "name": "cut copper trace at via destination drill",
       "path": "tests/elements/pcb-trace-destination-drill-cutout.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0593"
-      ]
+      "caseIds": ["case-0593"]
     },
     {
       "name": "cut soldermask trace at plated-hole destination drill",
       "path": "tests/elements/pcb-trace-destination-drill-cutout.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0594"
-      ]
+      "caseIds": ["case-0594"]
     },
     {
       "name": "draw holes with positive and negative soldermask margins",
       "path": "tests/elements/pcb-hole-soldermask-margin.test.ts",
       "status": "failed",
       "error": "Error: \n\nPNG snapshot differs by 36.402% (threshold: 5%). Diff saved at ./tests/upstream/circuit-to-canvas/tests/elements/__snapshots__/pcb-hole-soldermask-margin.diff.png. Use BUN_UPDATE_SNAPSHOTS=1 to update the snapshot.",
-      "caseIds": [
-        "case-0595"
-      ]
+      "caseIds": ["case-0595"]
     },
     {
       "name": "draw circular hole with rotated rect pad when soldermask is true",
       "path": "tests/elements/pcb-plated-hole-rotated-rect-pad-soldermask.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0596"
-      ]
+      "caseIds": ["case-0596"]
     },
     {
       "name": "clearDrillHoles removes physical apertures and preserves copper rings",
       "path": "tests/elements/clear-drill-holes.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0597"
-      ]
+      "caseIds": ["case-0597"]
     },
     {
       "name": "drills retain their configured color by default",
       "path": "tests/elements/clear-drill-holes.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0598"
-      ]
+      "caseIds": ["case-0598"]
     },
     {
       "name": "draw fabrication note path",
       "path": "tests/elements/pcb-fabrication-note-path.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0599"
-      ]
+      "caseIds": ["case-0599"]
     },
     {
       "name": "draw silkscreen oval",
       "path": "tests/elements/pcb-silkscreen-oval.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0600"
-      ]
+      "caseIds": ["case-0600"]
     },
     {
       "name": "draw pcb note rect with fill and no stroke",
       "path": "tests/elements/pcb-note-rect-filled-no-stroke.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0601"
-      ]
+      "caseIds": ["case-0601"]
     },
     {
       "name": "draw rotated rectangular smt pad",
       "path": "tests/elements/pcb-smtpad-rotated-rect.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0602"
-      ]
+      "caseIds": ["case-0602"]
     },
     {
       "name": "draw fabrication note text small size",
       "path": "tests/elements/pcb-fabrication-note-text-small.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0603"
-      ]
+      "caseIds": ["case-0603"]
     },
     {
       "name": "draw circular smt pad",
       "path": "tests/elements/pcb-smtpad-circle.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0604"
-      ]
+      "caseIds": ["case-0604"]
     },
     {
       "name": "pcb keepout with pcb_group_id and subcircuit_id",
       "path": "tests/elements/pcb-keepout-with-group-id.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0605"
-      ]
+      "caseIds": ["case-0605"]
     },
     {
       "name": "pcb keepout with layer filter",
       "path": "tests/elements/pcb-keepout-layer-filter.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0606"
-      ]
+      "caseIds": ["case-0606"]
     },
     {
       "name": "comprehensive soldermask margin test",
       "path": "tests/elements/pcb-comprehensive-soldermask-margin.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0607"
-      ]
+      "caseIds": ["case-0607"]
     },
     {
       "name": "draw silkscreen circle",
       "path": "tests/elements/pcb-silkscreen-circle.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0608"
-      ]
+      "caseIds": ["case-0608"]
     },
     {
       "name": "a top blind via does not suppress a bottom route via at the same position",
       "path": "tests/elements/pcb-trace-via-distinct-layers.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0609"
-      ]
+      "caseIds": ["case-0609"]
     },
     {
       "name": "comprehensive soldermask margin test",
       "path": "tests/elements/pcb-no-soldermask.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0610"
-      ]
+      "caseIds": ["case-0610"]
     },
     {
       "name": "USB-C flashlight - comprehensive comparison (circuit-to-canvas vs circuit-to-svg)",
       "path": "tests/board-snapshot/usb-c-flashlight-board.test.ts",
       "status": "failed",
       "error": "Error: \n\nPNG snapshot differs by 16.689% (threshold: 5%). Diff saved at ./tests/upstream/circuit-to-canvas/tests/board-snapshot/__snapshots__/usb-c-flashlight-board.diff.png. Use BUN_UPDATE_SNAPSHOTS=1 to update the snapshot.",
-      "caseIds": [
-        "case-0611"
-      ]
+      "caseIds": ["case-0611"]
     },
     {
       "name": "renders abse/gameboy top-layer copper pours and traces",
       "path": "tests/board-snapshot/abse-gameboy-copper-pour.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0612"
-      ]
+      "caseIds": ["case-0612"]
     },
     {
       "name": "renders abse/gameboy bottom-layer copper pours and traces",
       "path": "tests/board-snapshot/abse-gameboy-copper-pour.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0613"
-      ]
+      "caseIds": ["case-0613"]
     },
     {
       "name": "clips a trace-only Game Boy render using full-circuit context",
       "path": "tests/board-snapshot/abse-gameboy-copper-pour.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0614"
-      ]
+      "caseIds": ["case-0614"]
     },
     {
       "name": "TI BOOST-DRV8848 U1 VM pad - canvas vs SVG",
       "path": "tests/board-snapshot/ti-boost-drv8848-u1-vm-pad.test.ts",
       "status": "passed",
-      "caseIds": [
-        "case-0615"
-      ]
+      "caseIds": ["case-0615"]
     }
   ],
   "results": [
