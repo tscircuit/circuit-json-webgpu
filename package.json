@@ -19,12 +19,14 @@
   "scripts": {
     "build": "tsup lib/index.ts --format esm --dts --clean",
     "typecheck": "tsc --noEmit",
-    "test": "bun test tests/geometry.test.ts",
+    "test": "bun test tests/geometry.test.ts tests/text.test.ts tests/upstream-integrity.test.ts tests/parity-comparison.test.mjs",
     "test:visual": "node tests/visual.mjs",
     "snapshots:update": "UPDATE_SNAPSHOTS=1 node tests/visual.mjs",
     "dev": "vite --host 127.0.0.1",
-    "format": "biome format lib site tests/geometry.test.ts tests/visual.mjs --write",
-    "format:check": "biome format lib site tests/geometry.test.ts tests/visual.mjs"
+    "format": "biome format lib site tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.mjs tests/upstream-integrity.test.ts tests/parity tests/visual.mjs --write",
+    "format:check": "biome format lib site tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.mjs tests/upstream-integrity.test.ts tests/parity tests/visual.mjs",
+    "test:reference": "bun test --preload ./tests/upstream/circuit-to-canvas/tests/fixtures/preload.ts ./tests/upstream/circuit-to-canvas/tests",
+    "test:parity": "node tests/parity/audit.mjs"
   },
   "dependencies": {
     "@tscircuit/alphabet": "^0.0.25",
@@ -39,12 +41,26 @@
     "@types/earcut": "^3.0.0",
     "@types/pngjs": "^6.0.5",
     "@webgpu/types": "^0.1.64",
-    "circuit-json": "^0.0.469",
+    "circuit-json": "^0.0.491",
     "pixelmatch": "^7.1.0",
     "playwright": "1.63.0",
     "pngjs": "^7.0.0",
     "tsup": "^8.4.0",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "@napi-rs/canvas": "^0.1.84",
+    "@resvg/resvg-js": "^2.6.2",
+    "@tscircuit/circuit-json-util": "^0.0.99",
+    "@tscircuit/math-utils": "^0.0.36",
+    "bun-match-svg": "^0.0.14",
+    "circuit-json-to-connectivity-map": "^0.0.23",
+    "circuit-to-svg": "^0.0.390",
+    "format-si-unit": "^0.0.7",
+    "looks-same": "^10.0.1",
+    "schematic-symbols": "^0.0.202",
+    "transformation-matrix": "^3.1.0"
+  },
+  "overrides": {
+    "sharp": "^0.34.3"
   }
 }
