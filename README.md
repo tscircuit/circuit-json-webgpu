@@ -206,7 +206,7 @@ Resolve the net to PCB element IDs in your connectivity map and pass them as
 selected copper render at full opacity on every layer; other copper uses
 `hiddenLayerOpacity`, including copper on `selectedLayer`. Selected copper is
 composited back to front with the selected layer foremost. Explicit `layers`
-filters and visibility toggles still apply. Hover highlighting remains separate.
+filters and visibility toggles still apply. Hover highlighting is suppressed during X-Ray and resumes on exit.
 
 ```ts
 drawer.render({

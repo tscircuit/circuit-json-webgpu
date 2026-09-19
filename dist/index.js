@@ -1059,7 +1059,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
           1
         ])
       );
-    const ids = o.highlightedElementIds ?? [], key = JSON.stringify([ids, xRayIds]);
+    const ids = xRayActive ? [] : o.highlightedElementIds ?? [], key = JSON.stringify([ids, xRayIds]);
     if (key !== this.highlightKey) {
       const mask = new Uint32Array(
         Math.max(1, this.scene?.elementIds.length ?? 0)

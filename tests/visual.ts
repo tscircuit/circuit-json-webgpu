@@ -86,9 +86,14 @@ try {
   }
   assert.equal(pixel(xray.frames.dimmed, 100, 150)[3], 102)
   assert.equal(
-    pixel(xray.frames.hover, 100, 150)[3],
-    102,
-    "hover must not override X-Ray opacity",
+    xray.frames.hover,
+    xray.frames.dimmed,
+    "X-Ray must ignore highlighting on both selected and unrelated copper",
+  )
+  assert.deepEqual(
+    pixel(xray.frames.exit, 100, 150),
+    [255, 78, 78, 255],
+    "Highlighting resumes after exiting X-Ray",
   )
   assert.deepEqual(pixel(xray.frames.changed, 40, 50), layerColors.bottom)
   assert.equal(pixel(xray.frames.changed, 160, 50)[3], 102)

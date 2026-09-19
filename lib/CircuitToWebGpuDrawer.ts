@@ -339,7 +339,7 @@ export class CircuitToWebGpuDrawer {
           1,
         ]),
       )
-    const ids = o.highlightedElementIds ?? [],
+    const ids = xRayActive ? [] : (o.highlightedElementIds ?? []),
       key = JSON.stringify([ids, xRayIds])
     if (key !== this.highlightKey) {
       const mask = new Uint32Array(

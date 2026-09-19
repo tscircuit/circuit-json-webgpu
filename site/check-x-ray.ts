@@ -49,7 +49,9 @@ export async function checkXRay() {
     }
     drawer.render({ selectedLayer: "top", hiddenLayerOpacity: 0.4 })
     frames.dimmed = capture()
-    drawer.render({ highlightedElementIds: ["other"] })
+    drawer.render({
+      highlightedElementIds: ["other", "pad_bottom", "trace_top"],
+    })
     frames.hover = capture()
     drawer.render({ xRayElementIds: ["pad_bottom"] })
     frames.changed = capture()
