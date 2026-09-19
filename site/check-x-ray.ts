@@ -37,16 +37,35 @@ export async function checkXRay() {
   } as const
   const capture = () => canvas.toDataURL("image/png").split(",")[1]
   try {
-    drawer.drawElements([...elements, unrelated], {
+    const annotations = [
+      "silkscreen",
+      "fabrication_note",
+      "note",
+      "courtyard",
+    ].map((group, i) => ({
+      type: `pcb_${group}_line`,
+      layer: "top",
+      start: { x: -7 + i * 4, y: 8 },
+      end: { x: -5 + i * 4, y: 8 },
+      stroke_width: 1,
+    })) as unknown as CircuitJson
+    drawer.drawElements([...elements, unrelated, ...annotations], {
+      showSilkscreen: true,
+      showFabricationNotes: true,
+      showPcbNotes: true,
+      showCourtyards: true,
       transform: { a: 10, b: 0, c: 0, d: -10, e: 100, f: 100 },
       hiddenLayerOpacity: 0,
     })
     const ids = layers.flatMap((layer) => [`pad_${layer}`, `trace_${layer}`])
     const frames: Record<string, string> = {}
+    frames.before = capture()
     for (const selectedLayer of layers) {
       drawer.render({ selectedLayer, xRayElementIds: ids })
       frames[selectedLayer] = capture()
     }
+    drawer.render({ selectedLayer: "top", hiddenLayerOpacity: 0.05 })
+    frames.fivePercent = capture()
     drawer.render({ selectedLayer: "top", hiddenLayerOpacity: 0.4 })
     frames.dimmed = capture()
     drawer.render({

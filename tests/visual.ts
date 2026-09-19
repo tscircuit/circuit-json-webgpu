@@ -84,6 +84,21 @@ try {
       assert.equal(pixel(xray.frames[layer], x, 50)[3], 255)
     assert.equal(pixel(xray.frames[layer], 100, 150)[3], 0)
   }
+  for (const x of [40, 80, 120, 160]) {
+    assert(pixel(xray.frames.before, x, 20)[3] > 0)
+    assert.equal(
+      pixel(xray.frames.dimmed, x, 20)[3],
+      0,
+      "Non-copper layers must be transparent during X-Ray",
+    )
+    assert.equal(
+      pixel(xray.frames.exit, x, 20)[3],
+      pixel(xray.frames.before, x, 20)[3],
+      "Non-copper layers must return after X-Ray",
+    )
+  }
+  assert.equal(pixel(xray.frames.fivePercent, 100, 150)[3], 13)
+  assert.equal(pixel(xray.frames.fivePercent, 40, 50)[3], 255)
   assert.equal(pixel(xray.frames.dimmed, 100, 150)[3], 102)
   assert.equal(
     xray.frames.hover,

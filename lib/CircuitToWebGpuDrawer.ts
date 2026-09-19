@@ -361,6 +361,7 @@ export class CircuitToWebGpuDrawer {
     const visible = this.layers
       .filter((l) => {
         if (filter && !filter.has(l.name)) return false
+        if (xRayActive && !this.isCopper(l.name)) return false
         if (l.name === "board" && !o.showBoardMaterial) return false
         if (
           l.name.startsWith("soldermask_") &&

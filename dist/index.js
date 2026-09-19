@@ -1078,6 +1078,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
     const selected = normalizeLayer(o.selectedLayer ?? "top"), filter = o.layers ? new Set(o.layers.map(normalizeLayer)) : void 0;
     const visible = this.layers.filter((l) => {
       if (filter && !filter.has(l.name)) return false;
+      if (xRayActive && !this.isCopper(l.name)) return false;
       if (l.name === "board" && !o.showBoardMaterial) return false;
       if (l.name.startsWith("soldermask_") && (!o.showSolderMask || l.name !== `soldermask_${selected}`))
         return false;
