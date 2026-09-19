@@ -5,3 +5,5 @@ tests/upstream/
 bun.lock
 .cursor/
 *.tgz
+
+.parity-base/

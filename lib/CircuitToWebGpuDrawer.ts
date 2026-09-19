@@ -384,6 +384,11 @@ export class CircuitToWebGpuDrawer {
     const selectedLayers = xRayActive
       ? visible
           .filter((layer) => this.isCopper(layer.name))
+          .sort(
+            (a, b) =>
+              this.xRayOrder(a.name, selected) -
+              this.xRayOrder(b.name, selected),
+          )
           .map(
             (layer) =>
               this.xRayLayers.find(
@@ -479,6 +484,12 @@ export class CircuitToWebGpuDrawer {
       ? 1
       : Math.max(0, Math.min(1, hidden))
   }
+  private xRayOrder(layer: string, selected: string) {
+    if (layer === selected) return 100
+    if (layer === "bottom") return 0
+    if (layer.startsWith("inner")) return 20 - Number(layer.slice(5))
+    return 40
+  }
   private order(layer: string, selected: string) {
     if (layer === "board") return -100
     if (layer === "drill") return 200
@@ -489,7 +500,7 @@ export class CircuitToWebGpuDrawer {
         : layer.startsWith("inner")
           ? 20 - Number(layer.slice(5))
           : layer === "bottom"
-            ? 10
+            ? 30
             : 40
     if (layer.includes("soldermask")) return 110
     if (layer.startsWith(`${selected}_`)) return 120

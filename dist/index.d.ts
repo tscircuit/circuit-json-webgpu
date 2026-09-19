@@ -111,6 +111,7 @@ declare class CircuitToWebGpuDrawer {
     flush(): Promise<void>;
     private isCopper;
     private opacity;
+    private xRayOrder;
     private order;
     private resize;
     private ensureTexture;

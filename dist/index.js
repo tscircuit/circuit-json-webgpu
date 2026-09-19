@@ -1091,7 +1091,9 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
     }).sort(
       (a, b) => this.order(a.name, selected) - this.order(b.name, selected)
     );
-    const selectedLayers = xRayActive ? visible.filter((layer) => this.isCopper(layer.name)).map(
+    const selectedLayers = xRayActive ? visible.filter((layer) => this.isCopper(layer.name)).sort(
+      (a, b) => this.xRayOrder(a.name, selected) - this.xRayOrder(b.name, selected)
+    ).map(
       (layer) => this.xRayLayers.find(
         (candidate) => candidate.name === layer.name
       )
@@ -1170,11 +1172,17 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
   opacity(layer, selected, hidden) {
     return ["board", "drill", "edge_cuts"].includes(layer) || layer === selected || layer.startsWith(`${selected}_`) || layer.endsWith(`_${selected}`) ? 1 : Math.max(0, Math.min(1, hidden));
   }
+  xRayOrder(layer, selected) {
+    if (layer === selected) return 100;
+    if (layer === "bottom") return 0;
+    if (layer.startsWith("inner")) return 20 - Number(layer.slice(5));
+    return 40;
+  }
   order(layer, selected) {
     if (layer === "board") return -100;
     if (layer === "drill") return 200;
     if (layer === "edge_cuts") return 150;
-    const base = layer === selected ? 100 : layer.startsWith("inner") ? 20 - Number(layer.slice(5)) : layer === "bottom" ? 10 : 40;
+    const base = layer === selected ? 100 : layer.startsWith("inner") ? 20 - Number(layer.slice(5)) : layer === "bottom" ? 30 : 40;
     if (layer.includes("soldermask")) return 110;
     if (layer.startsWith(`${selected}_`)) return 120;
     return base;
