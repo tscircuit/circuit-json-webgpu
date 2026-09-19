@@ -6,19 +6,25 @@ struct VertexOut {
   @builtin(position) position: vec4f,
   @location(0) color: vec4f,
   @location(1) @interpolate(flat) category: u32,
+  @location(2) @interpolate(flat) selected: u32,
 }
 @vertex fn vertexMain(@location(0) p: vec2f, @location(1) color: vec4f,
   @location(2) element: f32, @location(3) category: f32) -> VertexOut {
   let pixel = vec2f(dot(camera.rowX.xyz, vec3f(p, 1)), dot(camera.rowY.xyz, vec3f(p, 1)));
   var out: VertexOut;
   out.position = vec4f(pixel.x / camera.viewport.x * 2 - 1, 1 - pixel.y / camera.viewport.y * 2, 0, 1);
-  let highlight = select(0.0, 1.0, highlights[u32(element)] != 0u);
+  let highlight = select(0.0, 1.0, (highlights[u32(element)] & 1u) != 0u);
   out.color = vec4f(mix(color.rgb, min(vec3f(1), color.rgb * 1.5), highlight), color.a);
   out.category = u32(category);
+  out.selected = highlights[u32(element)] & 2u;
   return out;
 }
 @fragment fn fragmentMain(in: VertexOut) -> @location(0) vec4f {
   if (in.category == 1u && camera.viewport.z == 0) { discard; }
+  if (camera.viewport.w == 1) {
+    if (in.selected == 0u) { discard; }
+    return vec4f(in.color.rgb, 1);
+  }
   return vec4f(in.color.rgb * in.color.a, in.color.a);
 }
 `

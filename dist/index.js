@@ -712,19 +712,25 @@ struct VertexOut {
   @builtin(position) position: vec4f,
   @location(0) color: vec4f,
   @location(1) @interpolate(flat) category: u32,
+  @location(2) @interpolate(flat) selected: u32,
 }
 @vertex fn vertexMain(@location(0) p: vec2f, @location(1) color: vec4f,
   @location(2) element: f32, @location(3) category: f32) -> VertexOut {
   let pixel = vec2f(dot(camera.rowX.xyz, vec3f(p, 1)), dot(camera.rowY.xyz, vec3f(p, 1)));
   var out: VertexOut;
   out.position = vec4f(pixel.x / camera.viewport.x * 2 - 1, 1 - pixel.y / camera.viewport.y * 2, 0, 1);
-  let highlight = select(0.0, 1.0, highlights[u32(element)] != 0u);
+  let highlight = select(0.0, 1.0, (highlights[u32(element)] & 1u) != 0u);
   out.color = vec4f(mix(color.rgb, min(vec3f(1), color.rgb * 1.5), highlight), color.a);
   out.category = u32(category);
+  out.selected = highlights[u32(element)] & 2u;
   return out;
 }
 @fragment fn fragmentMain(in: VertexOut) -> @location(0) vec4f {
   if (in.category == 1u && camera.viewport.z == 0) { discard; }
+  if (camera.viewport.w == 1) {
+    if (in.selected == 0u) { discard; }
+    return vec4f(in.color.rgb, 1);
+  }
   return vec4f(in.color.rgb * in.color.a, in.color.a);
 }
 `
@@ -761,6 +767,10 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
     this.context = context;
     this.config = config;
     this.uniform = device.createBuffer({
+      size: 48,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+    });
+    this.xRayUniform = device.createBuffer({
       size: 48,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
     });
@@ -843,6 +853,8 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
   device;
   context;
   config;
+  /** Feature detection for clients that also support older renderer versions. */
+  static supportsXRayNet = true;
   realToCanvasMat = { a: 1, b: 0, c: 0, d: -1, e: 0, f: 0 };
   stats = {
     geometryUploads: 0,
@@ -854,6 +866,9 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
   circuit;
   scene;
   layers = [];
+  xRayLayers = [];
+  xRayUniform;
+  xRayCameraGroup;
   uniform;
   highlights;
   cameraGroup;
@@ -933,6 +948,13 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
         { binding: 1, resource: { buffer: this.highlights } }
       ]
     });
+    this.xRayCameraGroup = this.device.createBindGroup({
+      layout: this.paintPipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: this.xRayUniform } },
+        { binding: 1, resource: { buffer: this.highlights } }
+      ]
+    });
     this.stats.vertexBytes = 0;
     const upload = (mesh) => {
       const make = (data, usage) => {
@@ -961,6 +983,13 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       name: layer.name,
       paint: upload(layer.paint),
       erase: upload(layer.erase),
+      opacity: this.device.createBuffer({
+        size: 16,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+      })
+    }));
+    this.xRayLayers = this.layers.filter((layer) => this.isCopper(layer.name)).map((layer) => ({
+      ...layer,
       opacity: this.device.createBuffer({
         size: 16,
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
@@ -1009,7 +1038,28 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
         0
       ])
     );
-    const ids = o.highlightedElementIds ?? [], key = JSON.stringify(ids);
+    const xRayIds = o.xRayElementIds ?? [];
+    const xRayActive = xRayIds.length > 0;
+    if (xRayActive)
+      this.device.queue.writeBuffer(
+        this.xRayUniform,
+        0,
+        new Float32Array([
+          t.a,
+          t.c,
+          t.e,
+          0,
+          t.b,
+          t.d,
+          t.f,
+          0,
+          width,
+          height,
+          o.showCopperPours === false ? 0 : 1,
+          1
+        ])
+      );
+    const ids = o.highlightedElementIds ?? [], key = JSON.stringify([ids, xRayIds]);
     if (key !== this.highlightKey) {
       const mask = new Uint32Array(
         Math.max(1, this.scene?.elementIds.length ?? 0)
@@ -1017,6 +1067,10 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       for (const id of ids) {
         const i = this.highlightIndices.get(id);
         if (i !== void 0) mask[i] = 1;
+      }
+      for (const id of xRayIds) {
+        const i = this.highlightIndices.get(id);
+        if (i !== void 0) mask[i] |= 2;
       }
       this.device.queue.writeBuffer(this.highlights, 0, mask);
       this.highlightKey = key;
@@ -1033,12 +1087,21 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
         return false;
       if (l.name.includes("notes") && o.showPcbNotes === false) return false;
       if (l.name.includes("courtyard") && !o.showCourtyards) return false;
-      return this.opacity(l.name, selected, o.hiddenLayerOpacity ?? 0.4) > 0;
+      return xRayActive && this.isCopper(l.name) || this.opacity(l.name, selected, o.hiddenLayerOpacity ?? 0.4) > 0;
     }).sort(
       (a, b) => this.order(a.name, selected) - this.order(b.name, selected)
     );
+    const selectedLayers = xRayActive ? visible.filter((layer) => this.isCopper(layer.name)).map(
+      (layer) => this.xRayLayers.find(
+        (candidate) => candidate.name === layer.name
+      )
+    ) : [];
+    const renderLayers = [
+      ...visible.map((layer) => ({ layer, xRay: false })),
+      ...selectedLayers.map((layer) => ({ layer, xRay: true }))
+    ];
     const encoder = this.device.createCommandEncoder();
-    for (const layer of visible) {
+    for (const { layer, xRay } of renderLayers) {
       this.ensureTexture(layer, width, height);
       const target = layer.texture.createView(), msaa = (this.config.sampleCount ?? 4) > 1;
       const pass2 = encoder.beginRenderPass({
@@ -1052,12 +1115,15 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
           }
         ]
       });
-      pass2.setBindGroup(0, this.cameraGroup);
       for (const [mesh, pipeline] of [
         [layer.paint, this.paintPipeline],
         [layer.erase, this.erasePipeline]
       ]) {
         if (!mesh.count) continue;
+        pass2.setBindGroup(
+          0,
+          xRay && pipeline === this.paintPipeline ? this.xRayCameraGroup : this.cameraGroup
+        );
         pass2.setPipeline(pipeline);
         pass2.setVertexBuffer(0, mesh.vertices);
         pass2.setIndexBuffer(mesh.indices, "uint32");
@@ -1068,7 +1134,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
         layer.opacity,
         0,
         new Float32Array([
-          this.opacity(layer.name, selected, o.hiddenLayerOpacity ?? 0.4),
+          xRay ? 1 : xRayActive && this.isCopper(layer.name) ? Math.max(0, Math.min(1, o.hiddenLayerOpacity ?? 0.4)) : this.opacity(layer.name, selected, o.hiddenLayerOpacity ?? 0.4),
           0,
           0,
           0
@@ -1086,7 +1152,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       ]
     });
     pass.setPipeline(this.compositePipeline);
-    for (const layer of visible) {
+    for (const { layer } of renderLayers) {
       pass.setBindGroup(0, layer.composite);
       pass.draw(6);
     }
@@ -1098,6 +1164,9 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
     this.assertLive();
     await this.device.queue.onSubmittedWorkDone();
   }
+  isCopper(layer) {
+    return /^(top|bottom|inner\d+)$/.test(layer);
+  }
   opacity(layer, selected, hidden) {
     return ["board", "drill", "edge_cuts"].includes(layer) || layer === selected || layer.startsWith(`${selected}_`) || layer.endsWith(`_${selected}`) ? 1 : Math.max(0, Math.min(1, hidden));
   }
@@ -1105,7 +1174,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
     if (layer === "board") return -100;
     if (layer === "drill") return 200;
     if (layer === "edge_cuts") return 150;
-    const base = layer === selected ? 100 : layer.startsWith("inner") ? 20 - Number(layer.slice(5)) : layer === "bottom" ? 30 : 40;
+    const base = layer === selected ? 100 : layer.startsWith("inner") ? 20 - Number(layer.slice(5)) : layer === "bottom" ? 10 : 40;
     if (layer.includes("soldermask")) return 110;
     if (layer.startsWith(`${selected}_`)) return 120;
     return base;
@@ -1120,7 +1189,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       sampleCount: this.config.sampleCount ?? 4,
       usage: GPUTextureUsage.RENDER_ATTACHMENT
     }) : void 0;
-    for (const layer of this.layers) {
+    for (const layer of [...this.layers, ...this.xRayLayers]) {
       layer.texture?.destroy();
       layer.texture = void 0;
       layer.composite = void 0;
@@ -1148,6 +1217,11 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       throw new Error(this.lost ? "WebGPU device lost" : "Renderer disposed");
   }
   releaseLayers() {
+    for (const layer of this.xRayLayers) {
+      layer.opacity.destroy();
+      layer.texture?.destroy();
+    }
+    this.xRayLayers = [];
     for (const layer of this.layers) {
       for (const mesh of [layer.paint, layer.erase]) {
         mesh.vertices.destroy();
@@ -1164,6 +1238,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
     this.releaseLayers();
     this.sample?.destroy();
     this.uniform.destroy();
+    this.xRayUniform.destroy();
     this.highlights.destroy();
     this.context.unconfigure();
     this.device.destroy();

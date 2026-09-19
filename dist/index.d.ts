@@ -28,6 +28,12 @@ type RenderOptions = {
     showPcbNotes?: boolean;
     showCourtyards?: boolean;
     highlightedElementIds?: readonly string[];
+    /** Copper belonging to an inspected net. Supply resolved PCB element IDs.
+     * Selected copper is opaque on every layer; other copper uses hiddenLayerOpacity.
+     * Omit or pass [] to exit. Explicit layers and visibility toggles still apply.
+     * Selection changes reuse the retained geometry buffers.
+     */
+    xRayElementIds?: readonly string[];
     background?: Color;
 };
 type Diagnostic = {
@@ -64,6 +70,8 @@ declare class CircuitToWebGpuDrawer {
     private device;
     private context;
     private config;
+    /** Feature detection for clients that also support older renderer versions. */
+    static readonly supportsXRayNet = true;
     realToCanvasMat: Matrix;
     readonly stats: {
         geometryUploads: number;
@@ -75,6 +83,9 @@ declare class CircuitToWebGpuDrawer {
     private circuit?;
     private scene?;
     private layers;
+    private xRayLayers;
+    private xRayUniform;
+    private xRayCameraGroup?;
     private uniform;
     private highlights;
     private cameraGroup?;
@@ -98,6 +109,7 @@ declare class CircuitToWebGpuDrawer {
     drawElements(elements: CircuitJson, options?: RenderOptions): void;
     render(options?: RenderOptions): void;
     flush(): Promise<void>;
+    private isCopper;
     private opacity;
     private order;
     private resize;

@@ -26,6 +26,8 @@ const over: GPUBlendState = {
 
 /** Retained GPU geometry: camera and highlight changes never recompile or upload vertices. */
 export class CircuitToWebGpuDrawer {
+  /** Feature detection for clients that also support older renderer versions. */
+  static readonly supportsXRayNet = true
   realToCanvasMat: Matrix = { a: 1, b: 0, c: 0, d: -1, e: 0, f: 0 }
   readonly stats = {
     geometryUploads: 0,
@@ -37,6 +39,9 @@ export class CircuitToWebGpuDrawer {
   private circuit?: CircuitJson
   private scene?: CompiledScene
   private layers: Layer[] = []
+  private xRayLayers: Layer[] = []
+  private xRayUniform: GPUBuffer
+  private xRayCameraGroup?: GPUBindGroup
   private uniform: GPUBuffer
   private highlights: GPUBuffer
   private cameraGroup?: GPUBindGroup
@@ -104,6 +109,10 @@ export class CircuitToWebGpuDrawer {
     private config: DrawerOptions,
   ) {
     this.uniform = device.createBuffer({
+      size: 48,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    })
+    this.xRayUniform = device.createBuffer({
       size: 48,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     })
@@ -208,6 +217,13 @@ export class CircuitToWebGpuDrawer {
         { binding: 1, resource: { buffer: this.highlights } },
       ],
     })
+    this.xRayCameraGroup = this.device.createBindGroup({
+      layout: this.paintPipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: this.xRayUniform } },
+        { binding: 1, resource: { buffer: this.highlights } },
+      ],
+    })
     this.stats.vertexBytes = 0
     const upload = (mesh: Mesh): GpuMesh => {
       const make = (data: Float32Array | Uint32Array, usage: number) => {
@@ -241,6 +257,16 @@ export class CircuitToWebGpuDrawer {
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
       }),
     }))
+    // Share retained geometry; only the per-layer compositing targets are separate.
+    this.xRayLayers = this.layers
+      .filter((layer) => this.isCopper(layer.name))
+      .map((layer) => ({
+        ...layer,
+        opacity: this.device.createBuffer({
+          size: 16,
+          usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        }),
+      }))
     this.scene = scene
     this.circuit = circuitJson
     this.size = ""
@@ -292,8 +318,29 @@ export class CircuitToWebGpuDrawer {
         0,
       ]),
     )
+    const xRayIds = o.xRayElementIds ?? []
+    const xRayActive = xRayIds.length > 0
+    if (xRayActive)
+      this.device.queue.writeBuffer(
+        this.xRayUniform,
+        0,
+        new Float32Array([
+          t.a,
+          t.c,
+          t.e,
+          0,
+          t.b,
+          t.d,
+          t.f,
+          0,
+          width,
+          height,
+          o.showCopperPours === false ? 0 : 1,
+          1,
+        ]),
+      )
     const ids = o.highlightedElementIds ?? [],
-      key = JSON.stringify(ids)
+      key = JSON.stringify([ids, xRayIds])
     if (key !== this.highlightKey) {
       const mask = new Uint32Array(
         Math.max(1, this.scene?.elementIds.length ?? 0),
@@ -301,6 +348,10 @@ export class CircuitToWebGpuDrawer {
       for (const id of ids) {
         const i = this.highlightIndices.get(id)
         if (i !== undefined) mask[i] = 1
+      }
+      for (const id of xRayIds) {
+        const i = this.highlightIndices.get(id)
+        if (i !== undefined) mask[i] |= 2
       }
       this.device.queue.writeBuffer(this.highlights, 0, mask)
       this.highlightKey = key
@@ -322,13 +373,30 @@ export class CircuitToWebGpuDrawer {
           return false
         if (l.name.includes("notes") && o.showPcbNotes === false) return false
         if (l.name.includes("courtyard") && !o.showCourtyards) return false
-        return this.opacity(l.name, selected, o.hiddenLayerOpacity ?? 0.4) > 0
+        return (
+          (xRayActive && this.isCopper(l.name)) ||
+          this.opacity(l.name, selected, o.hiddenLayerOpacity ?? 0.4) > 0
+        )
       })
       .sort(
         (a, b) => this.order(a.name, selected) - this.order(b.name, selected),
       )
+    const selectedLayers = xRayActive
+      ? visible
+          .filter((layer) => this.isCopper(layer.name))
+          .map(
+            (layer) =>
+              this.xRayLayers.find(
+                (candidate) => candidate.name === layer.name,
+              )!,
+          )
+      : []
+    const renderLayers = [
+      ...visible.map((layer) => ({ layer, xRay: false })),
+      ...selectedLayers.map((layer) => ({ layer, xRay: true })),
+    ]
     const encoder = this.device.createCommandEncoder()
-    for (const layer of visible) {
+    for (const { layer, xRay } of renderLayers) {
       this.ensureTexture(layer, width, height)
       const target = layer.texture!.createView(),
         msaa = (this.config.sampleCount ?? 4) > 1
@@ -343,12 +411,18 @@ export class CircuitToWebGpuDrawer {
           },
         ],
       })
-      pass.setBindGroup(0, this.cameraGroup!)
       for (const [mesh, pipeline] of [
         [layer.paint, this.paintPipeline],
         [layer.erase, this.erasePipeline],
       ] as const) {
         if (!mesh.count) continue
+        // Erase geometry (drills/cutouts) must retain its physical meaning in both passes.
+        pass.setBindGroup(
+          0,
+          xRay && pipeline === this.paintPipeline
+            ? this.xRayCameraGroup!
+            : this.cameraGroup!,
+        )
         pass.setPipeline(pipeline)
         pass.setVertexBuffer(0, mesh.vertices)
         pass.setIndexBuffer(mesh.indices, "uint32")
@@ -359,7 +433,11 @@ export class CircuitToWebGpuDrawer {
         layer.opacity,
         0,
         new Float32Array([
-          this.opacity(layer.name, selected, o.hiddenLayerOpacity ?? 0.4),
+          xRay
+            ? 1
+            : xRayActive && this.isCopper(layer.name)
+              ? Math.max(0, Math.min(1, o.hiddenLayerOpacity ?? 0.4))
+              : this.opacity(layer.name, selected, o.hiddenLayerOpacity ?? 0.4),
           0,
           0,
           0,
@@ -377,7 +455,7 @@ export class CircuitToWebGpuDrawer {
       ],
     })
     pass.setPipeline(this.compositePipeline)
-    for (const layer of visible) {
+    for (const { layer } of renderLayers) {
       pass.setBindGroup(0, layer.composite!)
       pass.draw(6)
     }
@@ -389,6 +467,9 @@ export class CircuitToWebGpuDrawer {
   async flush() {
     this.assertLive()
     await this.device.queue.onSubmittedWorkDone()
+  }
+  private isCopper(layer: string) {
+    return /^(top|bottom|inner\d+)$/.test(layer)
   }
   private opacity(layer: string, selected: string, hidden: number) {
     return ["board", "drill", "edge_cuts"].includes(layer) ||
@@ -408,7 +489,7 @@ export class CircuitToWebGpuDrawer {
         : layer.startsWith("inner")
           ? 20 - Number(layer.slice(5))
           : layer === "bottom"
-            ? 30
+            ? 10
             : 40
     if (layer.includes("soldermask")) return 110
     if (layer.startsWith(`${selected}_`)) return 120
@@ -427,7 +508,7 @@ export class CircuitToWebGpuDrawer {
             usage: GPUTextureUsage.RENDER_ATTACHMENT,
           })
         : undefined
-    for (const layer of this.layers) {
+    for (const layer of [...this.layers, ...this.xRayLayers]) {
       layer.texture?.destroy()
       layer.texture = undefined
       layer.composite = undefined
@@ -456,6 +537,11 @@ export class CircuitToWebGpuDrawer {
       throw new Error(this.lost ? "WebGPU device lost" : "Renderer disposed")
   }
   private releaseLayers() {
+    for (const layer of this.xRayLayers) {
+      layer.opacity.destroy()
+      layer.texture?.destroy()
+    }
+    this.xRayLayers = []
     for (const layer of this.layers) {
       for (const mesh of [layer.paint, layer.erase]) {
         mesh.vertices.destroy()
@@ -472,6 +558,7 @@ export class CircuitToWebGpuDrawer {
     this.releaseLayers()
     this.sample?.destroy()
     this.uniform.destroy()
+    this.xRayUniform.destroy()
     this.highlights.destroy()
     this.context.unconfigure()
     this.device.destroy()
