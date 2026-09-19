@@ -35,6 +35,18 @@ export async function checkXRay() {
     height: 2,
     layer: "top",
   } as const
+  const drills = ["pcb_via", "pcb_plated_hole"].flatMap((type, i) =>
+    ["selected", "unrelated"].map((net, j) => ({
+      type,
+      [`${type}_id`]: `${net}_${type}`,
+      shape: "circle",
+      x: -6 + i * 12,
+      y: -3 - j * 4,
+      outer_diameter: 2,
+      hole_diameter: 1,
+      layers: ["top", "bottom"],
+    })),
+  ) as CircuitJson
   const capture = () => canvas.toDataURL("image/png").split(",")[1]
   try {
     const annotations = [
@@ -49,7 +61,7 @@ export async function checkXRay() {
       end: { x: -5 + i * 4, y: 8 },
       stroke_width: 1,
     })) as unknown as CircuitJson
-    drawer.drawElements([...elements, unrelated, ...annotations], {
+    drawer.drawElements([...elements, unrelated, ...annotations, ...drills], {
       showSilkscreen: true,
       showFabricationNotes: true,
       showPcbNotes: true,
@@ -57,7 +69,11 @@ export async function checkXRay() {
       transform: { a: 10, b: 0, c: 0, d: -10, e: 100, f: 100 },
       hiddenLayerOpacity: 0,
     })
-    const ids = layers.flatMap((layer) => [`pad_${layer}`, `trace_${layer}`])
+    const ids = [
+      ...layers.flatMap((layer) => [`pad_${layer}`, `trace_${layer}`]),
+      "selected_pcb_via",
+      "selected_pcb_plated_hole",
+    ]
     const frames: Record<string, string> = {}
     frames.before = capture()
     for (const selectedLayer of layers) {

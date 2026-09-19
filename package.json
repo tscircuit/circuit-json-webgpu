@@ -31,7 +31,8 @@
     "start": "vite --host 127.0.0.1",
     "render": "bun scripts/render.ts",
     "test:snapshots": "SNAPSHOT_TEST_ONLY=1 bun tests/parity/audit.ts",
-    "snapshots:features:update": "UPDATE_SNAPSHOTS=1 SNAPSHOT_TEST_ONLY=1 bun tests/parity/audit.ts"
+    "snapshots:features:update": "UPDATE_SNAPSHOTS=1 SNAPSHOT_TEST_ONLY=1 bun tests/parity/audit.ts",
+    "build:site": "vite build --target esnext --outDir site-dist"
   },
   "dependencies": {
     "@tscircuit/alphabet": "^0.0.25",

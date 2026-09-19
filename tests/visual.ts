@@ -97,6 +97,34 @@ try {
       "Non-copper layers must return after X-Ray",
     )
   }
+  for (const x of [40, 160]) {
+    for (const frame of ["top", "dimmed", "fivePercent"])
+      assert.deepEqual(
+        pixel(xray.frames[frame], x, 130),
+        [255, 38, 226, 255],
+        "Selected drills must stay opaque",
+      )
+    assert.equal(
+      pixel(xray.frames.dimmed, x, 170)[3],
+      0,
+      "Unrelated drills stay hidden",
+    )
+    assert.equal(
+      pixel(xray.frames.changed, x, 130)[3],
+      0,
+      "Changing the net hides its old drills",
+    )
+    assert.equal(
+      pixel(xray.frames.filtered, x, 130)[3],
+      0,
+      "Explicit layer filters can hide drills",
+    )
+    assert.deepEqual(
+      pixel(xray.frames.exit, x, 170),
+      [255, 38, 226, 255],
+      "All drills return on exit",
+    )
+  }
   assert.equal(pixel(xray.frames.fivePercent, 100, 150)[3], 13)
   assert.equal(pixel(xray.frames.fivePercent, 40, 50)[3], 255)
   assert.equal(pixel(xray.frames.dimmed, 100, 150)[3], 102)
