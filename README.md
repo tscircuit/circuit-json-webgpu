@@ -198,3 +198,24 @@ opt-in via `showSolderMask: true`, independent of substrate visibility.
 options. A previous draw's enabled soldermask/material does not leak into the
 next draw when those options are omitted. `render(partialOptions)` intentionally
 retains display options so camera-only updates preserve visibility settings.
+
+### X-Ray a net
+
+Resolve the net to PCB element IDs in your connectivity map and pass them as
+`xRayElementIds` to `render()` (or `drawElements()`). Traces, pads, vias, and other
+selected copper render at full opacity on every layer; other copper uses
+`hiddenLayerOpacity`, including copper on `selectedLayer`. Selected copper is
+composited back to front with the selected layer foremost. Explicit `layers`
+filters and visibility toggles still apply. Hover highlighting is suppressed during X-Ray and resumes on exit.
+
+```ts
+drawer.render({
+  xRayElementIds: ["pcb_trace_1", "pcb_smtpad_1", "pcb_via_1"],
+  selectedLayer: "top",
+  hiddenLayerOpacity: 0.2,
+})
+drawer.render({ xRayElementIds: [] }) // Restore normal layer visibility.
+```
+
+Like camera changes, changing or clearing the selection updates a small mask and
+uniforms without recompiling or uploading the retained geometry.

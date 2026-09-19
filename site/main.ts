@@ -1,3 +1,4 @@
+import { checkXRay } from "./check-x-ray"
 import {
   CircuitToWebGpuDrawer,
   type CircuitJson,
@@ -61,6 +62,7 @@ Object.assign(window, {
   gpuTest: {
     renderFixture,
     checkBoardVisibility,
+    checkXRay,
     renderLarge,
     drawer,
     names: Object.keys(fixtures),
@@ -73,6 +75,7 @@ declare global {
   interface Window {
     gpuTest: {
       checkBoardVisibility: typeof checkBoardVisibility
+      checkXRay: typeof checkXRay
       renderFixture: typeof renderFixture
       renderLarge: typeof renderLarge
       drawer: CircuitToWebGpuDrawer

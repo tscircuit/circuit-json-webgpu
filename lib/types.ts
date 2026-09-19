@@ -24,6 +24,13 @@ export type RenderOptions = {
   showPcbNotes?: boolean
   showCourtyards?: boolean
   highlightedElementIds?: readonly string[]
+  /** Copper belonging to an inspected net. Supply resolved PCB element IDs.
+   * Selected copper is opaque on every layer; other copper uses hiddenLayerOpacity.
+   * Omit or pass [] to exit. Explicit layers and visibility toggles still apply.
+   * Non-copper layers and hover highlights are hidden until X-Ray is cleared.
+   * Selection changes reuse the retained geometry buffers.
+   */
+  xRayElementIds?: readonly string[]
   background?: Color
 }
 export type Diagnostic = { elementId: string; type: string; message: string }

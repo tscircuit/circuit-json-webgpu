@@ -9,10 +9,26 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || (github.event.before != '0000000000000000000000000000000000000000' && github.event.before) || 'main' }}
+          path: .parity-base
       - uses: oven-sh/setup-bun@v2
       - run: bun install
+      - run: bun install
+        working-directory: .parity-base
       - run: bunx playwright install --with-deps chromium
-      - run: xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:parity
+      # The strict audit has known failures on main. Run both revisions on the
+      # same runner; the required comparison below rejects every new regression.
+      - name: Audit base revision
+        run: xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:parity
+        working-directory: .parity-base
+        continue-on-error: true
+      - name: Audit proposed revision
+        run: xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:parity
+        continue-on-error: true
+      - name: Reject parity regressions
+        run: bun tests/parity/check-regressions.ts .parity-base/tests/actual/parity/report.json tests/actual/parity/report.json
       - run: bun run test:parity-layout
         if: always()
       - uses: actions/upload-artifact@v4

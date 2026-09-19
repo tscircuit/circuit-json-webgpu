@@ -68,6 +68,59 @@ try {
       ),
     ]
   }
+  const xray = await page.evaluate(() => window.gpuTest.checkXRay())
+  const layerColors = {
+    top: [200, 52, 52, 255],
+    inner1: [127, 200, 127, 255],
+    bottom: [77, 127, 196, 255],
+  }
+  for (const [layer, color] of Object.entries(layerColors)) {
+    assert.deepEqual(
+      pixel(xray.frames[layer], 100, 100),
+      color,
+      `X-Ray must keep ${layer} in front at the overlap`,
+    )
+    for (const x of [40, 100, 160])
+      assert.equal(pixel(xray.frames[layer], x, 50)[3], 255)
+    assert.equal(pixel(xray.frames[layer], 100, 150)[3], 0)
+  }
+  for (const x of [40, 80, 120, 160]) {
+    assert(pixel(xray.frames.before, x, 20)[3] > 0)
+    assert.equal(
+      pixel(xray.frames.dimmed, x, 20)[3],
+      0,
+      "Non-copper layers must be transparent during X-Ray",
+    )
+    assert.equal(
+      pixel(xray.frames.exit, x, 20)[3],
+      pixel(xray.frames.before, x, 20)[3],
+      "Non-copper layers must return after X-Ray",
+    )
+  }
+  assert.equal(pixel(xray.frames.fivePercent, 100, 150)[3], 13)
+  assert.equal(pixel(xray.frames.fivePercent, 40, 50)[3], 255)
+  assert.equal(pixel(xray.frames.dimmed, 100, 150)[3], 102)
+  assert.equal(
+    xray.frames.hover,
+    xray.frames.dimmed,
+    "X-Ray must ignore highlighting on both selected and unrelated copper",
+  )
+  assert.deepEqual(
+    pixel(xray.frames.exit, 100, 150),
+    [255, 78, 78, 255],
+    "Highlighting resumes after exiting X-Ray",
+  )
+  assert.deepEqual(pixel(xray.frames.changed, 40, 50), layerColors.bottom)
+  assert.equal(pixel(xray.frames.changed, 160, 50)[3], 102)
+  assert.equal(pixel(xray.frames.exit, 40, 50)[3], 0)
+  assert.equal(pixel(xray.frames.exit, 160, 50)[3], 255)
+  assert.deepEqual(pixel(xray.frames.filtered, 100, 100), layerColors.bottom)
+  assert.deepEqual(pixel(xray.frames.resized, 100, 100), layerColors.top)
+  assert.equal(
+    xray.geometryUploads,
+    1,
+    "X-Ray changes and resizing must reuse geometry",
+  )
   assert.deepEqual(pixel(visibility.transparent, 70, 70), [0, 0, 0, 0])
   for (const png of [
     visibility.black,
