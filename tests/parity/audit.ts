@@ -61,7 +61,7 @@ for (const entry of readdirSync(upstream, {
   withFileTypes: true,
 })) {
   if (!entry.isFile()) continue
-  const full = resolve(entry.parentPath ?? entry.path, entry.name),
+  const full = resolve(entry.parentPath, entry.name),
     path = relative(upstream, full)
   if (path === "manifest.json" || manifest.files[path]) continue
   const dest = resolve(actual, "upstream-generated", path)
