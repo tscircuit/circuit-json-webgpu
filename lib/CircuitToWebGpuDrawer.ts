@@ -259,7 +259,7 @@ export class CircuitToWebGpuDrawer {
     }))
     // Share retained geometry; only the per-layer compositing targets are separate.
     this.xRayLayers = this.layers
-      .filter((layer) => this.isCopper(layer.name))
+      .filter((layer) => this.isCopper(layer.name) || layer.name === "drill")
       .map((layer) => ({
         ...layer,
         opacity: this.device.createBuffer({
@@ -383,18 +383,12 @@ export class CircuitToWebGpuDrawer {
         (a, b) => this.order(a.name, selected) - this.order(b.name, selected),
       )
     const selectedLayers = xRayActive
-      ? visible
-          .filter((layer) => this.isCopper(layer.name))
+      ? this.xRayLayers
+          .filter((layer) => !filter || filter.has(layer.name))
           .sort(
             (a, b) =>
               this.xRayOrder(a.name, selected) -
               this.xRayOrder(b.name, selected),
-          )
-          .map(
-            (layer) =>
-              this.xRayLayers.find(
-                (candidate) => candidate.name === layer.name,
-              )!,
           )
       : []
     const renderLayers = [
@@ -486,6 +480,7 @@ export class CircuitToWebGpuDrawer {
       : Math.max(0, Math.min(1, hidden))
   }
   private xRayOrder(layer: string, selected: string) {
+    if (layer === "drill") return 200
     if (layer === selected) return 100
     if (layer === "bottom") return 0
     if (layer.startsWith("inner")) return 20 - Number(layer.slice(5))

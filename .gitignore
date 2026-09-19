@@ -7,3 +7,6 @@ bun.lock
 *.tgz
 
 .parity-base/
+
+site-dist/
+.vercel/

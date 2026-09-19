@@ -1,3 +1,4 @@
+import { xRayFixtures } from "./x-ray-fixture"
 import { checkXRay } from "./check-x-ray"
 import {
   CircuitToWebGpuDrawer,
@@ -25,10 +26,11 @@ const defaultOptions: RenderOptions = {
   showPcbNotes: true,
   showCourtyards: false,
   highlightedElementIds: [],
+  xRayElementIds: [],
   background: [0, 0, 0, 1],
 }
 async function renderFixture(name: string) {
-  const fixture = fixtures[name]
+  const fixture = fixtures[name] ?? xRayFixtures[name]
   if (!fixture) throw new Error(`Unknown fixture ${name}`)
   drawer.drawElements(fixture.elements, {
     ...defaultOptions,
@@ -44,7 +46,12 @@ async function renderFixture(name: string) {
 }
 async function renderLarge() {
   const elements = (await (
-    await fetch("/tests/fixtures/am3352-dev-board.circuit.json")
+    await fetch(
+      new URL(
+        "../tests/fixtures/am3352-dev-board.circuit.json",
+        import.meta.url,
+      ),
+    )
   ).json()) as CircuitJson
   drawer.drawElements(elements, {
     ...defaultOptions,
@@ -54,7 +61,8 @@ async function renderLarge() {
   return { ...drawer.stats, diagnostics: drawer.diagnostics }
 }
 const select = document.querySelector("select")!
-for (const name of Object.keys(fixtures)) select.add(new Option(name, name))
+for (const name of [...Object.keys(fixtures), ...Object.keys(xRayFixtures)])
+  select.add(new Option(name, name))
 select.onchange = () => {
   void renderFixture(select.value)
 }
@@ -69,7 +77,12 @@ Object.assign(window, {
     adapterInfo: drawer.adapterInfo,
   },
 })
-await renderFixture(Object.keys(fixtures)[0])
+const initialFixture = new URLSearchParams(location.search).get("fixture")
+select.value =
+  initialFixture && (fixtures[initialFixture] || xRayFixtures[initialFixture])
+    ? initialFixture
+    : Object.keys(fixtures)[0]
+await renderFixture(select.value)
 
 declare global {
   interface Window {

@@ -988,7 +988,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
       })
     }));
-    this.xRayLayers = this.layers.filter((layer) => this.isCopper(layer.name)).map((layer) => ({
+    this.xRayLayers = this.layers.filter((layer) => this.isCopper(layer.name) || layer.name === "drill").map((layer) => ({
       ...layer,
       opacity: this.device.createBuffer({
         size: 16,
@@ -1092,12 +1092,8 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
     }).sort(
       (a, b) => this.order(a.name, selected) - this.order(b.name, selected)
     );
-    const selectedLayers = xRayActive ? visible.filter((layer) => this.isCopper(layer.name)).sort(
+    const selectedLayers = xRayActive ? this.xRayLayers.filter((layer) => !filter || filter.has(layer.name)).sort(
       (a, b) => this.xRayOrder(a.name, selected) - this.xRayOrder(b.name, selected)
-    ).map(
-      (layer) => this.xRayLayers.find(
-        (candidate) => candidate.name === layer.name
-      )
     ) : [];
     const renderLayers = [
       ...visible.map((layer) => ({ layer, xRay: false })),
@@ -1174,6 +1170,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
     return ["board", "drill", "edge_cuts"].includes(layer) || layer === selected || layer.startsWith(`${selected}_`) || layer.endsWith(`_${selected}`) ? 1 : Math.max(0, Math.min(1, hidden));
   }
   xRayOrder(layer, selected) {
+    if (layer === "drill") return 200;
     if (layer === selected) return 100;
     if (layer === "bottom") return 0;
     if (layer.startsWith("inner")) return 20 - Number(layer.slice(5));
