@@ -10,7 +10,7 @@ function getWireTaperSegments(route) {
     if (!hasWireTaper(point)) continue;
     const next = route[i + 1];
     if (!next) continue;
-    const end = next.route_type === "through_pad" ? next.start : next.route_type === "wire" || next.route_type === "via" ? { x: next.x, y: next.y } : void 0;
+    const end = next.route_type === "through_pad" ? next.start : { x: next.x, y: next.y };
     const layer = next.route_type === "via" ? next.from_layer : next.route_type === "through_pad" ? next.start_layer : next.layer;
     if (!end || layer !== point.layer || point.width !== point.start_width)
       continue;
