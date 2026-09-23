@@ -1,5 +1,8 @@
-import type { PcbTrace } from "circuit-json"
-import { getTeardropPolygon } from "./get-teardrop-polygon"
+import {
+  getWireTaperPolygon,
+  getWireTaperSegments,
+  hasWireTaper,
+} from "./get-wire-taper-polygon"
 import { drawText } from "./text/draw-text"
 import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
 import {
@@ -154,15 +157,19 @@ export function compileCircuitJson(
         const route = e.route ?? []
         if (
           (e.route_thickness_mode === "interpolated" &&
-            route.some((p: Element) => p.route_type === "wire")) ||
+            route.some(
+              (p: Element, i: number) =>
+                p.route_type === "wire" &&
+                !hasWireTaper(p) &&
+                route[i + 1]?.route_type === "wire",
+            )) ||
           route.some((p: Element) => p.route_type === "through_pad")
         )
           throw new Error(
             "Interpolated/through-pad traces are not supported yet",
           )
-        for (const point of route as PcbTrace["route"]) {
-          if (point.route_type !== "teardrop") continue
-          const polygon = getTeardropPolygon(point)
+        for (const point of getWireTaperSegments(route)) {
+          const polygon = getWireTaperPolygon(point)
           if (!polygon.length)
             throw new Error("Invalid teardrop geometry or interpolation mode")
           get(point.layer, index).polygon([polygon])
@@ -170,6 +177,7 @@ export function compileCircuitJson(
         for (let i = 1; i < route.length; i++) {
           const a = route[i - 1],
             b = route[i]
+          if (hasWireTaper(a)) continue
           // Connect wires to a via on the adjacent copper layer, but never
           // connect two unrelated runs across a layer transition.
           const layer =
