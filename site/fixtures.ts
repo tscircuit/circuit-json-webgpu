@@ -1,3 +1,4 @@
+import { teardropDemo } from "./teardrop-demo"
 import type { CircuitJson, RenderOptions } from "../lib"
 export type Fixture = { elements: CircuitJson; options?: RenderOptions }
 const board = {
@@ -233,6 +234,14 @@ const annotations = [
   },
 ]
 export const fixtures: Record<string, Fixture> = {
+  teardrops: {
+    elements: teardropDemo,
+    options: {
+      hiddenLayerOpacity: 1,
+      showCopperPours: false,
+      transform: { a: 28, b: 0, c: 0, d: -28, e: 400, f: 300 },
+    },
+  },
   "board-material-off": { elements: [board] as CircuitJson },
   "board-material-on": {
     elements: [board] as CircuitJson,

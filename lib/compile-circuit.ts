@@ -1,3 +1,5 @@
+import type { PcbTrace } from "circuit-json"
+import { getTeardropPolygon } from "./get-teardrop-polygon"
 import { drawText } from "./text/draw-text"
 import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
 import {
@@ -151,12 +153,20 @@ export function compileCircuitJson(
       } else if (type === "pcb_trace") {
         const route = e.route ?? []
         if (
-          e.route_thickness_mode === "interpolated" ||
+          (e.route_thickness_mode === "interpolated" &&
+            route.some((p: Element) => p.route_type === "wire")) ||
           route.some((p: Element) => p.route_type === "through_pad")
         )
           throw new Error(
             "Interpolated/through-pad traces are not supported yet",
           )
+        for (const point of route as PcbTrace["route"]) {
+          if (point.route_type !== "teardrop") continue
+          const polygon = getTeardropPolygon(point)
+          if (!polygon.length)
+            throw new Error("Invalid teardrop geometry or interpolation mode")
+          get(point.layer, index).polygon([polygon])
+        }
         for (let i = 1; i < route.length; i++) {
           const a = route[i - 1],
             b = route[i]

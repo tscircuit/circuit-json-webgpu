@@ -219,3 +219,20 @@ drawer.render({ xRayElementIds: [] }) // Restore normal layer visibility.
 
 Like camera changes, changing or clearing the selection updates a small mask and
 uniforms without recompiling or uploading the retained geometry.
+
+## Teardrop traces
+
+`pcb_trace.route` supports `route_type: "teardrop"` from Circuit JSON 0.0.501.
+Each segment has explicit `start` / `end` coordinates, full `start_width` /
+`end_width` values, a `layer`, and `width_interpolation_mode: "linear" | "smoothstep"`.
+The segment renders as trace copper with flat caps, independently of ordinary
+wire `route_thickness_mode`. Smoothstep uses f(t)=3t²−2t³; tessellation has a
+maximum boundary error of 1 µm + 1 ppm of the width change in PCB coordinates.
+
+The demo shows linear (upper row), smoothstep (middle row), and rotated/bottom
+and inner-layer tapers (lower row). No copper pours are needed.
+
+![Teardrop trace demo](tests/snapshots/teardrops.png)
+
+Run `bun run dev` and select **teardrops**, or run `bun run test:teardrops` for
+the small browser snapshot check. `WEBGPU_SOFTWARE=1` selects SwiftShader.

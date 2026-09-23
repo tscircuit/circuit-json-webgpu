@@ -1,3 +1,34 @@
+// lib/get-teardrop-polygon.ts
+function getTeardropPolygon(segment) {
+  const { start, end, start_width: w0, end_width: w1 } = segment;
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const length = Math.hypot(dx, dy);
+  if (![start.x, start.y, end.x, end.y, length, w0, w1].every(Number.isFinite) || length <= 0 || w0 <= 0 || w1 <= 0)
+    return [];
+  if (segment.width_interpolation_mode !== "linear" && segment.width_interpolation_mode !== "smoothstep")
+    return [];
+  const delta = Math.abs(w1 - w0);
+  const steps = segment.width_interpolation_mode === "linear" ? 1 : Math.max(
+    1,
+    Math.ceil(Math.sqrt(3 * delta / (8 * (1e-3 + delta * 1e-6))))
+  );
+  const nx = -dy / length;
+  const ny = dx / length;
+  const left = [];
+  const right = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const f = segment.width_interpolation_mode === "linear" ? t : t * t * (3 - 2 * t);
+    const halfWidth = (w0 + (w1 - w0) * f) / 2;
+    const x = start.x + dx * t;
+    const y = start.y + dy * t;
+    left.push({ x: x + nx * halfWidth, y: y + ny * halfWidth });
+    right.push({ x: x - nx * halfWidth, y: y - ny * halfWidth });
+  }
+  return [...left, ...right.reverse()];
+}
+
 // lib/text/fill-even-odd.ts
 function contains(ring, p) {
   let inside = false;
@@ -595,10 +626,17 @@ function compileCircuitJson(elements, options = {}) {
         });
       } else if (type === "pcb_trace") {
         const route = e.route ?? [];
-        if (e.route_thickness_mode === "interpolated" || route.some((p) => p.route_type === "through_pad"))
+        if (e.route_thickness_mode === "interpolated" && route.some((p) => p.route_type === "wire") || route.some((p) => p.route_type === "through_pad"))
           throw new Error(
             "Interpolated/through-pad traces are not supported yet"
           );
+        for (const point of route) {
+          if (point.route_type !== "teardrop") continue;
+          const polygon = getTeardropPolygon(point);
+          if (!polygon.length)
+            throw new Error("Invalid teardrop geometry or interpolation mode");
+          get(point.layer, index).polygon([polygon]);
+        }
         for (let i = 1; i < route.length; i++) {
           const a = route[i - 1], b = route[i];
           const layer = a.route_type === "wire" && b.route_type === "wire" && a.layer === b.layer ? a.layer : a.route_type === "wire" && b.route_type === "via" && [b.from_layer, b.to_layer].includes(a.layer) ? a.layer : a.route_type === "via" && b.route_type === "wire" && [a.from_layer, a.to_layer].includes(b.layer) ? b.layer : void 0;
