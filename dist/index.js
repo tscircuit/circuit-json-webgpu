@@ -11,7 +11,7 @@ function getTeardropPolygon(segment) {
   const delta = Math.abs(w1 - w0);
   const steps = segment.width_interpolation_mode === "linear" ? 1 : Math.max(
     1,
-    Math.ceil(Math.sqrt(3 * delta / (8 * (1e-3 + delta * 1e-6))))
+    Math.ceil(Math.sqrt(delta / (1e-3 + delta * 1e-6) * (3 / 8)))
   );
   const nx = -dy / length;
   const ny = dx / length;
