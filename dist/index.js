@@ -6,7 +6,7 @@ function getTeardropPolygon(segment) {
   const length = Math.hypot(dx, dy);
   if (![start.x, start.y, end.x, end.y, length, w0, w1].every(Number.isFinite) || length <= 0 || w0 <= 0 || w1 <= 0)
     return [];
-  if (segment.width_interpolation_mode !== "linear" && segment.width_interpolation_mode !== "smoothstep")
+  if (segment.width_interpolation_mode !== "linear" && segment.width_interpolation_mode !== "smoothstep" && segment.width_interpolation_mode !== "quadratic")
     return [];
   const delta = Math.abs(w1 - w0);
   const steps = segment.width_interpolation_mode === "linear" ? 1 : Math.max(
@@ -20,7 +20,9 @@ function getTeardropPolygon(segment) {
   for (let i = 0; i <= steps; i++) {
     const t = i / steps;
     const f = segment.width_interpolation_mode === "linear" ? t : t * t * (3 - 2 * t);
-    const halfWidth = (w0 + (w1 - w0) * f) / 2;
+    const u = w0 <= w1 ? t : 1 - t;
+    const width = segment.width_interpolation_mode === "quadratic" ? Math.min(w0, w1) + delta * u * u : w0 + (w1 - w0) * f;
+    const halfWidth = width / 2;
     const x = start.x + dx * t;
     const y = start.y + dy * t;
     left.push({ x: x + nx * halfWidth, y: y + ny * halfWidth });
