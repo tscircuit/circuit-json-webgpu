@@ -1,3 +1,71 @@
+// lib/get-wire-taper-polygon.ts
+function hasWireTaper(point) {
+  if (!point || typeof point !== "object") return false;
+  return "route_type" in point && point.route_type === "wire" && ("start_width" in point || "end_width" in point || "width_interpolation_mode" in point);
+}
+function getWireTaperSegments(route) {
+  const result = [];
+  for (let i = 0; i < route.length - 1; i++) {
+    const point = route[i];
+    if (!hasWireTaper(point)) continue;
+    const next = route[i + 1];
+    if (!next) continue;
+    const end = next.route_type === "through_pad" ? next.start : { x: next.x, y: next.y };
+    const layer = next.route_type === "via" ? next.from_layer : next.route_type === "through_pad" ? next.start_layer : next.layer;
+    if (!end || layer !== point.layer || point.width !== point.start_width)
+      continue;
+    const segment = {
+      start: { x: point.x, y: point.y },
+      end,
+      start_width: point.start_width,
+      end_width: point.end_width,
+      width_interpolation_mode: point.width_interpolation_mode,
+      layer: point.layer,
+      is_inside_copper_pour: Boolean(
+        point.is_inside_copper_pour && next.is_inside_copper_pour
+      )
+    };
+    if (isValidWireTaperSegment(segment)) result.push(segment);
+  }
+  return result;
+}
+function getWireTaperPolygon(segment) {
+  const { start, end, start_width: w0, end_width: w1 } = segment;
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const length = Math.hypot(dx, dy);
+  if (!isValidWireTaperSegment(segment)) return [];
+  const delta = Math.abs(w1 - w0);
+  const steps = segment.width_interpolation_mode === "linear" ? 1 : Math.max(
+    1,
+    Math.ceil(Math.sqrt(delta / (1e-3 + delta * 1e-6) * (3 / 8)))
+  );
+  const nx = -dy / length;
+  const ny = dx / length;
+  const left = [];
+  const right = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const u = w0 <= w1 ? t : 1 - t;
+    const width = segment.width_interpolation_mode === "quadratic" ? Math.min(w0, w1) + delta * u * u : w0 + (w1 - w0) * t;
+    const halfWidth = width / 2;
+    const x = start.x + dx * t;
+    const y = start.y + dy * t;
+    left.push({ x: x + nx * halfWidth, y: y + ny * halfWidth });
+    right.push({ x: x - nx * halfWidth, y: y - ny * halfWidth });
+  }
+  return [...left, ...right.reverse()];
+}
+function isValidWireTaperSegment(segment) {
+  const { start, end, start_width: w0, end_width: w1 } = segment;
+  const length = Math.hypot(end.x - start.x, end.y - start.y);
+  if (![start.x, start.y, end.x, end.y, length, w0, w1].every(Number.isFinite) || length <= 0 || w0 <= 0 || w1 <= 0)
+    return false;
+  if (segment.width_interpolation_mode !== "linear" && segment.width_interpolation_mode !== "quadratic")
+    return false;
+  return true;
+}
+
 // lib/text/fill-even-odd.ts
 function contains(ring, p) {
   let inside = false;
@@ -595,12 +663,21 @@ function compileCircuitJson(elements, options = {}) {
         });
       } else if (type === "pcb_trace") {
         const route = e.route ?? [];
-        if (e.route_thickness_mode === "interpolated" || route.some((p) => p.route_type === "through_pad"))
+        if (e.route_thickness_mode === "interpolated" && route.some(
+          (p, i) => p.route_type === "wire" && !hasWireTaper(p) && route[i + 1]?.route_type === "wire"
+        ) || route.some((p) => p.route_type === "through_pad"))
           throw new Error(
             "Interpolated/through-pad traces are not supported yet"
           );
+        for (const point of getWireTaperSegments(route)) {
+          const polygon = getWireTaperPolygon(point);
+          if (!polygon.length)
+            throw new Error("Invalid teardrop geometry or interpolation mode");
+          get(point.layer, index).polygon([polygon]);
+        }
         for (let i = 1; i < route.length; i++) {
           const a = route[i - 1], b = route[i];
+          if (hasWireTaper(a)) continue;
           const layer = a.route_type === "wire" && b.route_type === "wire" && a.layer === b.layer ? a.layer : a.route_type === "wire" && b.route_type === "via" && [b.from_layer, b.to_layer].includes(a.layer) ? a.layer : a.route_type === "via" && b.route_type === "wire" && [a.from_layer, a.to_layer].includes(b.layer) ? b.layer : void 0;
           if (layer) get(layer, index).line(a, b, a.width ?? b.width ?? 0.15);
         }
