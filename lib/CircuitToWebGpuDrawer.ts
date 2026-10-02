@@ -1,6 +1,7 @@
 import { compileCircuitJson } from "./compile-circuit"
 import { normalizeLayer } from "./colors"
 import { compositeShader, geometryShader } from "./shaders"
+import { requestWebGpuDevice } from "./request-webgpu-device"
 import type {
   CircuitJson,
   CompiledScene,
@@ -63,11 +64,7 @@ export class CircuitToWebGpuDrawer {
     options: DrawerOptions = {},
   ) {
     if (!globalThis.navigator?.gpu) throw new Error("WebGPU is unavailable")
-    const adapter = await navigator.gpu.requestAdapter({
-      powerPreference: "high-performance",
-    })
-    if (!adapter) throw new Error("No WebGPU adapter available")
-    const device = await adapter.requestDevice()
+    const { adapter, device } = await requestWebGpuDevice(navigator.gpu)
     const context = canvas.getContext("webgpu") as GPUCanvasContext | null
     if (!context) {
       device.destroy()
