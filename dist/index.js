@@ -876,8 +876,8 @@ struct Camera { rowX: vec4f, rowY: vec4f, viewport: vec4f }
 struct VertexOut {
   @builtin(position) position: vec4f,
   @location(0) color: vec4f,
-  @location(1) @interpolate(flat) category: u32,
-  @location(2) @interpolate(flat) selected: u32,
+  @location(1) @interpolate(flat, either) category: u32,
+  @location(2) @interpolate(flat, either) selected: u32,
 }
 @vertex fn vertexMain(@location(0) p: vec2f, @location(1) color: vec4f,
   @location(2) element: f32, @location(3) category: f32) -> VertexOut {
@@ -919,6 +919,30 @@ struct Out { @builtin(position) position: vec4f, @location(0) uv: vec2f }
 }
 `
 );
+
+// lib/request-webgpu-device.ts
+async function requestWebGpuDevice(gpu) {
+  const coreAdapter = await gpu.requestAdapter({
+    powerPreference: "high-performance"
+  });
+  if (coreAdapter) {
+    return { adapter: coreAdapter, device: await coreAdapter.requestDevice() };
+  }
+  const compatibilityAdapter = await gpu.requestAdapter({
+    powerPreference: "high-performance",
+    featureLevel: "compatibility"
+  });
+  if (!compatibilityAdapter) throw new Error("No WebGPU adapter available");
+  if ((compatibilityAdapter.limits.maxStorageBuffersInVertexStage ?? 0) < 1) {
+    throw new Error(
+      "WebGPU compatibility adapter does not support vertex storage buffers required for PCB rendering"
+    );
+  }
+  const device = await compatibilityAdapter.requestDevice({
+    requiredLimits: { maxStorageBuffersInVertexStage: 1 }
+  });
+  return { adapter: compatibilityAdapter, device };
+}
 
 // lib/CircuitToWebGpuDrawer.ts
 var over = {
@@ -1051,11 +1075,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
   options = {};
   static async create(canvas, options = {}) {
     if (!globalThis.navigator?.gpu) throw new Error("WebGPU is unavailable");
-    const adapter = await navigator.gpu.requestAdapter({
-      powerPreference: "high-performance"
-    });
-    if (!adapter) throw new Error("No WebGPU adapter available");
-    const device = await adapter.requestDevice();
+    const { adapter, device } = await requestWebGpuDevice(navigator.gpu);
     const context = canvas.getContext("webgpu");
     if (!context) {
       device.destroy();

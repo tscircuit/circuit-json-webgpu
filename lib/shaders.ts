@@ -5,8 +5,8 @@ struct Camera { rowX: vec4f, rowY: vec4f, viewport: vec4f }
 struct VertexOut {
   @builtin(position) position: vec4f,
   @location(0) color: vec4f,
-  @location(1) @interpolate(flat) category: u32,
-  @location(2) @interpolate(flat) selected: u32,
+  @location(1) @interpolate(flat, either) category: u32,
+  @location(2) @interpolate(flat, either) selected: u32,
 }
 @vertex fn vertexMain(@location(0) p: vec2f, @location(1) color: vec4f,
   @location(2) element: f32, @location(3) category: f32) -> VertexOut {
