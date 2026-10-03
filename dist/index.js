@@ -246,6 +246,66 @@ function drawKeepout(mesh, rings) {
   mesh.color = copperColor;
 }
 
+// lib/colors.ts
+var rgb = (r, g, b) => [
+  r / 255,
+  g / 255,
+  b / 255,
+  1
+];
+var DEFAULT_LAYER_COLORS = {
+  board: rgb(70, 72, 72),
+  top: rgb(200, 52, 52),
+  bottom: rgb(77, 127, 196),
+  inner1: rgb(127, 200, 127),
+  inner2: rgb(206, 125, 44),
+  inner3: rgb(79, 203, 203),
+  inner4: rgb(219, 98, 139),
+  inner5: rgb(167, 165, 198),
+  inner6: rgb(40, 204, 217),
+  inner7: rgb(232, 178, 167),
+  inner8: rgb(242, 237, 161),
+  drill: rgb(255, 38, 226),
+  top_silkscreen: rgb(242, 237, 161),
+  bottom_silkscreen: rgb(242, 237, 161),
+  soldermask_top: rgb(12, 55, 33),
+  soldermask_bottom: rgb(12, 55, 33),
+  top_fabrication: [1, 1, 1, 0.5],
+  bottom_fabrication: [1, 1, 1, 0.5],
+  top_notes: rgb(89, 148, 220),
+  bottom_notes: rgb(89, 148, 220),
+  top_courtyard: rgb(255, 0, 245),
+  bottom_courtyard: rgb(38, 233, 255),
+  edge_cuts: rgb(208, 210, 205)
+};
+var normalizeLayer = (layer) => layer.replace(/_copper$/, "");
+function parseColor(value) {
+  const hex = value.match(/^#([0-9a-f]{3,8})$/i)?.[1];
+  if (hex) {
+    const full = hex.length <= 4 ? [...hex].map((c) => c + c).join("") : hex;
+    if (full.length !== 6 && full.length !== 8)
+      throw new Error(`Unsupported color: ${value}`);
+    return [
+      parseInt(full.slice(0, 2), 16) / 255,
+      parseInt(full.slice(2, 4), 16) / 255,
+      parseInt(full.slice(4, 6), 16) / 255,
+      full.length === 8 ? parseInt(full.slice(6), 16) / 255 : 1
+    ];
+  }
+  const match = value.match(/^rgba?\(([^)]+)\)$/);
+  if (match) {
+    const channels = match[1].split(",").map((v) => Number(v.trim()));
+    if ((channels.length === 3 || channels.length === 4) && channels.every(Number.isFinite))
+      return [
+        channels[0] / 255,
+        channels[1] / 255,
+        channels[2] / 255,
+        channels[3] ?? 1
+      ];
+  }
+  throw new Error(`Unsupported color: ${value}`);
+}
+
 // lib/text/fill-even-odd.ts
 function contains(ring, p) {
   let inside = false;
@@ -508,7 +568,7 @@ function drawText(mesh, e, yAxis = "up") {
   const mirrored = isFabrication ? false : isNote ? e.is_mirrored_from_top_view ?? e.layer === "bottom" : e.type === "pcb_silkscreen_text" ? e.layer === "bottom" : e.is_mirrored ?? e.layer === "bottom";
   const rotation = isNote || isFabrication ? 0 : e.ccw_rotation ?? 0;
   const sign = yAxis === "up" ? -1 : 1;
-  const transform = (p) => rotate(
+  const transform2 = (p) => rotate(
     { x: c.x + (mirrored ? -p.x : p.x), y: c.y + sign * p.y },
     c,
     -sign * rotation
@@ -530,9 +590,9 @@ function drawText(mesh, e, yAxis = "up") {
       { x: b.minX - p.left, y: b.maxY + p.bottom }
     ];
     fillEvenOdd(mesh, [
-      outer.map(transform),
+      outer.map(transform2),
       ...geometry.glyphGroups.flatMap(
-        (group) => group.map((ring) => ring.map(transform))
+        (group) => group.map((ring) => ring.map(transform2))
       )
     ]);
     return;
@@ -540,68 +600,205 @@ function drawText(mesh, e, yAxis = "up") {
   for (const group of geometry.glyphGroups)
     fillEvenOdd(
       mesh,
-      group.map((ring) => ring.map(transform))
+      group.map((ring) => ring.map(transform2))
     );
 }
 
-// lib/colors.ts
-var rgb = (r, g, b) => [
-  r / 255,
-  g / 255,
-  b / 255,
-  1
-];
-var DEFAULT_LAYER_COLORS = {
-  board: rgb(70, 72, 72),
-  top: rgb(200, 52, 52),
-  bottom: rgb(77, 127, 196),
-  inner1: rgb(127, 200, 127),
-  inner2: rgb(206, 125, 44),
-  inner3: rgb(79, 203, 203),
-  inner4: rgb(219, 98, 139),
-  inner5: rgb(167, 165, 198),
-  inner6: rgb(40, 204, 217),
-  inner7: rgb(232, 178, 167),
-  inner8: rgb(242, 237, 161),
-  drill: rgb(255, 38, 226),
-  top_silkscreen: rgb(242, 237, 161),
-  bottom_silkscreen: rgb(242, 237, 161),
-  soldermask_top: rgb(12, 55, 33),
-  soldermask_bottom: rgb(12, 55, 33),
-  top_fabrication: [1, 1, 1, 0.5],
-  bottom_fabrication: [1, 1, 1, 0.5],
-  top_notes: rgb(89, 148, 220),
-  bottom_notes: rgb(89, 148, 220),
-  top_courtyard: rgb(255, 0, 245),
-  bottom_courtyard: rgb(38, 233, 255),
-  edge_cuts: rgb(208, 210, 205)
-};
-var normalizeLayer = (layer) => layer.replace(/_copper$/, "");
-function parseColor(value) {
-  const hex = value.match(/^#([0-9a-f]{3,8})$/i)?.[1];
-  if (hex) {
-    const full = hex.length <= 4 ? [...hex].map((c) => c + c).join("") : hex;
-    if (full.length !== 6 && full.length !== 8)
-      throw new Error(`Unsupported color: ${value}`);
-    return [
-      parseInt(full.slice(0, 2), 16) / 255,
-      parseInt(full.slice(2, 4), 16) / 255,
-      parseInt(full.slice(4, 6), 16) / 255,
-      full.length === 8 ? parseInt(full.slice(6), 16) / 255 : 1
-    ];
+// node_modules/transformation-matrix/src/applyToPoint.js
+function applyToPoint(matrix, point) {
+  return Array.isArray(point) ? [
+    matrix.a * point[0] + matrix.c * point[1] + matrix.e,
+    matrix.b * point[0] + matrix.d * point[1] + matrix.f
+  ] : {
+    x: matrix.a * point.x + matrix.c * point.y + matrix.e,
+    y: matrix.b * point.x + matrix.d * point.y + matrix.f
+  };
+}
+
+// node_modules/transformation-matrix/src/utils.js
+function isUndefined(val) {
+  return typeof val === "undefined";
+}
+
+// node_modules/transformation-matrix/src/translate.js
+function translate(tx, ty = 0) {
+  return {
+    a: 1,
+    c: 0,
+    e: tx,
+    b: 0,
+    d: 1,
+    f: ty
+  };
+}
+
+// node_modules/transformation-matrix/src/transform.js
+function transform(...matrices) {
+  matrices = Array.isArray(matrices[0]) ? matrices[0] : matrices;
+  const multiply = (m1, m2) => {
+    return {
+      a: m1.a * m2.a + m1.c * m2.b,
+      c: m1.a * m2.c + m1.c * m2.d,
+      e: m1.a * m2.e + m1.c * m2.f + m1.e,
+      b: m1.b * m2.a + m1.d * m2.b,
+      d: m1.b * m2.c + m1.d * m2.d,
+      f: m1.b * m2.e + m1.d * m2.f + m1.f
+    };
+  };
+  switch (matrices.length) {
+    case 0:
+      throw new Error("no matrices provided");
+    case 1:
+      return matrices[0];
+    case 2:
+      return multiply(matrices[0], matrices[1]);
+    default: {
+      const [m1, m2, ...rest] = matrices;
+      const m = multiply(m1, m2);
+      return transform(m, ...rest);
+    }
   }
-  const match = value.match(/^rgba?\(([^)]+)\)$/);
-  if (match) {
-    const channels = match[1].split(",").map((v) => Number(v.trim()));
-    if ((channels.length === 3 || channels.length === 4) && channels.every(Number.isFinite))
-      return [
-        channels[0] / 255,
-        channels[1] / 255,
-        channels[2] / 255,
-        channels[3] ?? 1
-      ];
+}
+
+// node_modules/transformation-matrix/src/rotate.js
+var { cos, sin, PI } = Math;
+function rotate2(angle, cx, cy) {
+  const cosAngle = cos(angle);
+  const sinAngle = sin(angle);
+  const rotationMatrix = {
+    a: cosAngle,
+    c: -sinAngle,
+    e: 0,
+    b: sinAngle,
+    d: cosAngle,
+    f: 0
+  };
+  if (isUndefined(cx) || isUndefined(cy)) {
+    return rotationMatrix;
   }
-  throw new Error(`Unsupported color: ${value}`);
+  return transform([
+    translate(cx, cy),
+    rotationMatrix,
+    translate(-cx, -cy)
+  ]);
+}
+function rotateDEG(angle, cx = void 0, cy = void 0) {
+  return rotate2(angle * PI / 180, cx, cy);
+}
+
+// node_modules/transformation-matrix/src/skew.js
+var { tan } = Math;
+
+// lib/draw-dimension.ts
+function isDimensionElement(element) {
+  return typeof element.type === "string" && isPoint(element.from) && isPoint(element.to);
+}
+var TEXT_OFFSET_MULTIPLIER = 1.5;
+var CHARACTER_WIDTH_MULTIPLIER = 0.6;
+var TEXT_INTERSECTION_PADDING_MULTIPLIER = 0.3;
+function drawDimension(params) {
+  const { element, mesh } = params;
+  if (element.color) mesh.color = parseColor(element.color);
+  const direction = normalize({
+    x: element.to.x - element.from.x,
+    y: element.to.y - element.from.y
+  });
+  const perpendicular = { x: -direction.y, y: direction.x };
+  const offsetDirection = normalize(element.offset_direction ?? { x: 0, y: 0 });
+  const offsetDistance = element.offset_distance ?? 0;
+  const offset = {
+    x: offsetDirection.x * offsetDistance,
+    y: offsetDirection.y * offsetDistance
+  };
+  const from = addPoints(element.from, offset);
+  const to = addPoints(element.to, offset);
+  const arrowSize = element.arrow_size ?? 1;
+  const strokeWidth = arrowSize / 5;
+  const fromBase = addPoints(from, scalePoint(direction, arrowSize));
+  const toBase = addPoints(to, scalePoint(direction, -arrowSize));
+  mesh.polygon([
+    [
+      from,
+      addPoints(fromBase, scalePoint(perpendicular, arrowSize / 2)),
+      addPoints(fromBase, scalePoint(perpendicular, -arrowSize / 2))
+    ]
+  ]);
+  mesh.polygon([
+    [
+      to,
+      addPoints(toBase, scalePoint(perpendicular, arrowSize / 2)),
+      addPoints(toBase, scalePoint(perpendicular, -arrowSize / 2))
+    ]
+  ]);
+  mesh.line(fromBase, toBase, strokeWidth);
+  const extensionDirection = element.offset_direction && (Math.abs(offsetDirection.x) > Number.EPSILON || Math.abs(offsetDirection.y) > Number.EPSILON) ? offsetDirection : perpendicular;
+  const extensionLength = offsetDistance + arrowSize;
+  for (const anchor of [element.from, element.to]) {
+    mesh.line(
+      anchor,
+      addPoints(anchor, scalePoint(extensionDirection, extensionLength)),
+      strokeWidth
+    );
+  }
+  if (!element.text) return;
+  const fontSize = element.font_size ?? 1;
+  const textRotation = getTextRotation({
+    direction,
+    requestedRotation: element.text_ccw_rotation
+  });
+  const textOffset = arrowSize * TEXT_OFFSET_MULTIPLIER + getRotatedTextClearance({
+    fontSize,
+    rotationDegrees: element.text_ccw_rotation,
+    text: element.text
+  });
+  const midpoint = {
+    x: (element.from.x + element.to.x) / 2 + offset.x,
+    y: (element.from.y + element.to.y) / 2 + offset.y
+  };
+  drawText(
+    mesh,
+    {
+      anchor_alignment: "center",
+      anchor_position: addPoints(
+        midpoint,
+        scalePoint(perpendicular, textOffset)
+      ),
+      ccw_rotation: textRotation,
+      font_size: fontSize,
+      text: element.text,
+      type: `${element.type}_text`
+    },
+    params.textYAxis
+  );
+}
+function getTextRotation(params) {
+  let directionDegrees = Math.atan2(params.direction.y, params.direction.x) * 180 / Math.PI;
+  if (directionDegrees > 90 || directionDegrees < -90) directionDegrees += 180;
+  return directionDegrees - (params.requestedRotation ?? 0);
+}
+function getRotatedTextClearance(params) {
+  if (params.rotationDegrees === void 0 || !Number.isFinite(params.rotationDegrees))
+    return 0;
+  const halfWidth = params.text.length * params.fontSize * CHARACTER_WIDTH_MULTIPLIER / 2;
+  const halfHeight = params.fontSize / 2;
+  const rotation = rotateDEG(params.rotationDegrees);
+  const horizontalExtent = applyToPoint(rotation, { x: halfWidth, y: 0 });
+  const verticalExtent = applyToPoint(rotation, { x: 0, y: halfHeight });
+  const maximumExtension = Math.abs(horizontalExtent.y) + Math.abs(verticalExtent.y);
+  return maximumExtension + params.fontSize * TEXT_INTERSECTION_PADDING_MULTIPLIER;
+}
+function normalize(point) {
+  const length = Math.hypot(point.x, point.y) || 1;
+  return { x: point.x / length, y: point.y / length };
+}
+function addPoints(first, second) {
+  return { x: first.x + second.x, y: first.y + second.y };
+}
+function scalePoint(point, scale2) {
+  return { x: point.x * scale2, y: point.y * scale2 };
+}
+function isPoint(point) {
+  return typeof point === "object" && point !== null && "x" in point && typeof point.x === "number" && "y" in point && typeof point.y === "number";
 }
 
 // lib/compile-circuit.ts
@@ -769,7 +966,11 @@ function compileCircuitJson(elements, options = {}) {
           user_note: "notes"
         }[group];
         const layer = `${e.layer ?? "top"}_${suffix}`, mesh = get(layer, index);
-        if (type.endsWith("_text")) {
+        if (type.endsWith("_dimension")) {
+          if (!isDimensionElement(e))
+            throw new Error("Invalid dimension geometry");
+          drawDimension({ element: e, mesh, textYAxis: options.textYAxis });
+        } else if (type.endsWith("_text")) {
           if (e.color && (group === "note" || group === "fabrication_note"))
             mesh.color = parseColor(e.color);
           drawText(mesh, e, options.textYAxis);
