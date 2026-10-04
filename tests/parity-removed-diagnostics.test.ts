@@ -48,12 +48,17 @@ test("removing diagnostics without worsening SVG parity is an improvement", () =
 
   expect(findParityRegressions(base, improved)).toEqual([])
 
+  const newDiagnostic = {
+    elementId: "dimension-1",
+    type: "pcb_note_dimension",
+    message: "A new diagnostic",
+  }
+  improved.results[0]!.diagnostics = [newDiagnostic]
+  expect(findParityRegressions(base, improved)).toHaveLength(1)
+
   improved.results[0]!.diagnostics = [
-    {
-      elementId: "dimension-1",
-      type: "pcb_note_dimension",
-      message: "A new diagnostic",
-    },
+    base.results[0]!.diagnostics![0]!,
+    base.results[0]!.diagnostics![0]!,
   ]
   expect(findParityRegressions(base, improved)).toHaveLength(1)
 })

@@ -32,10 +32,21 @@ function hasNoNewDiagnostics({
   before: Diagnostic[] | undefined
   current: Diagnostic[] | undefined
 }): boolean {
-  const previousDiagnosticKeys = new Set((before ?? []).map(getDiagnosticKey))
-  return (current ?? []).every((diagnostic) =>
-    previousDiagnosticKeys.has(getDiagnosticKey(diagnostic)),
-  )
+  const availableDiagnosticCounts = new Map<DiagnosticKey, number>()
+  for (const diagnostic of before ?? []) {
+    const diagnosticKey = getDiagnosticKey(diagnostic)
+    availableDiagnosticCounts.set(
+      diagnosticKey,
+      (availableDiagnosticCounts.get(diagnosticKey) ?? 0) + 1,
+    )
+  }
+  for (const diagnostic of current ?? []) {
+    const diagnosticKey = getDiagnosticKey(diagnostic)
+    const availableCount = availableDiagnosticCounts.get(diagnosticKey) ?? 0
+    if (availableCount === 0) return false
+    availableDiagnosticCounts.set(diagnosticKey, availableCount - 1)
+  }
+  return true
 }
 
 const indexCases = (results: ComparisonResult[]) => {
