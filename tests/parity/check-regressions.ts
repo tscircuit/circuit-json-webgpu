@@ -1,5 +1,9 @@
-import { readFileSync, appendFileSync } from "node:fs"
+import { appendFileSync, readFileSync } from "node:fs"
+import type { Diagnostic } from "../../lib/types"
 import type { ComparisonResult, ReferenceTest } from "./types"
+
+type ComparisonKey = string
+type DiagnosticKey = string
 
 export type ParityReport = {
   upstreamCommit: string
@@ -13,11 +17,32 @@ export type ParityReport = {
   referenceTests: ReferenceTest[]
 }
 
+function getDiagnosticKey(diagnostic: Diagnostic): DiagnosticKey {
+  return JSON.stringify([
+    diagnostic.elementId,
+    diagnostic.type,
+    diagnostic.message,
+  ])
+}
+
+function hasNoNewDiagnostics({
+  before,
+  current,
+}: {
+  before: Diagnostic[] | undefined
+  current: Diagnostic[] | undefined
+}): boolean {
+  const previousDiagnosticKeys = new Set((before ?? []).map(getDiagnosticKey))
+  return (current ?? []).every((diagnostic) =>
+    previousDiagnosticKeys.has(getDiagnosticKey(diagnostic)),
+  )
+}
+
 const indexCases = (results: ComparisonResult[]) => {
-  const counts = new Map<string, number>()
+  const counts = new Map<ComparisonKey, number>()
   return new Map(
     results.map((result) => {
-      const test = JSON.stringify([result.path, result.test])
+      const test: ComparisonKey = JSON.stringify([result.path, result.test])
       const ordinal = counts.get(test) ?? 0
       counts.set(test, ordinal + 1)
       return [JSON.stringify([test, ordinal]), result]
@@ -54,8 +79,8 @@ export function findParityRegressions(
     head.snapshots.length !== head.renderCalls
   )
     failures.push("Feature snapshots failed or are missing")
-  const previous = indexCases(base.results),
-    current = indexCases(head.results)
+  const previous = indexCases(base.results)
+  const current = indexCases(head.results)
   for (const key of previous.keys())
     if (!current.has(key)) failures.push(`Missing comparison: ${key}`)
   for (const [key, result] of current) {
@@ -86,7 +111,10 @@ export function findParityRegressions(
       !before ||
       before.status !== "mismatch" ||
       result.changedPixels! > (before.changedPixels ?? -1) ||
-      JSON.stringify(result.diagnostics) !== JSON.stringify(before.diagnostics)
+      !hasNoNewDiagnostics({
+        before: before.diagnostics,
+        current: result.diagnostics,
+      })
     )
       failures.push(`New or worsened mismatch: ${label}`)
   }
