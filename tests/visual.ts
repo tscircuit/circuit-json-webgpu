@@ -23,17 +23,19 @@ try {
   browser = await chromium.launch({
     headless: true,
     args: [
-      "--enable-unsafe-webgpu",
-      ...(process.env.WEBGPU_SOFTWARE
-        ? [
-            "--enable-gpu",
-            "--use-angle=swiftshader",
-            "--use-vulkan=swiftshader",
-            "--enable-features=Vulkan",
-            "--enable-unsafe-swiftshader",
-            "--ignore-gpu-blocklist",
-          ]
-        : []),
+      ...(process.env.WEBGPU_COMPATIBILITY ? [] : ["--enable-unsafe-webgpu"]),
+      ...(process.env.WEBGPU_COMPATIBILITY
+        ? ["--enable-gpu", "--use-webgpu-adapter=opengles", "--use-angle=gl"]
+        : process.env.WEBGPU_SOFTWARE
+          ? [
+              "--enable-gpu",
+              "--use-angle=swiftshader",
+              "--use-vulkan=swiftshader",
+              "--enable-features=Vulkan",
+              "--enable-unsafe-swiftshader",
+              "--ignore-gpu-blocklist",
+            ]
+          : []),
     ],
     ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
       ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
@@ -56,6 +58,15 @@ try {
   })
   await page.goto(server.resolvedUrls!.local[0])
   await page.waitForFunction(() => window.gpuTest, null, { timeout: 30000 })
+  if (process.env.WEBGPU_COMPATIBILITY) {
+    assert.equal(
+      await page.evaluate(async () =>
+        Boolean(await navigator.gpu.requestAdapter()),
+      ),
+      false,
+      "The compatibility regression must run without a Core WebGPU adapter",
+    )
+  }
   const visibility = await page.evaluate(() =>
     window.gpuTest.checkBoardVisibility(),
   )
@@ -372,9 +383,8 @@ try {
     process.env.WEBGPU_SOFTWARE ? 12 : 90,
   )
   assert.equal(navigation.geometryUploadsDuringZoom, 0)
-  const adapter = await page.evaluate(async () => {
-    const adapter = await navigator.gpu.requestAdapter(),
-      info = adapter!.info
+  const adapter = await page.evaluate(() => {
+    const info = window.gpuTest.adapterInfo!
     return {
       vendor: info.vendor,
       architecture: info.architecture,
