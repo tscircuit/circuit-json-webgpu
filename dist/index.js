@@ -1,3 +1,6 @@
+// lib/compile-circuit.ts
+import { createBoardOwnerMap } from "@tscircuit/circuit-json-util";
+
 // lib/get-wire-taper-polygon.ts
 function hasWireTaper(point) {
   if (!point || typeof point !== "object") return false;
@@ -270,6 +273,8 @@ var DEFAULT_LAYER_COLORS = {
   bottom_silkscreen: rgb(242, 237, 161),
   soldermask_top: rgb(12, 55, 33),
   soldermask_bottom: rgb(12, 55, 33),
+  soldermask_top_over_copper: rgb(52, 135, 73),
+  soldermask_bottom_over_copper: rgb(52, 135, 73),
   top_fabrication: [1, 1, 1, 0.5],
   bottom_fabrication: [1, 1, 1, 0.5],
   top_notes: rgb(89, 148, 220),
@@ -331,7 +336,7 @@ function fillEvenOdd(mesh, rings) {
     }
 }
 
-// ../circuit-json-webgpu/node_modules/circuit-to-canvas/lib/drawer/shapes/text/getAlphabetLayout.ts
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getAlphabetLayout.ts
 import {
   glyphAdvanceRatio,
   kerningRatio,
@@ -376,7 +381,7 @@ function getAlphabetLayout(text, fontSize) {
   };
 }
 
-// ../circuit-json-webgpu/node_modules/circuit-to-canvas/lib/drawer/shapes/text/getAlphabetOutlineGroups.ts
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getAlphabetOutlineGroups.ts
 import glyphOutlineAlphabet from "@tscircuit/alphabet/outline-polygons";
 function getAlphabetOutlineGroups(params) {
   const { line, fontSize, startX, startY } = params;
@@ -403,7 +408,7 @@ function getAlphabetOutlineGroups(params) {
   return groups;
 }
 
-// ../circuit-json-webgpu/node_modules/circuit-to-canvas/lib/drawer/shapes/text/getPolygonBounds.ts
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getPolygonBounds.ts
 function getPolygonBounds(polygons) {
   let minX = Number.POSITIVE_INFINITY;
   let minY = Number.POSITIVE_INFINITY;
@@ -423,7 +428,7 @@ function getPolygonBounds(polygons) {
   return { minX, minY, maxX, maxY };
 }
 
-// ../circuit-json-webgpu/node_modules/circuit-to-canvas/lib/drawer/shapes/text/getTextStartPosition.ts
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getTextStartPosition.ts
 function getTextGeometry(alignment, layout, fontSize) {
   const baseLinePlacements = getBaseLinePlacements(alignment, layout);
   const baseGlyphGroups = getGlyphGroupsForLinePlacements(
@@ -604,7 +609,7 @@ function drawText(mesh, e, yAxis = "up") {
     );
 }
 
-// ../circuit-json-webgpu/node_modules/@tscircuit/math-utils/dist/chunk-5J3PCV4D.js
+// node_modules/@tscircuit/math-utils/dist/chunk-5J3PCV4D.js
 function midpoint(p1, p2) {
   return {
     x: (p1.x + p2.x) / 2,
@@ -612,7 +617,7 @@ function midpoint(p1, p2) {
   };
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/applyToPoint.js
+// node_modules/transformation-matrix/src/applyToPoint.js
 function applyToPoint(matrix, point) {
   return Array.isArray(point) ? [
     matrix.a * point[0] + matrix.c * point[1] + matrix.e,
@@ -623,12 +628,12 @@ function applyToPoint(matrix, point) {
   };
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/utils.js
+// node_modules/transformation-matrix/src/utils.js
 function isUndefined(val) {
   return typeof val === "undefined";
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/translate.js
+// node_modules/transformation-matrix/src/translate.js
 function translate(tx, ty = 0) {
   return {
     a: 1,
@@ -640,7 +645,7 @@ function translate(tx, ty = 0) {
   };
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/transform.js
+// node_modules/transformation-matrix/src/transform.js
 function transform(...matrices) {
   matrices = Array.isArray(matrices[0]) ? matrices[0] : matrices;
   const multiply = (m1, m2) => {
@@ -668,7 +673,7 @@ function transform(...matrices) {
   }
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/rotate.js
+// node_modules/transformation-matrix/src/rotate.js
 var { cos, sin, PI } = Math;
 function rotate2(angle, cx, cy) {
   const cosAngle = cos(angle);
@@ -694,7 +699,7 @@ function rotateDEG(angle, cx = void 0, cy = void 0) {
   return rotate2(angle * PI / 180, cx, cy);
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/scale.js
+// node_modules/transformation-matrix/src/scale.js
 function scale(sx, sy = void 0, cx = void 0, cy = void 0) {
   if (isUndefined(sy)) sy = sx;
   const scaleMatrix = {
@@ -715,7 +720,7 @@ function scale(sx, sy = void 0, cx = void 0, cy = void 0) {
   ]);
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/skew.js
+// node_modules/transformation-matrix/src/skew.js
 var { tan } = Math;
 
 // lib/pcb-dimension/get-pcb-dimension-geometry.ts
@@ -954,6 +959,49 @@ function shape(e, hole = false) {
   throw new Error(`Unsupported shape: ${kind}`);
 }
 function compileCircuitJson(elements, options = {}) {
+  const boardOwners = createBoardOwnerMap([...elements]);
+  const viasByPosition = /* @__PURE__ */ new Map();
+  const renderElements = elements.map((element, index) => ({ element, index }));
+  for (const element of elements) {
+    if (element.type !== "pcb_via") continue;
+    const board2 = boardOwners.get(element.pcb_via_id);
+    const key = JSON.stringify([board2?.pcb_board_id, element.x, element.y]);
+    const vias = viasByPosition.get(key) ?? [];
+    vias.push(element);
+    viasByPosition.set(key, vias);
+  }
+  for (const [index, trace] of elements.entries()) {
+    if (trace.type !== "pcb_trace") continue;
+    const board2 = boardOwners.get(trace.pcb_trace_id);
+    for (const [routeIndex, point] of trace.route.entries()) {
+      if (point.route_type !== "via") continue;
+      const key = JSON.stringify([board2?.pcb_board_id, point.x, point.y]);
+      const vias = viasByPosition.get(key) ?? [];
+      if (vias.some(
+        (via2) => via2.layers.includes(point.from_layer) && via2.layers.includes(point.to_layer)
+      ))
+        continue;
+      const via = {
+        type: "pcb_via",
+        pcb_via_id: `${trace.pcb_trace_id}_route_via_${routeIndex}`,
+        pcb_trace_id: trace.pcb_trace_id,
+        x: point.x,
+        y: point.y,
+        layers: [point.from_layer, point.to_layer],
+        hole_diameter: point.hole_diameter ?? board2?.min_via_hole_diameter ?? 0.25,
+        outer_diameter: point.outer_diameter ?? board2?.min_via_pad_diameter ?? 0.6,
+        tented_on_top: point.tented_on_top,
+        tented_on_bottom: point.tented_on_bottom
+      };
+      vias.push(via);
+      viasByPosition.set(key, vias);
+      renderElements.push({ element: via, index });
+    }
+  }
+  const isViaTented = (via, side) => {
+    const board2 = (via.pcb_via_id ? boardOwners.get(via.pcb_via_id) : void 0) ?? (via.pcb_trace_id ? boardOwners.get(via.pcb_trace_id) : void 0);
+    return (side === "top" ? via.tented_on_top : via.tented_on_bottom) ?? via.is_tented ?? (side === "top" ? board2?.default_via_tented_on_top : board2?.default_via_tented_on_bottom) ?? false;
+  };
   const builders = /* @__PURE__ */ new Map();
   const diagnostics = [], elementIds = elements.map(getElementId);
   const board = elements.find((e) => e.type === "pcb_board");
@@ -978,7 +1026,7 @@ function compileCircuitJson(elements, options = {}) {
   const openings = [];
   const keepouts = [];
   const cutouts = [];
-  for (const [index, input] of elements.entries()) {
+  for (const { index, element: input } of renderElements) {
     const e = input, type = e.type;
     try {
       if (type === "pcb_board" || type === "pcb_panel") {
@@ -1002,9 +1050,12 @@ function compileCircuitJson(elements, options = {}) {
         }
         for (const layer of layers2) get(layer, index).polygon(shape(e));
         openings.push({ element: e, index, layers: layers2 });
-        for (const side of ["top", "bottom"])
-          if (layers2.includes(side) && !e.is_covered_with_solder_mask)
+        for (const side of ["top", "bottom"]) {
+          if (!layers2.includes(side)) continue;
+          const tented = type === "pcb_via" && isViaTented(e, side);
+          if (!tented && !e.is_covered_with_solder_mask)
             get(`soldermask_${side}`, index, true).polygon(shape(e));
+        }
       } else if (type === "pcb_hole") {
         openings.push({
           element: { ...e, shape: e.hole_shape },
@@ -1033,6 +1084,8 @@ function compileCircuitJson(elements, options = {}) {
         }
       } else if (type === "pcb_copper_pour") {
         get(e.layer, index, false, 1).polygon(shape(e));
+        if (e.covered_with_solder_mask === false && (e.layer === "top" || e.layer === "bottom"))
+          get(`soldermask_${e.layer}`, index, true).polygon(shape(e));
       } else if (type === "pcb_copper_text") {
         drawText(get(e.layer, index), e, options.textYAxis);
       } else if (/^pcb_(silkscreen|fabrication_note|courtyard|note|user_note)_/.test(
@@ -1111,6 +1164,24 @@ function compileCircuitJson(elements, options = {}) {
       });
     }
   }
+  for (const side of ["top", "bottom"]) {
+    const copperMesh = builders.get(side)?.paint;
+    if (!copperMesh) continue;
+    const mask = get(`soldermask_${side}`, 0);
+    const colorName = `soldermask_${side}_over_copper`;
+    const color = options.layerColors?.[colorName] ?? DEFAULT_LAYER_COLORS[colorName];
+    const offset = mask.vertices.length / 8;
+    for (let i = 0; i < copperMesh.vertices.length; i += 8) {
+      mask.vertices.push(
+        copperMesh.vertices[i],
+        copperMesh.vertices[i + 1],
+        ...color,
+        copperMesh.vertices[i + 6],
+        copperMesh.vertices[i + 7]
+      );
+    }
+    for (const index of copperMesh.indices) mask.indices.push(offset + index);
+  }
   for (const { rings, index, layers: layers2 } of keepouts) {
     try {
       for (const layer of layers2) drawKeepout(get(layer, index), rings);
@@ -1131,8 +1202,9 @@ function compileCircuitJson(elements, options = {}) {
       get("drill", index).polygon(rings);
     }
     for (const side of ["top", "bottom"])
-      if (layers2.includes(side))
+      if (layers2.includes(side) && !(element.type === "pcb_via" && isViaTented(element, side))) {
         get(`soldermask_${side}`, index, true).polygon(rings);
+      }
   }
   for (const { rings, index } of cutouts) {
     get("drill", index).polygon(rings);
@@ -1197,6 +1269,7 @@ var compositeShader = (
 @group(0) @binding(0) var image: texture_2d<f32>;
 @group(0) @binding(1) var imageSampler: sampler;
 @group(0) @binding(2) var<uniform> fade: vec4f;
+@group(0) @binding(3) var soldermask: texture_2d<f32>;
 struct Out { @builtin(position) position: vec4f, @location(0) uv: vec2f }
 @vertex fn vertexMain(@builtin(vertex_index) index: u32) -> Out {
   let points = array<vec2f, 6>(vec2f(0,0),vec2f(1,0),vec2f(0,1),vec2f(0,1),vec2f(1,0),vec2f(1,1));
@@ -1206,7 +1279,13 @@ struct Out { @builtin(position) position: vec4f, @location(0) uv: vec2f }
   return out;
 }
 @fragment fn fragmentMain(in: Out) -> @location(0) vec4f {
-  return textureSample(image, imageSampler, in.uv) * fade.x;
+  // Only the drill overlay uses mask coverage. Physical drill geometry is retained.
+  let ink = textureSample(image, imageSampler, in.uv);
+  let coverage = textureSample(soldermask, imageSampler, in.uv).a;
+  // Intersect coverage instead of multiplying it: matching antialiased drill
+  // and mask-opening edges must not have their alpha squared.
+  let alpha = min(ink.a, 1 - fade.y * coverage);
+  return ink * fade.x * (alpha / max(ink.a, 0.00001));
 }
 `
 );
@@ -1556,6 +1635,9 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       ...visible.map((layer) => ({ layer, xRay: false })),
       ...selectedLayers.map((layer) => ({ layer, xRay: true }))
     ];
+    const maskLayer = visible.find(
+      (layer) => layer.name === `soldermask_${selected}`
+    );
     const encoder = this.device.createCommandEncoder();
     for (const { layer, xRay } of renderLayers) {
       this.ensureTexture(layer, width, height);
@@ -1591,7 +1673,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
         0,
         new Float32Array([
           xRay ? 1 : xRayActive && this.isCopper(layer.name) ? Math.max(0, Math.min(1, o.hiddenLayerOpacity ?? 0.4)) : this.opacity(layer.name, selected, o.hiddenLayerOpacity ?? 0.4),
-          0,
+          !xRay && layer.name === "drill" && maskLayer ? 1 : 0,
           0,
           0
         ])
@@ -1608,7 +1690,11 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       ]
     });
     pass.setPipeline(this.compositePipeline);
-    for (const { layer } of renderLayers) {
+    for (const { layer, xRay } of renderLayers) {
+      this.ensureComposite(
+        layer,
+        !xRay && layer.name === "drill" ? maskLayer?.texture : void 0
+      );
       pass.setBindGroup(0, layer.composite);
       pass.draw(6);
     }
@@ -1666,12 +1752,17 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       format: "rgba8unorm",
       usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING
     });
+  }
+  ensureComposite(layer, mask) {
+    if (layer.composite && layer.mask === mask) return;
+    layer.mask = mask;
     layer.composite = this.device.createBindGroup({
       layout: this.compositePipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: layer.texture.createView() },
         { binding: 1, resource: this.sampler },
-        { binding: 2, resource: { buffer: layer.opacity } }
+        { binding: 2, resource: { buffer: layer.opacity } },
+        { binding: 3, resource: (mask ?? layer.texture).createView() }
       ]
     });
   }

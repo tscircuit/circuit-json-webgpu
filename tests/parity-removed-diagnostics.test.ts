@@ -7,6 +7,7 @@ import {
 function createParityReport(): ParityReport {
   return {
     upstreamCommit: "same-reference",
+    referenceVersion: "0.0.441",
     snapshots: [{ pass: true }],
     snapshotFailed: 0,
     capturedRenderCalls: 1,

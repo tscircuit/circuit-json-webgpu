@@ -9,6 +9,7 @@ export async function featureSnapshot(
   svg: PNG,
   gpu: PNG,
   key: string,
+  outputDir = new URL("../actual/parity/", import.meta.url),
 ) {
   const headerHeight = 32
   const pair = new PNG({
@@ -28,10 +29,7 @@ export async function featureSnapshot(
   const buffer = PNG.sync.write(pair)
   const baselineDir = new URL("../snapshots/features/", import.meta.url)
   await mkdir(baselineDir, { recursive: true })
-  await writeFile(
-    new URL(`../actual/parity/${id}.pair.png`, import.meta.url),
-    buffer,
-  )
+  await writeFile(new URL(`${id}.pair.png`, outputDir), buffer)
   let baseline = new URL(`${key}.png`, baselineDir)
   if (process.platform === "linux") {
     const linux = new URL(`linux/${key}.png`, baselineDir)
@@ -48,7 +46,11 @@ export async function featureSnapshot(
     return { pass: true, updated: true }
   }
   try {
-    const expected = PNG.sync.read(await readFile(baseline))
+    const baselineBuffer = await readFile(baseline)
+    // Identical PNG bytes necessarily have zero differing pixels. Keep the
+    // existing pixel comparison and tolerance for every nonidentical image.
+    if (buffer.equals(baselineBuffer)) return { pass: true, changedPixels: 0 }
+    const expected = PNG.sync.read(baselineBuffer)
     if (expected.width !== pair.width || expected.height !== pair.height)
       return { pass: false, error: "Snapshot dimensions changed" }
     // Labels are fixed; only compare rendered panels to avoid OS font differences.
@@ -64,7 +66,7 @@ export async function featureSnapshot(
     const pass = changed <= Math.ceil(a.width * a.height * 0.002)
     if (!pass)
       await writeFile(
-        new URL(`../actual/parity/${id}.snapshot-diff.png`, import.meta.url),
+        new URL(`${id}.snapshot-diff.png`, outputDir),
         PNG.sync.write(diff),
       )
     return { pass, changedPixels: changed }

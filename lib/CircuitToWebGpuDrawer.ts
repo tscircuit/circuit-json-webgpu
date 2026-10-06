@@ -18,6 +18,7 @@ type Layer = {
   opacity: GPUBuffer
   texture?: GPUTexture
   composite?: GPUBindGroup
+  mask?: GPUTexture
 }
 const over: GPUBlendState = {
   color: { srcFactor: "one", dstFactor: "one-minus-src-alpha" },
@@ -401,6 +402,9 @@ export class CircuitToWebGpuDrawer {
       ...visible.map((layer) => ({ layer, xRay: false })),
       ...selectedLayers.map((layer) => ({ layer, xRay: true })),
     ]
+    const maskLayer = visible.find(
+      (layer) => layer.name === `soldermask_${selected}`,
+    )
     const encoder = this.device.createCommandEncoder()
     for (const { layer, xRay } of renderLayers) {
       this.ensureTexture(layer, width, height)
@@ -444,7 +448,7 @@ export class CircuitToWebGpuDrawer {
             : xRayActive && this.isCopper(layer.name)
               ? Math.max(0, Math.min(1, o.hiddenLayerOpacity ?? 0.4))
               : this.opacity(layer.name, selected, o.hiddenLayerOpacity ?? 0.4),
-          0,
+          !xRay && layer.name === "drill" && maskLayer ? 1 : 0,
           0,
           0,
         ]),
@@ -461,7 +465,11 @@ export class CircuitToWebGpuDrawer {
       ],
     })
     pass.setPipeline(this.compositePipeline)
-    for (const { layer } of renderLayers) {
+    for (const { layer, xRay } of renderLayers) {
+      this.ensureComposite(
+        layer,
+        !xRay && layer.name === "drill" ? maskLayer?.texture : undefined,
+      )
       pass.setBindGroup(0, layer.composite!)
       pass.draw(6)
     }
@@ -494,6 +502,8 @@ export class CircuitToWebGpuDrawer {
   }
   private order(layer: string, selected: string) {
     if (layer === "board") return -100
+    // Exposed holes cut through silkscreen. The composite pass clips drills
+    // against the visible mask, including partial openings from overlapping pads.
     if (layer === "drill") return 200
     if (layer === "edge_cuts") return 150
     const base =
@@ -536,12 +546,17 @@ export class CircuitToWebGpuDrawer {
       usage:
         GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
     })
+  }
+  private ensureComposite(layer: Layer, mask?: GPUTexture) {
+    if (layer.composite && layer.mask === mask) return
+    layer.mask = mask
     layer.composite = this.device.createBindGroup({
       layout: this.compositePipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: layer.texture.createView() },
+        { binding: 0, resource: layer.texture!.createView() },
         { binding: 1, resource: this.sampler },
         { binding: 2, resource: { buffer: layer.opacity } },
+        { binding: 3, resource: (mask ?? layer.texture!).createView() },
       ],
     })
   }

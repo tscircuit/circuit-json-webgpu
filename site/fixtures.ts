@@ -1,3 +1,5 @@
+import { soldermaskRegression } from "./check-soldermask"
+import { viaTenting } from "./via-tenting"
 import { teardropDemo } from "./teardrop-demo"
 import type { CircuitJson, RenderOptions } from "../lib"
 export type Fixture = { elements: CircuitJson; options?: RenderOptions }
@@ -355,6 +357,62 @@ export const keepouts = [
 ] as CircuitJson
 
 export const fixtures: Record<string, Fixture> = {
+  "soldermask-copper-top": {
+    elements: soldermaskRegression,
+    options: {
+      transform: { a: 32, b: 0, c: 0, d: -32, e: 400, f: 300 },
+      showSolderMask: true,
+      showBoardMaterial: true,
+      hiddenLayerOpacity: 0,
+    },
+  },
+  "soldermask-copper-bottom": {
+    elements: soldermaskRegression,
+    options: {
+      transform: { a: 32, b: 0, c: 0, d: -32, e: 400, f: 300 },
+      selectedLayer: "bottom",
+      showSolderMask: true,
+      showBoardMaterial: true,
+      hiddenLayerOpacity: 0,
+    },
+  },
+  "via-tenting-top-mask-true": {
+    elements: viaTenting,
+    options: {
+      selectedLayer: "top",
+      showSolderMask: true,
+      hiddenLayerOpacity: 0,
+      transform: { a: 9, b: 0, c: 0, d: -9, e: 400, f: 300 },
+    },
+  },
+  "via-tenting-top-mask-false": {
+    elements: viaTenting,
+    options: {
+      selectedLayer: "top",
+      showSolderMask: false,
+      hiddenLayerOpacity: 0,
+      transform: { a: 9, b: 0, c: 0, d: -9, e: 400, f: 300 },
+    },
+  },
+  "via-tenting-bottom-mask-true": {
+    elements: viaTenting,
+    options: {
+      selectedLayer: "bottom",
+      showSolderMask: true,
+      hiddenLayerOpacity: 0,
+      transform: { a: 9, b: 0, c: 0, d: -9, e: 400, f: 300 },
+    },
+  },
+  "via-tenting-bottom-mask-false": {
+    elements: viaTenting,
+    options: {
+      selectedLayer: "bottom",
+      showSolderMask: false,
+      hiddenLayerOpacity: 0,
+      transform: { a: 9, b: 0, c: 0, d: -9, e: 400, f: 300 },
+    },
+  },
+
   "keepouts-top": {
     elements: keepouts,
     options: { selectedLayer: "top", hiddenLayerOpacity: 0 },

@@ -2,28 +2,50 @@ import { snapshotKey } from "./snapshot-key"
 import { featureSnapshot } from "./snapshot"
 import type { CapturedCase, ReferenceTest, ComparisonResult } from "./types"
 import { readFile, writeFile, mkdir } from "node:fs/promises"
-import { fileURLToPath } from "node:url"
+import { fileURLToPath, pathToFileURL } from "node:url"
+import { resolve } from "node:path"
 import { createServer } from "vite"
 import { chromium } from "playwright"
 import { PNG } from "pngjs"
 import { compare } from "./compare.ts"
 import { prepareComparison } from "./prepare.ts"
-import { comparisonSilkscreenColors } from "./palette"
-import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
+import {
+  comparisonSilkscreenColors,
+  comparisonCoveredCopperColors,
+} from "./palette"
+import { prepareSvgElements } from "./svg-reference"
+// Keep the frozen Canvas suite's original SVG dependency; update only this oracle.
+import { convertCircuitJsonToPcbSvg } from "svg-parity-reference"
+import svgReferencePackage from "svg-parity-reference/package.json"
 import { Resvg } from "@resvg/resvg-js"
 const root = fileURLToPath(new URL("../../", import.meta.url))
-const dir = new URL("../actual/parity/", import.meta.url)
+const inputDir = new URL("../actual/parity/", import.meta.url)
+const dir = process.env.PARITY_OUTPUT_DIR
+  ? pathToFileURL(`${resolve(root, process.env.PARITY_OUTPUT_DIR)}/`)
+  : inputDir
+await mkdir(dir, { recursive: true })
 const cases: CapturedCase[] = JSON.parse(
-  await readFile(new URL("cases.json", dir), "utf8"),
+  await readFile(new URL("cases.json", inputDir), "utf8"),
 )
 const tests: ReferenceTest[] = JSON.parse(
-  await readFile(new URL("tests.json", dir), "utf8"),
+  await readFile(new URL("tests.json", inputDir), "utf8"),
 )
 const server = await createServer({
   root,
+  resolve: {
+    alias: process.env.PARITY_RENDERER_ROOT
+      ? {
+          "./renderer-under-test": resolve(
+            root,
+            process.env.PARITY_RENDERER_ROOT,
+            "lib/index.ts",
+          ),
+        }
+      : {},
+  },
   server: {
     host: "127.0.0.1",
-    port: 0,
+    port: Number(process.env.PARITY_PORT ?? 0),
     hmr: false,
     watch: { ignored: ["**/*"] },
   },
@@ -80,9 +102,11 @@ try {
     }
     try {
       const svg = convertCircuitJsonToPcbSvg(
-        scene.elements as unknown as Parameters<
-          typeof convertCircuitJsonToPcbSvg
-        >[0],
+        prepareSvgElements(
+          scene.elements as unknown as Parameters<
+            typeof convertCircuitJsonToPcbSvg
+          >[0],
+        ),
         {
           width: scene.width,
           height: scene.height,
@@ -94,9 +118,19 @@ try {
           shouldDrawErrors: false,
           shouldDrawRatsNest: false,
           includeVersion: false,
-          drawPaddingOutsideBoard: false,
+          // This option also controls the actual board outline and mask in SVG.
+          drawPaddingOutsideBoard:
+            scene.showSolderMask &&
+            scene.elements.some(
+              (element) =>
+                element.type === "pcb_board" || element.type === "pcb_panel",
+            ),
           backgroundColor: scene.background,
-          colorOverrides: { silkscreen: comparisonSilkscreenColors },
+          colorOverrides: {
+            silkscreen: comparisonSilkscreenColors,
+            soldermaskWithCopperUnderneath: comparisonCoveredCopperColors,
+            soldermaskOverCopper: comparisonCoveredCopperColors,
+          },
         },
       )
       await writeFile(new URL(`${c.id}.svg.svg`, dir), svg)
@@ -114,7 +148,7 @@ try {
       const { changed, rawChanged } = compare(expected, actual, diff)
       snapshots.push({
         id: c.id,
-        ...(await featureSnapshot(c.id, expected, actual, key)),
+        ...(await featureSnapshot(c.id, expected, actual, key, dir)),
       })
       let ink = 0
       for (let i = 0; i < expected.data.length; i += 4)
@@ -181,9 +215,10 @@ const report = {
   snapshotPassed: snapshots.filter((s) => s.pass).length,
   snapshotFailed: snapshots.filter((s) => !s.pass).length,
   referenceRenderer: "circuit-to-svg",
+  referenceVersion: svgReferencePackage.version,
   candidateRenderer: "circuit-json-webgpu",
   comparisonPolicy:
-    "Fresh renders from identical Circuit JSON, canonical y-up viewport, dimensions, black background, and explicit layer settings. No Canvas images or stacked snapshots are used.",
+    "Fresh renders from the same captured Circuit JSON, canonical y-up viewport, dimensions, black background, and explicit layer settings. Only the SVG input expands route vias using the pinned Canvas reference; WebGPU receives the original input. No Canvas images or stacked snapshots are used.",
   notComparable: results.filter((r) => r.status === "not-comparable").length,
   textRenderCalls: pureTextResults.length,
   textParityPassed: pureTextResults.filter((r) => r.pass).length,
@@ -210,7 +245,7 @@ const escape = (value: unknown) =>
 const html =
   `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>circuit-to-svg / circuit-json-webgpu</title><style>
 body{font:14px system-ui;background:#161616;color:#eee;margin:24px}section{border-top:1px solid #555;padding:20px 0}.scroll{overflow-x:auto}.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;min-width:600px}figure{margin:0;min-width:0}figcaption{font-weight:700;padding:10px 0}img{display:block;width:100%;height:auto;background:#000}pre{white-space:pre-wrap;overflow-wrap:anywhere}details{margin-top:16px}.notice{padding:16px;background:#292929}summary{cursor:pointer}</style></head><body>
-<h1>circuit-to-svg ← → circuit-json-webgpu</h1><p>Every pair is generated fresh from the same Circuit JSON, viewport, dimensions, layers, and black background. Left: circuit-to-svg. Right: circuit-json-webgpu. No Canvas snapshot or vertically stacked comparison is used.</p><p>${report.parityPassed}/${report.renderCalls} comparisons pass. ${report.notComparable} captured Canvas-only passes are explicitly listed as not comparable. The original Canvas assertions are retained separately in report.json.</p>` +
+<h1>circuit-to-svg ← → circuit-json-webgpu</h1><p>Every pair is generated fresh from the same Circuit JSON, viewport, dimensions, layers, and black background. Left: circuit-to-svg, with route vias expanded by the pinned Canvas reference. Right: circuit-json-webgpu, with the original unexpanded input. No Canvas snapshot or vertically stacked comparison is used.</p><p>${report.parityPassed}/${report.renderCalls} comparisons pass. ${report.notComparable} captured Canvas-only passes are explicitly listed as not comparable. The original Canvas assertions are retained separately in report.json.</p>` +
   results
     .map(
       (r) =>

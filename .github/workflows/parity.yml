@@ -18,21 +18,22 @@ jobs:
       - run: bun install
         working-directory: .parity-base
       - run: bunx playwright install --with-deps chromium
-      # The strict audit has known failures on main. Run both revisions on the
-      # same runner; the required comparison below rejects every new regression.
-      - name: Audit base revision
-        run: xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:parity
-        working-directory: .parity-base
-        continue-on-error: true
+      # Capture once. Both renderer revisions use the same fixtures, SVG
+      # reference, camera, and audit code, including when the reference is updated.
       - name: Audit proposed revision
         run: xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:parity
         continue-on-error: true
+      - name: Audit base renderer against the same reference
+        run: xvfb-run -a env WEBGPU_SOFTWARE=1 PARITY_RENDERER_ROOT=.parity-base PARITY_OUTPUT_DIR=tests/actual/parity-base bun tests/parity/run.ts
+        continue-on-error: true
       - name: Reject parity regressions
-        run: bun tests/parity/check-regressions.ts .parity-base/tests/actual/parity/report.json tests/actual/parity/report.json
+        run: bun tests/parity/check-regressions.ts tests/actual/parity-base/report.json tests/actual/parity/report.json
       - run: bun run test:parity-layout
         if: always()
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: svg-webgpu-parity
-          path: tests/actual/parity/
+          path: |
+            tests/actual/parity/
+            tests/actual/parity-base/

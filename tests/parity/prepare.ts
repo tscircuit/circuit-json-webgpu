@@ -43,7 +43,24 @@ export function prepareComparison(
       reason:
         "This mixed-side layer selection cannot be expressed by circuit-to-svg's single layer option.",
     }
-  const layer = sides[0] as LayerRef | undefined
+  const explicitMaskSide =
+    c.options.drawSoldermaskTop !== undefined ||
+    c.options.drawSoldermaskBottom !== undefined
+  const topMask =
+    Boolean(c.options.drawSoldermask) &&
+    (c.options.drawSoldermaskTop ?? !explicitMaskSide)
+  const bottomMask =
+    Boolean(c.options.drawSoldermask) &&
+    (c.options.drawSoldermaskBottom ?? false)
+  const layer = (sides[0] ?? (bottomMask && !topMask ? "bottom" : undefined)) as
+    | LayerRef
+    | undefined
+  const showSolderMask =
+    layer === "bottom"
+      ? bottomMask
+      : !layer || layer === "top"
+        ? topMask
+        : false
   const elements = requested?.length
     ? c.elements.filter((e) => {
         const layers =
@@ -96,6 +113,8 @@ export function prepareComparison(
       .replace(/_fabrication_note$/, "_fabrication"),
   )
   if (layers) layers.push("board", "edge_cuts", "drill")
+  if (layers && showSolderMask && (layer === "top" || layer === "bottom"))
+    layers.push(`soldermask_${layer}`)
   return {
     scene: {
       elements,
@@ -105,7 +124,7 @@ export function prepareComparison(
       transform,
       layer,
       layers,
-      showSolderMask: c.options.drawSoldermask ?? false,
+      showSolderMask,
       showPcbNotes: c.options.showPcbNotes ?? true,
       background: "#000000",
     },

@@ -1,3 +1,5 @@
+import { createBoardOwnerMap } from "@tscircuit/circuit-json-util"
+import type { PcbVia, PcbViaInput } from "circuit-json"
 import {
   getWireTaperPolygon,
   getWireTaperSegments,
@@ -115,6 +117,65 @@ export function compileCircuitJson(
     layerColors?: Record<string, import("./types").Color>
   } = {},
 ): CompiledScene {
+  const boardOwners = createBoardOwnerMap([...elements])
+  const viasByPosition = new Map<string, PcbVia[]>()
+  const renderElements = elements.map((element, index) => ({ element, index }))
+  for (const element of elements) {
+    if (element.type !== "pcb_via") continue
+    const board = boardOwners.get(element.pcb_via_id)
+    const key = JSON.stringify([board?.pcb_board_id, element.x, element.y])
+    const vias = viasByPosition.get(key) ?? []
+    vias.push(element)
+    viasByPosition.set(key, vias)
+  }
+  for (const [index, trace] of elements.entries()) {
+    if (trace.type !== "pcb_trace") continue
+    const board = boardOwners.get(trace.pcb_trace_id)
+    for (const [routeIndex, point] of trace.route.entries()) {
+      if (point.route_type !== "via") continue
+      const key = JSON.stringify([board?.pcb_board_id, point.x, point.y])
+      const vias = viasByPosition.get(key) ?? []
+      if (
+        vias.some(
+          (via) =>
+            via.layers.includes(point.from_layer) &&
+            via.layers.includes(point.to_layer),
+        )
+      )
+        continue
+      const via: PcbVia = {
+        type: "pcb_via",
+        pcb_via_id: `${trace.pcb_trace_id}_route_via_${routeIndex}`,
+        pcb_trace_id: trace.pcb_trace_id,
+        x: point.x,
+        y: point.y,
+        layers: [point.from_layer, point.to_layer],
+        hole_diameter:
+          point.hole_diameter ?? board?.min_via_hole_diameter ?? 0.25,
+        outer_diameter:
+          point.outer_diameter ?? board?.min_via_pad_diameter ?? 0.6,
+        tented_on_top: point.tented_on_top,
+        tented_on_bottom: point.tented_on_bottom,
+      }
+      vias.push(via)
+      viasByPosition.set(key, vias)
+      // Keep picking and X-Ray selection associated with the owning trace.
+      renderElements.push({ element: via, index })
+    }
+  }
+  const isViaTented = (via: PcbViaInput, side: "top" | "bottom") => {
+    const board =
+      (via.pcb_via_id ? boardOwners.get(via.pcb_via_id) : undefined) ??
+      (via.pcb_trace_id ? boardOwners.get(via.pcb_trace_id) : undefined)
+    return (
+      (side === "top" ? via.tented_on_top : via.tented_on_bottom) ??
+      via.is_tented ??
+      (side === "top"
+        ? board?.default_via_tented_on_top
+        : board?.default_via_tented_on_bottom) ??
+      false
+    )
+  }
   const builders = new Map<string, { paint: MeshBuilder; erase: MeshBuilder }>()
   const diagnostics: Diagnostic[] = [],
     elementIds = elements.map(getElementId)
@@ -143,7 +204,7 @@ export function compileCircuitJson(
   const openings: { element: Element; index: number; layers: string[] }[] = []
   const keepouts: { rings: Point[][]; index: number; layers: string[] }[] = []
   const cutouts: { rings: Point[][]; index: number }[] = []
-  for (const [index, input] of elements.entries()) {
+  for (const { index, element: input } of renderElements) {
     const e = input as Element,
       type: string = e.type
     try {
@@ -169,9 +230,13 @@ export function compileCircuitJson(
         }
         for (const layer of layers) get(layer, index).polygon(shape(e))
         openings.push({ element: e, index, layers })
-        for (const side of ["top", "bottom"])
-          if (layers.includes(side) && !e.is_covered_with_solder_mask)
+        for (const side of ["top", "bottom"] as const) {
+          if (!layers.includes(side)) continue
+          const tented =
+            type === "pcb_via" && isViaTented(e as PcbViaInput, side)
+          if (!tented && !e.is_covered_with_solder_mask)
             get(`soldermask_${side}`, index, true).polygon(shape(e))
+        }
       } else if (type === "pcb_hole") {
         openings.push({
           element: { ...e, shape: e.hole_shape },
@@ -223,6 +288,11 @@ export function compileCircuitJson(
         }
       } else if (type === "pcb_copper_pour") {
         get(e.layer, index, false, 1).polygon(shape(e))
+        if (
+          e.covered_with_solder_mask === false &&
+          (e.layer === "top" || e.layer === "bottom")
+        )
+          get(`soldermask_${e.layer}`, index, true).polygon(shape(e))
       } else if (type === "pcb_copper_text") {
         drawText(get(e.layer, index), e, options.textYAxis)
       } else if (
@@ -314,6 +384,28 @@ export function compileCircuitJson(
       })
     }
   }
+  // Paint covered copper after every board surface, then erase pad/via openings.
+  // Copy before drill erasure: tenting bridges the drill without changing copper
+  // or the physical drill mesh. Retain pour categories for visibility/opacity.
+  for (const side of ["top", "bottom"]) {
+    const copperMesh = builders.get(side)?.paint
+    if (!copperMesh) continue
+    const mask = get(`soldermask_${side}`, 0)
+    const colorName = `soldermask_${side}_over_copper`
+    const color =
+      options.layerColors?.[colorName] ?? DEFAULT_LAYER_COLORS[colorName]
+    const offset = mask.vertices.length / 8
+    for (let i = 0; i < copperMesh.vertices.length; i += 8) {
+      mask.vertices.push(
+        copperMesh.vertices[i],
+        copperMesh.vertices[i + 1],
+        ...color,
+        copperMesh.vertices[i + 6],
+        copperMesh.vertices[i + 7],
+      )
+    }
+    for (const index of copperMesh.indices) mask.indices.push(offset + index)
+  }
   // Keep annotations visible regardless of the input order of copper pours.
   for (const { rings, index, layers } of keepouts) {
     try {
@@ -334,9 +426,16 @@ export function compileCircuitJson(
       get("board", index, true).polygon(rings)
       get("drill", index).polygon(rings)
     }
-    for (const side of ["top", "bottom"])
-      if (layers.includes(side))
+    for (const side of ["top", "bottom"] as const)
+      if (
+        layers.includes(side) &&
+        !(
+          element.type === "pcb_via" &&
+          isViaTented(element as PcbViaInput, side)
+        )
+      ) {
         get(`soldermask_${side}`, index, true).polygon(rings)
+      }
   }
   for (const { rings, index } of cutouts) {
     get("drill", index).polygon(rings)

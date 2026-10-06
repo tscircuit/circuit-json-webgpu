@@ -68,6 +68,126 @@ try {
       ),
     ]
   }
+  const mask = await page.evaluate(() => window.gpuTest.checkSoldermask())
+  const maskPixel = (frame: string, x: number, y: number) =>
+    pixel(
+      mask.frames[frame],
+      Math.round(400 + x * 36),
+      Math.round(320 - y * 36),
+    )
+  const covered = [52, 135, 73, 255],
+    substrateMask = [12, 55, 33, 255]
+  const drillColor = [255, 38, 226, 255],
+    silkColor = [242, 237, 161, 255]
+  assert.deepEqual(mask.diagnostics, [])
+  assert.equal(
+    mask.geometryUploads,
+    1,
+    "Side, mask, and X-Ray toggles must reuse geometry",
+  )
+  for (const frame of ["top", "bottom", "restored", "reversed"]) {
+    assert.deepEqual(
+      maskPixel(frame, -5, -3),
+      covered,
+      "Trace must remain visible under mask",
+    )
+    assert.deepEqual(maskPixel(frame, -5, -4), substrateMask)
+    assert.deepEqual(
+      maskPixel(frame, 0, -6),
+      drillColor,
+      "Mounting holes remain open",
+    )
+    assert.deepEqual(maskPixel(frame, 3, -6), drillColor, "Cutouts remain open")
+    assert.deepEqual(
+      maskPixel(frame, 6, 3),
+      drillColor,
+      "Explicit exposure overrides board tenting",
+    )
+  }
+  for (const x of [-6, 0]) {
+    assert.deepEqual(
+      maskPixel("top", x, 3.25),
+      covered,
+      "Inherited standalone/route tenting must cover the drill",
+    )
+    // The V stroke overlaps the drill; bottom-side text is mirrored.
+    assert.deepEqual(
+      maskPixel("top", x - 0.25, 3),
+      silkColor,
+      "Silkscreen remains intact over tented holes",
+    )
+    assert.deepEqual(
+      maskPixel("bottom", x + 0.25, 3),
+      drillColor,
+      "Untented side exposes the drill through silkscreen",
+    )
+    for (const frame of [
+      "top-mask-off",
+      "bottom-mask-off",
+      "filtered-mask",
+      "xray",
+    ])
+      assert.deepEqual(
+        maskPixel(frame, x, 3),
+        drillColor,
+        "Physical holes survive tenting and remain visible without mask",
+      )
+  }
+  assert.deepEqual(
+    maskPixel("top", 5.75, -3),
+    drillColor,
+    "Pad opening exposes only its overlap with the hole",
+  )
+  assert.deepEqual(
+    maskPixel("top", 6.25, -3),
+    covered,
+    "Tenting covers the remainder of the hole",
+  )
+  assert.deepEqual(
+    maskPixel("top", 4.5, -3),
+    [200, 52, 52, 255],
+    "Pad copper remains exposed",
+  )
+  assert.deepEqual(
+    maskPixel("bottom", 5.75, -3),
+    covered,
+    "Top pad must not open the bottom mask",
+  )
+  assert.deepEqual(maskPixel("top-mask-off", -5, -3), [200, 52, 52, 255])
+  assert.deepEqual(maskPixel("bottom-mask-off", -5, -3), [77, 127, 196, 255])
+  assert.deepEqual(maskPixel("top", 0, -3), covered)
+  for (const frame of ["exposed-pour", "exposed-pour-mask-off"])
+    assert.deepEqual(
+      maskPixel(frame, 0, -3),
+      [200, 52, 52, 255],
+      "An explicitly exposed pour stays copper-colored with or without mask",
+    )
+  assert.deepEqual(maskPixel("hidden-pours", 0, -3), substrateMask)
+  assert.deepEqual(maskPixel("half-pours", 0, -3), [32, 95, 53, 255])
+  assert.deepEqual(maskPixel("hidden-pours", -5, -3), covered)
+  // Recover drill coverage from the mask-off frame, then composite that same
+  // coverage over the mask-on background. Check every pixel around the NPTH,
+  // including partial coverage at its edge, independently of background color.
+  const edgeFrames = [
+    "top",
+    "top-without-drill",
+    "top-mask-off",
+    "top-mask-off-without-drill",
+  ].map((name) => PNG.sync.read(Buffer.from(mask.frames[name], "base64")))
+  for (let y = 517; y <= 555; y++) {
+    for (let x = 381; x <= 419; x++) {
+      const offset = (y * 800 + x) * 4
+      const [on, onBackground, off, offBackground] = edgeFrames.map(
+        (frame) => frame.data[offset],
+      )
+      const coverage = (off - offBackground) / (255 - offBackground)
+      const expected = 255 * coverage + onBackground * (1 - coverage)
+      assert(
+        Math.abs(on - expected) <= 2,
+        `Drill coverage changed with soldermask at ${x},${y}: ${on} vs ${expected}`,
+      )
+    }
+  }
   const pours = await page.evaluate(() =>
     window.gpuTest.checkCopperPourOpacity(),
   )
