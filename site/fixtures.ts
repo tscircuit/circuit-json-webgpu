@@ -1,3 +1,4 @@
+import { soldermaskRegression } from "./check-soldermask"
 import { viaTenting } from "./via-tenting"
 import { teardropDemo } from "./teardrop-demo"
 import type { CircuitJson, RenderOptions } from "../lib"
@@ -356,6 +357,25 @@ export const keepouts = [
 ] as CircuitJson
 
 export const fixtures: Record<string, Fixture> = {
+  "soldermask-copper-top": {
+    elements: soldermaskRegression,
+    options: {
+      transform: { a: 32, b: 0, c: 0, d: -32, e: 400, f: 300 },
+      showSolderMask: true,
+      showBoardMaterial: true,
+      hiddenLayerOpacity: 0,
+    },
+  },
+  "soldermask-copper-bottom": {
+    elements: soldermaskRegression,
+    options: {
+      transform: { a: 32, b: 0, c: 0, d: -32, e: 400, f: 300 },
+      selectedLayer: "bottom",
+      showSolderMask: true,
+      showBoardMaterial: true,
+      hiddenLayerOpacity: 0,
+    },
+  },
   "via-tenting-top-mask-true": {
     elements: viaTenting,
     options: {

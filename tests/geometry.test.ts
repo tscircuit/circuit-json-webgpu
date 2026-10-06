@@ -208,9 +208,14 @@ test("wire-to-via segments stay on the adjacent layer without bridging other run
       ],
     },
   ] as any)
-  expect(scene.layers.map((l) => l.name).sort()).toEqual(["bottom", "top"])
+  expect(
+    scene.layers
+      .filter((l) => /^(top|bottom|inner\d+)$/.test(l.name))
+      .map((l) => l.name)
+      .sort(),
+  ).toEqual(["bottom", "top"])
   expect(area(scene.layers.find((l) => l.name === "top")!.paint)).toBeCloseTo(
-    5 + Math.PI / 4,
+    5 + Math.PI / 4 + Math.PI * 0.3 ** 2,
     1,
   )
 })
@@ -515,10 +520,6 @@ test("tenting changes only mask openings, preserving standalone and route via dr
             (layer) => layer.name === `soldermask_${side}`,
           )!
           expect(mask.erase.indices.length === 0).toBe(tented)
-          const surfaceDrills =
-            scene.layers.find((layer) => layer.name === `drill_${side}`) ??
-            scene.layers.find((layer) => layer.name === "drill")!
-          expect(surfaceDrills.paint.indices.length === 0).toBe(tented)
           expect(
             area(scene.layers.find((layer) => layer.name === side)!.erase),
           ).toBeCloseTo(Math.PI / 4, 1)

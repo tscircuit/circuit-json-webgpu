@@ -273,6 +273,8 @@ var DEFAULT_LAYER_COLORS = {
   bottom_silkscreen: rgb(242, 237, 161),
   soldermask_top: rgb(12, 55, 33),
   soldermask_bottom: rgb(12, 55, 33),
+  soldermask_top_over_copper: rgb(52, 135, 73),
+  soldermask_bottom_over_copper: rgb(52, 135, 73),
   top_fabrication: [1, 1, 1, 0.5],
   bottom_fabrication: [1, 1, 1, 0.5],
   top_notes: rgb(89, 148, 220),
@@ -334,7 +336,7 @@ function fillEvenOdd(mesh, rings) {
     }
 }
 
-// ../circuit-json-webgpu/node_modules/circuit-to-canvas/lib/drawer/shapes/text/getAlphabetLayout.ts
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getAlphabetLayout.ts
 import {
   glyphAdvanceRatio,
   kerningRatio,
@@ -379,7 +381,7 @@ function getAlphabetLayout(text, fontSize) {
   };
 }
 
-// ../circuit-json-webgpu/node_modules/circuit-to-canvas/lib/drawer/shapes/text/getAlphabetOutlineGroups.ts
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getAlphabetOutlineGroups.ts
 import glyphOutlineAlphabet from "@tscircuit/alphabet/outline-polygons";
 function getAlphabetOutlineGroups(params) {
   const { line, fontSize, startX, startY } = params;
@@ -406,7 +408,7 @@ function getAlphabetOutlineGroups(params) {
   return groups;
 }
 
-// ../circuit-json-webgpu/node_modules/circuit-to-canvas/lib/drawer/shapes/text/getPolygonBounds.ts
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getPolygonBounds.ts
 function getPolygonBounds(polygons) {
   let minX = Number.POSITIVE_INFINITY;
   let minY = Number.POSITIVE_INFINITY;
@@ -426,7 +428,7 @@ function getPolygonBounds(polygons) {
   return { minX, minY, maxX, maxY };
 }
 
-// ../circuit-json-webgpu/node_modules/circuit-to-canvas/lib/drawer/shapes/text/getTextStartPosition.ts
+// node_modules/circuit-to-canvas/lib/drawer/shapes/text/getTextStartPosition.ts
 function getTextGeometry(alignment, layout, fontSize) {
   const baseLinePlacements = getBaseLinePlacements(alignment, layout);
   const baseGlyphGroups = getGlyphGroupsForLinePlacements(
@@ -607,7 +609,7 @@ function drawText(mesh, e, yAxis = "up") {
     );
 }
 
-// ../circuit-json-webgpu/node_modules/@tscircuit/math-utils/dist/chunk-5J3PCV4D.js
+// node_modules/@tscircuit/math-utils/dist/chunk-5J3PCV4D.js
 function midpoint(p1, p2) {
   return {
     x: (p1.x + p2.x) / 2,
@@ -615,7 +617,7 @@ function midpoint(p1, p2) {
   };
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/applyToPoint.js
+// node_modules/transformation-matrix/src/applyToPoint.js
 function applyToPoint(matrix, point) {
   return Array.isArray(point) ? [
     matrix.a * point[0] + matrix.c * point[1] + matrix.e,
@@ -626,12 +628,12 @@ function applyToPoint(matrix, point) {
   };
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/utils.js
+// node_modules/transformation-matrix/src/utils.js
 function isUndefined(val) {
   return typeof val === "undefined";
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/translate.js
+// node_modules/transformation-matrix/src/translate.js
 function translate(tx, ty = 0) {
   return {
     a: 1,
@@ -643,7 +645,7 @@ function translate(tx, ty = 0) {
   };
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/transform.js
+// node_modules/transformation-matrix/src/transform.js
 function transform(...matrices) {
   matrices = Array.isArray(matrices[0]) ? matrices[0] : matrices;
   const multiply = (m1, m2) => {
@@ -671,7 +673,7 @@ function transform(...matrices) {
   }
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/rotate.js
+// node_modules/transformation-matrix/src/rotate.js
 var { cos, sin, PI } = Math;
 function rotate2(angle, cx, cy) {
   const cosAngle = cos(angle);
@@ -697,7 +699,7 @@ function rotateDEG(angle, cx = void 0, cy = void 0) {
   return rotate2(angle * PI / 180, cx, cy);
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/scale.js
+// node_modules/transformation-matrix/src/scale.js
 function scale(sx, sy = void 0, cx = void 0, cy = void 0) {
   if (isUndefined(sy)) sy = sx;
   const scaleMatrix = {
@@ -718,7 +720,7 @@ function scale(sx, sy = void 0, cx = void 0, cy = void 0) {
   ]);
 }
 
-// ../circuit-json-webgpu/node_modules/transformation-matrix/src/skew.js
+// node_modules/transformation-matrix/src/skew.js
 var { tan } = Math;
 
 // lib/pcb-dimension/get-pcb-dimension-geometry.ts
@@ -1016,8 +1018,7 @@ function compileCircuitJson(elements, options = {}) {
     if (!builders.has(name))
       builders.set(name, { paint: new MeshBuilder(), erase: new MeshBuilder() });
     const mesh = builders.get(name)[erase ? "erase" : "paint"];
-    const colorLayer = name.startsWith("drill_") ? "drill" : name;
-    mesh.color = options.layerColors?.[colorLayer] ?? DEFAULT_LAYER_COLORS[colorLayer] ?? [0.75, 0.75, 0.75, 1];
+    mesh.color = options.layerColors?.[name] ?? DEFAULT_LAYER_COLORS[name] ?? [0.75, 0.75, 0.75, 1];
     mesh.element = index;
     mesh.category = category;
     return mesh;
@@ -1052,8 +1053,7 @@ function compileCircuitJson(elements, options = {}) {
         for (const side of ["top", "bottom"]) {
           if (!layers2.includes(side)) continue;
           const tented = type === "pcb_via" && isViaTented(e, side);
-          if (tented) get(`soldermask_${side}`, index).polygon(shape(e));
-          else if (!e.is_covered_with_solder_mask)
+          if (!tented && !e.is_covered_with_solder_mask)
             get(`soldermask_${side}`, index, true).polygon(shape(e));
         }
       } else if (type === "pcb_hole") {
@@ -1162,6 +1162,24 @@ function compileCircuitJson(elements, options = {}) {
       });
     }
   }
+  for (const side of ["top", "bottom"]) {
+    const copperMesh = builders.get(side)?.paint;
+    if (!copperMesh) continue;
+    const mask = get(`soldermask_${side}`, 0);
+    const colorName = `soldermask_${side}_over_copper`;
+    const color = options.layerColors?.[colorName] ?? DEFAULT_LAYER_COLORS[colorName];
+    const offset = mask.vertices.length / 8;
+    for (let i = 0; i < copperMesh.vertices.length; i += 8) {
+      mask.vertices.push(
+        copperMesh.vertices[i],
+        copperMesh.vertices[i + 1],
+        ...color,
+        copperMesh.vertices[i + 6],
+        copperMesh.vertices[i + 7]
+      );
+    }
+    for (const index of copperMesh.indices) mask.indices.push(offset + index);
+  }
   for (const { rings, index, layers: layers2 } of keepouts) {
     try {
       for (const layer of layers2) drawKeepout(get(layer, index), rings);
@@ -1172,13 +1190,6 @@ function compileCircuitJson(elements, options = {}) {
         message: String(error)
       });
     }
-  }
-  const hasTentedVias = openings.some(
-    ({ element }) => element.type === "pcb_via" && (isViaTented(element, "top") || isViaTented(element, "bottom"))
-  );
-  if (hasTentedVias) {
-    get("drill_top", 0);
-    get("drill_bottom", 0);
   }
   for (const { element, index, layers: layers2 } of openings) {
     const rings = shape(element, true);
@@ -1191,8 +1202,6 @@ function compileCircuitJson(elements, options = {}) {
     for (const side of ["top", "bottom"])
       if (layers2.includes(side) && !(element.type === "pcb_via" && isViaTented(element, side))) {
         get(`soldermask_${side}`, index, true).polygon(rings);
-        if (isThrough && hasTentedVias)
-          get(`drill_${side}`, index).polygon(rings);
       }
   }
   for (const { rings, index } of cutouts) {
@@ -1258,6 +1267,7 @@ var compositeShader = (
 @group(0) @binding(0) var image: texture_2d<f32>;
 @group(0) @binding(1) var imageSampler: sampler;
 @group(0) @binding(2) var<uniform> fade: vec4f;
+@group(0) @binding(3) var soldermask: texture_2d<f32>;
 struct Out { @builtin(position) position: vec4f, @location(0) uv: vec2f }
 @vertex fn vertexMain(@builtin(vertex_index) index: u32) -> Out {
   let points = array<vec2f, 6>(vec2f(0,0),vec2f(1,0),vec2f(0,1),vec2f(0,1),vec2f(1,0),vec2f(1,1));
@@ -1267,7 +1277,9 @@ struct Out { @builtin(position) position: vec4f, @location(0) uv: vec2f }
   return out;
 }
 @fragment fn fragmentMain(in: Out) -> @location(0) vec4f {
-  return textureSample(image, imageSampler, in.uv) * fade.x;
+  // Only the drill overlay uses mask coverage. Physical drill geometry is retained.
+  let coverage = textureSample(soldermask, imageSampler, in.uv).a;
+  return textureSample(image, imageSampler, in.uv) * fade.x * (1 - fade.y * coverage);
 }
 `
 );
@@ -1594,13 +1606,8 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       this.highlightKey = key;
     }
     const selected = normalizeLayer(o.selectedLayer ?? "top"), filter = o.layers ? new Set(o.layers.map(normalizeLayer)) : void 0;
-    const maskedDrills = o.showSolderMask && (!filter || filter.has(`soldermask_${selected}`)) && this.layers.some((layer) => layer.name === `drill_${selected}`);
     const visible = this.layers.filter((l) => {
-      if (l.name === "drill" && maskedDrills) return false;
-      if (l.name.startsWith("drill_") && (!maskedDrills || l.name !== `drill_${selected}`))
-        return false;
-      if (filter && !filter.has(l.name) && !(l.name.startsWith("drill_") && filter.has("drill")))
-        return false;
+      if (filter && !filter.has(l.name)) return false;
       if (xRayActive && !this.isCopper(l.name)) return false;
       if (l.name === "board" && !o.showBoardMaterial) return false;
       if (l.name.startsWith("soldermask_") && (!o.showSolderMask || l.name !== `soldermask_${selected}`))
@@ -1622,6 +1629,9 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       ...visible.map((layer) => ({ layer, xRay: false })),
       ...selectedLayers.map((layer) => ({ layer, xRay: true }))
     ];
+    const maskLayer = visible.find(
+      (layer) => layer.name === `soldermask_${selected}`
+    );
     const encoder = this.device.createCommandEncoder();
     for (const { layer, xRay } of renderLayers) {
       this.ensureTexture(layer, width, height);
@@ -1657,7 +1667,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
         0,
         new Float32Array([
           xRay ? 1 : xRayActive && this.isCopper(layer.name) ? Math.max(0, Math.min(1, o.hiddenLayerOpacity ?? 0.4)) : this.opacity(layer.name, selected, o.hiddenLayerOpacity ?? 0.4),
-          0,
+          !xRay && layer.name === "drill" && maskLayer ? 1 : 0,
           0,
           0
         ])
@@ -1674,7 +1684,11 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       ]
     });
     pass.setPipeline(this.compositePipeline);
-    for (const { layer } of renderLayers) {
+    for (const { layer, xRay } of renderLayers) {
+      this.ensureComposite(
+        layer,
+        !xRay && layer.name === "drill" ? maskLayer?.texture : void 0
+      );
       pass.setBindGroup(0, layer.composite);
       pass.draw(6);
     }
@@ -1701,7 +1715,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
   }
   order(layer, selected) {
     if (layer === "board") return -100;
-    if (layer === "drill" || layer.startsWith("drill_")) return 200;
+    if (layer === "drill") return 200;
     if (layer === "edge_cuts") return 150;
     const base = layer === selected ? 100 : layer.startsWith("inner") ? 20 - Number(layer.slice(5)) : layer === "bottom" ? 30 : 40;
     if (layer.includes("soldermask")) return 110;
@@ -1732,12 +1746,17 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       format: "rgba8unorm",
       usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING
     });
+  }
+  ensureComposite(layer, mask) {
+    if (layer.composite && layer.mask === mask) return;
+    layer.mask = mask;
     layer.composite = this.device.createBindGroup({
       layout: this.compositePipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: layer.texture.createView() },
         { binding: 1, resource: this.sampler },
-        { binding: 2, resource: { buffer: layer.opacity } }
+        { binding: 2, resource: { buffer: layer.opacity } },
+        { binding: 3, resource: (mask ?? layer.texture).createView() }
       ]
     });
   }

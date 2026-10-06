@@ -33,6 +33,7 @@ export const compositeShader = /* wgsl */ `
 @group(0) @binding(0) var image: texture_2d<f32>;
 @group(0) @binding(1) var imageSampler: sampler;
 @group(0) @binding(2) var<uniform> fade: vec4f;
+@group(0) @binding(3) var soldermask: texture_2d<f32>;
 struct Out { @builtin(position) position: vec4f, @location(0) uv: vec2f }
 @vertex fn vertexMain(@builtin(vertex_index) index: u32) -> Out {
   let points = array<vec2f, 6>(vec2f(0,0),vec2f(1,0),vec2f(0,1),vec2f(0,1),vec2f(1,0),vec2f(1,1));
@@ -42,6 +43,8 @@ struct Out { @builtin(position) position: vec4f, @location(0) uv: vec2f }
   return out;
 }
 @fragment fn fragmentMain(in: Out) -> @location(0) vec4f {
-  return textureSample(image, imageSampler, in.uv) * fade.x;
+  // Only the drill overlay uses mask coverage. Physical drill geometry is retained.
+  let coverage = textureSample(soldermask, imageSampler, in.uv).a;
+  return textureSample(image, imageSampler, in.uv) * fade.x * (1 - fade.y * coverage);
 }
 `

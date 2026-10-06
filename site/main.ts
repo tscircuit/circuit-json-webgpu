@@ -1,3 +1,4 @@
+import { checkSoldermask } from "./check-soldermask"
 import { checkCopperPourOpacity } from "./check-copper-pour-opacity"
 import { xRayFixtures } from "./x-ray-fixture"
 import { checkXRay } from "./check-x-ray"
@@ -73,6 +74,7 @@ Object.assign(window, {
     checkBoardVisibility,
     checkXRay,
     checkCopperPourOpacity,
+    checkSoldermask,
     renderLarge,
     drawer,
     names: Object.keys(fixtures),
@@ -92,6 +94,7 @@ declare global {
       checkBoardVisibility: typeof checkBoardVisibility
       checkXRay: typeof checkXRay
       checkCopperPourOpacity: typeof checkCopperPourOpacity
+      checkSoldermask: typeof checkSoldermask
       renderFixture: typeof renderFixture
       renderLarge: typeof renderLarge
       drawer: CircuitToWebGpuDrawer

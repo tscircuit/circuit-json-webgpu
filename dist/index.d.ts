@@ -119,6 +119,7 @@ declare class CircuitToWebGpuDrawer {
     private order;
     private resize;
     private ensureTexture;
+    private ensureComposite;
     private assertLive;
     private releaseLayers;
     dispose(): void;

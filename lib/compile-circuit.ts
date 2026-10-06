@@ -195,9 +195,8 @@ export function compileCircuitJson(
     if (!builders.has(name))
       builders.set(name, { paint: new MeshBuilder(), erase: new MeshBuilder() })
     const mesh = builders.get(name)![erase ? "erase" : "paint"]
-    const colorLayer = name.startsWith("drill_") ? "drill" : name
-    mesh.color = options.layerColors?.[colorLayer] ??
-      DEFAULT_LAYER_COLORS[colorLayer] ?? [0.75, 0.75, 0.75, 1]
+    mesh.color = options.layerColors?.[name] ??
+      DEFAULT_LAYER_COLORS[name] ?? [0.75, 0.75, 0.75, 1]
     mesh.element = index
     mesh.category = category
     return mesh
@@ -235,8 +234,7 @@ export function compileCircuitJson(
           if (!layers.includes(side)) continue
           const tented =
             type === "pcb_via" && isViaTented(e as PcbViaInput, side)
-          if (tented) get(`soldermask_${side}`, index).polygon(shape(e))
-          else if (!e.is_covered_with_solder_mask)
+          if (!tented && !e.is_covered_with_solder_mask)
             get(`soldermask_${side}`, index, true).polygon(shape(e))
         }
       } else if (type === "pcb_hole") {
@@ -381,6 +379,28 @@ export function compileCircuitJson(
       })
     }
   }
+  // Paint covered copper after every board surface, then erase pad/via openings.
+  // Copy before drill erasure: tenting bridges the drill without changing copper
+  // or the physical drill mesh. Retain pour categories for visibility/opacity.
+  for (const side of ["top", "bottom"]) {
+    const copperMesh = builders.get(side)?.paint
+    if (!copperMesh) continue
+    const mask = get(`soldermask_${side}`, 0)
+    const colorName = `soldermask_${side}_over_copper`
+    const color =
+      options.layerColors?.[colorName] ?? DEFAULT_LAYER_COLORS[colorName]
+    const offset = mask.vertices.length / 8
+    for (let i = 0; i < copperMesh.vertices.length; i += 8) {
+      mask.vertices.push(
+        copperMesh.vertices[i],
+        copperMesh.vertices[i + 1],
+        ...color,
+        copperMesh.vertices[i + 6],
+        copperMesh.vertices[i + 7],
+      )
+    }
+    for (const index of copperMesh.indices) mask.indices.push(offset + index)
+  }
   // Keep annotations visible regardless of the input order of copper pours.
   for (const { rings, index, layers } of keepouts) {
     try {
@@ -392,17 +412,6 @@ export function compileCircuitJson(
         message: String(error),
       })
     }
-  }
-  const hasTentedVias = openings.some(
-    ({ element }) =>
-      element.type === "pcb_via" &&
-      (isViaTented(element as PcbViaInput, "top") ||
-        isViaTented(element as PcbViaInput, "bottom")),
-  )
-  if (hasTentedVias) {
-    // Retain the full physical drill mesh, plus visible openings for each masked side.
-    get("drill_top", 0)
-    get("drill_bottom", 0)
   }
   for (const { element, index, layers } of openings) {
     const rings = shape(element, true)
@@ -421,8 +430,6 @@ export function compileCircuitJson(
         )
       ) {
         get(`soldermask_${side}`, index, true).polygon(rings)
-        if (isThrough && hasTentedVias)
-          get(`drill_${side}`, index).polygon(rings)
       }
   }
   for (const { rings, index } of cutouts) {
