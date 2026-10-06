@@ -63,7 +63,12 @@ test("soldermask-enabled copper views include the corresponding GPU mask layer",
   for (const side of ["top", "bottom"]) {
     const { scene } = prepareComparison({
       ...fixture,
-      options: { layers: [`${side}_copper`], drawSoldermask: true },
+      options: {
+        layers: [`${side}_copper`],
+        drawSoldermask: true,
+        drawSoldermaskTop: side === "top",
+        drawSoldermaskBottom: side === "bottom",
+      },
     })
     assert(scene)
     expect(scene.showSolderMask).toBe(true)
@@ -75,6 +80,43 @@ test("soldermask-enabled copper views include the corresponding GPU mask layer",
     }).scene!
     expect(maskOff.layers).not.toContain(`soldermask_${side}`)
   }
+})
+
+test("comparison preserves Canvas soldermask defaults and per-side opt-outs", () => {
+  for (const options of [
+    {},
+    { drawSoldermask: false, drawSoldermaskTop: true },
+    { drawSoldermask: true, drawSoldermaskTop: false },
+    { drawSoldermask: true, layers: ["bottom_copper"] },
+    {
+      drawSoldermask: true,
+      drawSoldermaskTop: false,
+      drawSoldermaskBottom: true,
+      layers: ["top_copper"],
+    },
+    { drawSoldermask: true, layers: ["inner1_copper"] },
+  ]) {
+    const { scene } = prepareComparison({ ...fixture, options })
+    assert(scene)
+    expect(scene.showSolderMask).toBe(false)
+    expect(scene.layers ?? []).not.toContain("soldermask_top")
+    expect(scene.layers ?? []).not.toContain("soldermask_bottom")
+  }
+  const top = prepareComparison({
+    ...fixture,
+    options: { drawSoldermask: true },
+  }).scene!
+  expect(top.showSolderMask).toBe(true)
+  const bottom = prepareComparison({
+    ...fixture,
+    options: {
+      drawSoldermask: true,
+      drawSoldermaskTop: false,
+      drawSoldermaskBottom: true,
+    },
+  }).scene!
+  expect(bottom.layer).toBe("bottom")
+  expect(bottom.showSolderMask).toBe(true)
 })
 
 test("SVG reference expands route vias without changing the WebGPU input", () => {

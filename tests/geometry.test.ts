@@ -536,6 +536,43 @@ test("tenting changes only mask openings, preserving standalone and route via dr
   }
 })
 
+test("explicitly exposed copper pours open only their own side's soldermask", () => {
+  for (const side of ["top", "bottom"] as const) {
+    for (const covered of [true, false]) {
+      const scene = compileCircuitJson([
+        tentingBoard,
+        {
+          type: "pcb_copper_pour",
+          pcb_copper_pour_id: "pour",
+          shape: "rect",
+          center: { x: 0, y: 0 },
+          width: 2,
+          height: 2,
+          layer: side,
+          covered_with_solder_mask: covered,
+        },
+      ])
+      expect(scene.diagnostics).toEqual([])
+      expect(
+        area(
+          scene.layers.find((layer) => layer.name === `soldermask_${side}`)!
+            .erase,
+        ),
+      ).toBeCloseTo(covered ? 0 : 4)
+      const opposite = side === "top" ? "bottom" : "top"
+      expect(
+        area(
+          scene.layers.find((layer) => layer.name === `soldermask_${opposite}`)!
+            .erase,
+        ),
+      ).toBe(0)
+      expect(
+        area(scene.layers.find((layer) => layer.name === side)!.paint),
+      ).toBe(4)
+    }
+  }
+})
+
 test("route vias use owning board dimensions and deduplicate without losing explicit overrides", () => {
   const trace: PcbTrace = {
     type: "pcb_trace",

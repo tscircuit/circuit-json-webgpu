@@ -156,6 +156,12 @@ try {
   assert.deepEqual(maskPixel("top-mask-off", -5, -3), [200, 52, 52, 255])
   assert.deepEqual(maskPixel("bottom-mask-off", -5, -3), [77, 127, 196, 255])
   assert.deepEqual(maskPixel("top", 0, -3), covered)
+  for (const frame of ["exposed-pour", "exposed-pour-mask-off"])
+    assert.deepEqual(
+      maskPixel(frame, 0, -3),
+      [200, 52, 52, 255],
+      "An explicitly exposed pour stays copper-colored with or without mask",
+    )
   assert.deepEqual(maskPixel("hidden-pours", 0, -3), substrateMask)
   assert.deepEqual(maskPixel("half-pours", 0, -3), [32, 95, 53, 255])
   assert.deepEqual(maskPixel("hidden-pours", -5, -3), covered)

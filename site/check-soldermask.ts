@@ -223,6 +223,15 @@ export async function checkSoldermask() {
     const geometryUploads = drawer.stats.geometryUploads
     drawer.setCircuitJson([...soldermaskRegression].reverse())
     capture("reversed", { layers: undefined, showSolderMask: true })
+    drawer.setCircuitJson(
+      soldermaskRegression.map((element) =>
+        element.type === "pcb_copper_pour"
+          ? { ...element, covered_with_solder_mask: false }
+          : element,
+      ),
+    )
+    capture("exposed-pour", {})
+    capture("exposed-pour-mask-off", { showSolderMask: false })
     return { frames, geometryUploads, diagnostics: drawer.diagnostics }
   } finally {
     drawer.dispose()

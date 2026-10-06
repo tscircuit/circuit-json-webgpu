@@ -288,6 +288,11 @@ export function compileCircuitJson(
         }
       } else if (type === "pcb_copper_pour") {
         get(e.layer, index, false, 1).polygon(shape(e))
+        if (
+          e.covered_with_solder_mask === false &&
+          (e.layer === "top" || e.layer === "bottom")
+        )
+          get(`soldermask_${e.layer}`, index, true).polygon(shape(e))
       } else if (type === "pcb_copper_text") {
         drawText(get(e.layer, index), e, options.textYAxis)
       } else if (
