@@ -110,13 +110,14 @@ try {
       covered,
       "Inherited standalone/route tenting must cover the drill",
     )
+    // The V stroke overlaps the drill; bottom-side text is mirrored.
     assert.deepEqual(
-      maskPixel("top", x, 3),
+      maskPixel("top", x - 0.25, 3),
       silkColor,
       "Silkscreen remains intact over tented holes",
     )
     assert.deepEqual(
-      maskPixel("bottom", x, 3),
+      maskPixel("bottom", x + 0.25, 3),
       drillColor,
       "Untented side exposes the drill through silkscreen",
     )
