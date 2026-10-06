@@ -299,6 +299,12 @@ export class CircuitToWebGpuDrawer {
       height > this.device.limits.maxTextureDimension2D
     )
       throw new Error("Canvas exceeds GPU texture limits")
+    const copperPourOpacity =
+      o.showCopperPours === false
+        ? 0
+        : Number.isFinite(o.copperPourOpacity)
+          ? Math.max(0, Math.min(1, o.copperPourOpacity!))
+          : 1
     this.resize(width, height)
     this.device.queue.writeBuffer(
       this.uniform,
@@ -314,7 +320,7 @@ export class CircuitToWebGpuDrawer {
         0,
         width,
         height,
-        o.showCopperPours === false ? 0 : 1,
+        copperPourOpacity,
         0,
       ]),
     )
@@ -335,7 +341,7 @@ export class CircuitToWebGpuDrawer {
           0,
           width,
           height,
-          o.showCopperPours === false ? 0 : 1,
+          copperPourOpacity,
           1,
         ]),
       )
@@ -585,7 +591,11 @@ export class CircuitToWebGpuDrawer {
     this.xRayUniform.destroy()
     this.highlights.destroy()
     this.context.unconfigure()
-    this.device.destroy()
+    // Let queued writes finish before device destruction and worker teardown.
+    const destroyDevice = () => this.device.destroy()
+    void this.device.queue
+      .onSubmittedWorkDone()
+      .then(destroyDevice, destroyDevice)
     this.circuit = undefined
     this.scene = undefined
   }

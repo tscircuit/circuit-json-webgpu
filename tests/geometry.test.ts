@@ -1,4 +1,4 @@
-import type { PcbBoard, PcbVia, PcbTrace } from "circuit-json"
+import type { PcbBoard, PcbTrace, PcbVia } from "circuit-json"
 import { expect, test } from "bun:test"
 import { compileCircuitJson } from "../lib"
 import { drawKeepout } from "../lib/draw-keepout"
@@ -10,6 +10,8 @@ import {
 } from "../lib/geometry"
 import { fixtures, silkscreenGraphics } from "../site/fixtures"
 import large from "./fixtures/am3352-dev-board.circuit.json"
+import breakout from "./fixtures/f1c100s-breakout.circuit.json"
+import museSockets from "./fixtures/muse-socket-plated-holes.circuit.json"
 
 function area(mesh: ReturnType<MeshBuilder["build"]>) {
   let area = 0
@@ -22,6 +24,75 @@ function area(mesh: ReturnType<MeshBuilder["build"]>) {
   }
   return area
 }
+// Repro: <board width="10mm" height="10mm">
+//   <cutout shape="rect" width="6mm" height="4mm" />
+// </board>
+test("rectangular cutouts paint the drill layer without erasing their fill", () => {
+  const scene = compileCircuitJson([
+    {
+      type: "pcb_board",
+      pcb_board_id: "board",
+      center: { x: 0, y: 0 },
+      width: 10,
+      height: 10,
+      thickness: 1.6,
+      num_layers: 2,
+      material: "fr4",
+    },
+    {
+      type: "pcb_cutout",
+      pcb_cutout_id: "cutout",
+      shape: "rect",
+      center: { x: 0, y: 0 },
+      width: 6,
+      height: 4,
+    },
+  ])
+  const drill = scene.layers.find((layer) => layer.name === "drill")!
+  expect(scene.diagnostics).toEqual([])
+  expect(drill).toBeDefined()
+  expect(area(drill.paint)).toBeCloseTo(24)
+  expect([...drill.paint.vertices.slice(2, 6)]).toEqual([
+    ...new Float32Array([1, 38 / 255, 226 / 255, 1]),
+  ])
+  expect(drill.erase.indices.length).toBe(0)
+  expect(
+    area(scene.layers.find((layer) => layer.name === "board")!.erase),
+  ).toBeCloseTo(24)
+})
+
+test("cutouts still erase overlapping copper", () => {
+  const scene = compileCircuitJson([
+    {
+      type: "pcb_cutout",
+      pcb_cutout_id: "cutout",
+      shape: "rect",
+      center: { x: 0, y: 0 },
+      width: 6,
+      height: 4,
+    },
+    {
+      type: "pcb_smtpad",
+      pcb_smtpad_id: "pad",
+      pcb_component_id: "component",
+      shape: "rect",
+      layer: "top",
+      x: 0,
+      y: 0,
+      width: 8,
+      height: 6,
+    },
+  ])
+  expect(scene.diagnostics).toEqual([])
+  expect(
+    area(scene.layers.find((layer) => layer.name === "top")!.erase),
+  ).toBeCloseTo(24)
+  const drill = scene.layers.find((layer) => layer.name === "drill")!
+  expect(drill).toBeDefined()
+  expect(area(drill.paint)).toBeCloseTo(24)
+  expect(drill.erase.indices.length).toBe(0)
+})
+
 test("triangulation preserves polygon holes", () => {
   const mesh = new MeshBuilder()
   mesh.polygon([
@@ -78,6 +149,46 @@ test("AM3352 compiles without unsupported PCB geometry", () => {
   expect(scene.triangleCount).toBeGreaterThan(100000)
 })
 
+test("F1C100S breakout routing targets do not fail or change rendered geometry", () => {
+  const scene = compileCircuitJson(breakout as any)
+  const geometry = breakout.filter((e) => e.type !== "pcb_breakout_point")
+  const reference = compileCircuitJson(geometry as any)
+  expect(scene.diagnostics).toEqual([])
+  expect(scene.elementIds).toContain("pcb_breakout_point_0")
+  expect(scene.triangleCount).toBeGreaterThan(0)
+  expect(scene.triangleCount).toBe(reference.triangleCount)
+  expect(scene.layers.map((l) => l.name)).toEqual(
+    reference.layers.map((l) => l.name),
+  )
+  for (const [i, layer] of scene.layers.entries()) {
+    for (const kind of ["paint", "erase"] as const) {
+      const actual = layer[kind],
+        expected = reference.layers[i][kind]
+      expect(actual.indices).toEqual(expected.indices)
+      expect(actual.vertices.length).toBe(expected.vertices.length)
+      for (let j = 0; j < actual.vertices.length; j++) {
+        // Adding metadata shifts indices, but highlighting must still refer to
+        // the same rendered element. All other vertex attributes stay identical.
+        if (j % 8 === 6)
+          expect(scene.elementIds[actual.vertices[j]]).toBe(
+            reference.elementIds[expected.vertices[j]],
+          )
+        else expect(actual.vertices[j]).toBe(expected.vertices[j])
+      }
+    }
+  }
+})
+
+test("breakout routing targets alone produce no renderable geometry", () => {
+  const scene = compileCircuitJson(
+    breakout.filter((e) => e.type === "pcb_breakout_point") as any,
+  )
+  expect(scene.diagnostics).toEqual([])
+  expect(scene.layers).toEqual([])
+  expect(scene.triangleCount).toBe(0)
+  expect(scene.elementIds).toEqual(["pcb_breakout_point_0"])
+})
+
 test("wire-to-via segments stay on the adjacent layer without bridging other runs", () => {
   const scene = compileCircuitJson([
     {
@@ -97,12 +208,9 @@ test("wire-to-via segments stay on the adjacent layer without bridging other run
       ],
     },
   ] as any)
-  expect(scene.layers.map((l) => l.name)).toEqual(
-    expect.arrayContaining(["bottom", "top", "board", "drill"]),
-  )
-  // Preserve the wire segment while also emitting the route via pad.
+  expect(scene.layers.map((l) => l.name).sort()).toEqual(["bottom", "top"])
   expect(area(scene.layers.find((l) => l.name === "top")!.paint)).toBeCloseTo(
-    5 + Math.PI / 4 + Math.PI * 0.3 ** 2,
+    5 + Math.PI / 4,
     1,
   )
 })
@@ -239,6 +347,116 @@ test("keepout fill and stripes preserve holes in concave polygons", () => {
   expect(fillArea).toBeCloseTo(44)
   expect(stripeArea).toBeGreaterThan(0)
   expect(stripeArea).toBeLessThan(fillArea)
+})
+
+function meshBounds(mesh: ReturnType<MeshBuilder["build"]>) {
+  const xs: number[] = [],
+    ys: number[] = []
+  for (let i = 0; i < mesh.vertices.length; i += 8) {
+    xs.push(mesh.vertices[i])
+    ys.push(mesh.vertices[i + 1])
+  }
+  return [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
+}
+
+test("Muse imported socket pads compile on both copper layers and through the board", () => {
+  const scene = compileCircuitJson(museSockets as any)
+  expect(scene.diagnostics).toEqual([])
+  for (const name of [
+    "top",
+    "bottom",
+    "soldermask_top",
+    "soldermask_bottom",
+    "board",
+    "drill",
+  ]) {
+    const layer = scene.layers.find((l) => l.name === name)!
+    const mesh =
+      name === "board" || name.startsWith("soldermask")
+        ? layer.erase
+        : layer.paint
+    expect(mesh.indices.length).toBeGreaterThan(0)
+    expect([...mesh.vertices].every(Number.isFinite)).toBe(true)
+  }
+  for (const name of ["top", "bottom"]) {
+    const layer = scene.layers.find((l) => l.name === name)!
+    expect(area(layer.paint)).toBeCloseTo(2 * 1.5999968 ** 2)
+    expect(area(layer.erase)).toBeCloseTo(2 * Math.PI * (1.0499852 / 2) ** 2, 2)
+  }
+})
+
+test("rotated pill holes have independent pad and drill rotations and world-space offsets", () => {
+  for (const explicitHoleShape of [false, true]) {
+    const scene = compileCircuitJson([
+      {
+        type: "pcb_plated_hole",
+        pcb_plated_hole_id: "rotated-slot",
+        shape: "rotated_pill_hole_with_rect_pad",
+        ...(explicitHoleShape
+          ? { hole_shape: "rotated_pill", pad_shape: "rect" }
+          : {}),
+        x: 10,
+        y: 20,
+        rect_pad_width: 8,
+        rect_pad_height: 6,
+        rect_ccw_rotation: 90,
+        hole_width: 4,
+        hole_height: 2,
+        hole_ccw_rotation: 0,
+        hole_offset_x: 0.5,
+        hole_offset_y: -0.25,
+        layers: ["top", "inner1", "bottom"],
+      },
+    ] as any)
+    expect(scene.diagnostics).toEqual([])
+    for (const name of ["top", "inner1", "bottom"]) {
+      const layer = scene.layers.find((l) => l.name === name)!
+      expect(meshBounds(layer.paint)).toEqual([7, 13, 16, 24])
+      const drillBounds = meshBounds(layer.erase)
+      // The slot stays horizontal when the rectangular pad rotates vertically.
+      for (const [i, expected] of [8.5, 12.5, 18.75, 20.75].entries())
+        expect(drillBounds[i]).toBeCloseTo(expected, 2)
+      expect(area(layer.paint)).toBeCloseTo(48)
+      expect(area(layer.erase)).toBeCloseTo(4 + Math.PI, 2)
+    }
+    const drill = scene.layers.find((l) => l.name === "drill")!.paint
+    for (const name of ["board", "soldermask_top", "soldermask_bottom"])
+      expect(
+        scene.layers.find((l) => l.name === name)!.erase.vertices.length,
+      ).toBeGreaterThan(0)
+    const erase = scene.layers.find((l) => l.name === "top")!.erase
+    expect(drill.vertices.length).toBe(erase.vertices.length)
+    for (let i = 0; i < drill.vertices.length; i += 8) {
+      expect(drill.vertices[i]).toBe(erase.vertices[i])
+      expect(drill.vertices[i + 1]).toBe(erase.vertices[i + 1])
+    }
+  }
+})
+
+test("rounded rectangular pads stay rectangular while their slots rotate independently", () => {
+  const scene = compileCircuitJson([
+    {
+      type: "pcb_plated_hole",
+      pcb_plated_hole_id: "rounded-slot",
+      shape: "rotated_pill_hole_with_rect_pad",
+      hole_shape: "rotated_pill",
+      x: 0,
+      y: 0,
+      rect_pad_width: 8,
+      rect_pad_height: 6,
+      rect_border_radius: 0.5,
+      rect_ccw_rotation: 0,
+      hole_width: 4,
+      hole_height: 2,
+      hole_ccw_rotation: 90,
+      layers: ["top", "bottom"],
+    },
+  ] as any)
+  expect(scene.diagnostics).toEqual([])
+  const layer = scene.layers.find((l) => l.name === "top")!
+  expect(area(layer.paint)).toBeCloseTo(48 - (4 - Math.PI) * 0.5 ** 2, 2)
+  for (const [i, expected] of [-1, 1, -2, 2].entries())
+    expect(meshBounds(layer.erase)[i]).toBeCloseTo(expected, 2)
 })
 
 const tentingBoard: PcbBoard = {

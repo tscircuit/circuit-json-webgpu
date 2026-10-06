@@ -6,6 +6,7 @@ import {
   hasWireTaper,
 } from "./get-wire-taper-polygon"
 import { drawKeepout } from "./draw-keepout"
+import { drawPcbDimension } from "./pcb-dimension/draw-pcb-dimension"
 import { drawText } from "./text/draw-text"
 import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
 import {
@@ -30,6 +31,28 @@ function shape(e: Element, hole = false): Point[][] {
       (r) => expandBrepRing(r.vertices),
     )
   if (e.outline?.length) return [e.outline]
+  if (e.shape === "rotated_pill_hole_with_rect_pad") {
+    // Pad and slot use independent rotations. Hole offsets are board-space
+    // coordinates, as in the reference canvas renderer, not pad-local offsets.
+    const base = center(e)
+    const c = hole
+      ? {
+          x: base.x + (e.hole_offset_x ?? 0),
+          y: base.y + (e.hole_offset_y ?? 0),
+        }
+      : base
+    const width = hole ? e.hole_width : e.rect_pad_width
+    const height = hole ? e.hole_height : e.rect_pad_height
+    return [
+      rectangle(
+        c,
+        width,
+        height,
+        hole ? Math.min(width, height) / 2 : (e.rect_border_radius ?? 0),
+        (hole ? e.hole_ccw_rotation : e.rect_ccw_rotation) ?? 0,
+      ),
+    ]
+  }
   const kind = hole ? (e.hole_shape ?? e.shape) : e.shape
   if (kind === "polygon") return [e.points ?? e.vertices ?? []]
   const base = center(e),
@@ -284,9 +307,18 @@ export function compileCircuitJson(
           note: "notes",
           user_note: "notes",
         }[group]!
-        const layer = `${e.layer ?? "top"}_${suffix}`,
-          mesh = get(layer, index)
-        if (type.endsWith("_text")) {
+        const layer = `${e.layer ?? "top"}_${suffix}`
+        const mesh = get(layer, index)
+        if (
+          input.type === "pcb_note_dimension" ||
+          input.type === "pcb_fabrication_note_dimension"
+        ) {
+          drawPcbDimension({
+            mesh,
+            pcbDimension: input,
+            textYAxis: options.textYAxis,
+          })
+        } else if (type.endsWith("_text")) {
           if (e.color && (group === "note" || group === "fabrication_note"))
             mesh.color = parseColor(e.color)
           drawText(mesh, e, options.textYAxis)
@@ -335,6 +367,7 @@ export function compileCircuitJson(
           "pcb_debug_object",
           "pcb_trace_hint",
           "pcb_anchor",
+          "pcb_breakout_point", // Routing target metadata, not visible geometry.
         ].includes(type) &&
         !/_(error|warning)$/.test(type)
       ) {
@@ -392,9 +425,12 @@ export function compileCircuitJson(
           get(`drill_${side}`, index).polygon(rings)
       }
   }
-  for (const { rings, index } of cutouts)
+  for (const { rings, index } of cutouts) {
+    get("drill", index).polygon(rings)
     for (const name of builders.keys())
-      if (name !== "edge_cuts") get(name, index, true).polygon(rings)
+      if (name !== "edge_cuts" && name !== "drill")
+        get(name, index, true).polygon(rings)
+  }
   const layers = [...builders].map(([name, mesh]) => ({
     name,
     paint: mesh.paint.build(),

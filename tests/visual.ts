@@ -68,6 +68,37 @@ try {
       ),
     ]
   }
+  const pours = await page.evaluate(() =>
+    window.gpuTest.checkCopperPourOpacity(),
+  )
+  const pourAlpha = (name: string, x: number) =>
+    pixel(pours.frames[name], x, 110)[3]
+  for (const name of ["default", "aboveOne", "nan", "independent"]) {
+    assert.equal(pourAlpha(name, 50), 255)
+    assert.equal(pourAlpha(name, 110), 102)
+    assert.equal(pourAlpha(name, 170), 102)
+  }
+  for (const name of ["half", "retained", "shown"]) {
+    assert(Math.abs(pourAlpha(name, 50) - 128) <= 1)
+    assert(Math.abs(pourAlpha(name, 110) - 51) <= 1)
+    assert(Math.abs(pourAlpha(name, 170) - 51) <= 1)
+  }
+  for (const name of ["zero", "negative", "hidden", "xrayHidden"])
+    for (const x of [50, 110, 170]) assert.equal(pourAlpha(name, x), 0)
+  for (const name of ["half", "zero", "hidden"]) {
+    assert.equal(
+      pixel(pours.frames[name], 40, 100)[3],
+      255,
+      "Pads must stay opaque",
+    )
+    assert.equal(
+      pixel(pours.frames[name], 100, 50)[3],
+      255,
+      "Traces must stay opaque",
+    )
+  }
+  assert.equal(pourAlpha("xray", 50), 255, "Selected X-Ray copper stays opaque")
+  assert.equal(pours.geometryUploads, 1, "Opacity changes must reuse geometry")
   const xray = await page.evaluate(() => window.gpuTest.checkXRay())
   const layerColors = {
     top: [200, 52, 52, 255],
@@ -230,7 +261,7 @@ try {
     )
     assert.deepEqual(stats.diagnostics, [])
     const image = await snapshot(name)
-    // Independent checks: a board cutout reveals the black clear color; a pour hole
+    // Independent checks: a board cutout uses the pink drill color; a pour hole
     // reveals the board/bottom copper rather than red top-layer copper.
     const at = (x: number, y: number) => [
       ...image.data.slice(
@@ -301,7 +332,7 @@ try {
       )
     }
     if (name === "board-outline-cutout")
-      assert.deepEqual(at(400, 300), [0, 0, 0])
+      assert.deepEqual(at(400, 300), [255, 38, 226])
     if (name === "pour-holes-and-arcs") {
       assert(at(200, 300)[0] > 150)
       assert(at(400, 280)[0] < 100)
