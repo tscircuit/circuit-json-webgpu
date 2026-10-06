@@ -158,6 +158,29 @@ try {
   assert.deepEqual(maskPixel("hidden-pours", 0, -3), substrateMask)
   assert.deepEqual(maskPixel("half-pours", 0, -3), [32, 95, 53, 255])
   assert.deepEqual(maskPixel("hidden-pours", -5, -3), covered)
+  // Recover drill coverage from the mask-off frame, then composite that same
+  // coverage over the mask-on background. Check every pixel around the NPTH,
+  // including partial coverage at its edge, independently of background color.
+  const edgeFrames = [
+    "top",
+    "top-without-drill",
+    "top-mask-off",
+    "top-mask-off-without-drill",
+  ].map((name) => PNG.sync.read(Buffer.from(mask.frames[name], "base64")))
+  for (let y = 517; y <= 555; y++) {
+    for (let x = 381; x <= 419; x++) {
+      const offset = (y * 800 + x) * 4
+      const [on, onBackground, off, offBackground] = edgeFrames.map(
+        (frame) => frame.data[offset],
+      )
+      const coverage = (off - offBackground) / (255 - offBackground)
+      const expected = 255 * coverage + onBackground * (1 - coverage)
+      assert(
+        Math.abs(on - expected) <= 2,
+        `Drill coverage changed with soldermask at ${x},${y}: ${on} vs ${expected}`,
+      )
+    }
+  }
   const pours = await page.evaluate(() =>
     window.gpuTest.checkCopperPourOpacity(),
   )

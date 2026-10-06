@@ -1,6 +1,8 @@
 import assert from "node:assert/strict"
 import { test, expect } from "bun:test"
 import { prepareComparison } from "./parity/prepare.ts"
+import { prepareSvgElements } from "./parity/svg-reference"
+import type { AnyCircuitElement } from "circuit-json"
 const fixture = {
   width: 400,
   height: 200,
@@ -55,4 +57,71 @@ test("Canvas-only passes are not mislabeled as SVG comparisons", () => {
     { options: { layers: ["bottom_copper", "top_user_note"] } },
   ])
     expect(prepareComparison({ ...fixture, ...extra }).reason).toBeTruthy()
+})
+
+test("soldermask-enabled copper views include the corresponding GPU mask layer", () => {
+  for (const side of ["top", "bottom"]) {
+    const { scene } = prepareComparison({
+      ...fixture,
+      options: { layers: [`${side}_copper`], drawSoldermask: true },
+    })
+    assert(scene)
+    expect(scene.showSolderMask).toBe(true)
+    expect(scene.layers).toContain(`soldermask_${side}`)
+    expect(scene.layers).toContain("drill")
+    const maskOff = prepareComparison({
+      ...fixture,
+      options: { layers: [`${side}_copper`], drawSoldermask: false },
+    }).scene!
+    expect(maskOff.layers).not.toContain(`soldermask_${side}`)
+  }
+})
+
+test("SVG reference expands route vias without changing the WebGPU input", () => {
+  const elements = [
+    {
+      type: "pcb_via",
+      pcb_via_id: "top-blind",
+      x: 0,
+      y: 0,
+      layers: ["top", "inner1"],
+      hole_diameter: 0.3,
+      outer_diameter: 0.6,
+      tented_on_top: false,
+    },
+    {
+      type: "pcb_trace",
+      pcb_trace_id: "bottom-route",
+      route: [
+        { route_type: "wire", x: -2, y: 0, width: 0.2, layer: "bottom" },
+        {
+          route_type: "via",
+          x: 0,
+          y: 0,
+          from_layer: "bottom",
+          to_layer: "inner2",
+          hole_diameter: 0.4,
+          outer_diameter: 0.8,
+          tented_on_bottom: true,
+        },
+      ],
+    },
+  ] satisfies AnyCircuitElement[]
+  const original = structuredClone(elements)
+  const svgElements = prepareSvgElements(elements)
+  expect(elements).toEqual(original)
+  expect(elements).toHaveLength(2)
+  expect(svgElements).toHaveLength(3)
+  expect(svgElements[2]).toMatchObject({
+    type: "pcb_via",
+    layers: ["bottom", "inner2"],
+    x: 0,
+    y: 0,
+    hole_diameter: 0.4,
+    outer_diameter: 0.8,
+    tented_on_bottom: true,
+    pcb_trace_id: "bottom-route",
+  })
+  // The already expanded standalone via must suppress a duplicate next time.
+  expect(prepareSvgElements(svgElements)).toHaveLength(3)
 })

@@ -172,9 +172,13 @@ export async function checkSoldermask() {
     capture("half-pours", { showCopperPours: true, copperPourOpacity: 0.5 })
     capture("xray", { xRayElementIds: ["inherited", "route-via"] })
     capture("restored", { xRayElementIds: [], copperPourOpacity: 1 })
+    capture("top-without-drill", {
+      layers: ["top", "board", "edge_cuts", "soldermask_top", "top_silkscreen"],
+    })
+    capture("top-mask-off-without-drill", { showSolderMask: false })
     const geometryUploads = drawer.stats.geometryUploads
     drawer.setCircuitJson([...soldermaskRegression].reverse())
-    capture("reversed", {})
+    capture("reversed", { layers: undefined, showSolderMask: true })
     return { frames, geometryUploads, diagnostics: drawer.diagnostics }
   } finally {
     drawer.dispose()

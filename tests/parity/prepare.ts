@@ -96,6 +96,12 @@ export function prepareComparison(
       .replace(/_fabrication_note$/, "_fabrication"),
   )
   if (layers) layers.push("board", "edge_cuts", "drill")
+  if (
+    layers &&
+    c.options.drawSoldermask &&
+    (layer === "top" || layer === "bottom")
+  )
+    layers.push(`soldermask_${layer}`)
   return {
     scene: {
       elements,

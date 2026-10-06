@@ -62,6 +62,7 @@
     "bun-match-svg": "^0.0.14",
     "circuit-json-to-connectivity-map": "^0.0.23",
     "circuit-to-svg": "0.0.390",
+    "svg-parity-reference": "npm:circuit-to-svg@0.0.441",
     "format-si-unit": "^0.0.7",
     "looks-same": "^10.0.1",
     "schematic-symbols": "^0.0.202",

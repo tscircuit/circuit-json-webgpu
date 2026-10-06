@@ -1278,8 +1278,12 @@ struct Out { @builtin(position) position: vec4f, @location(0) uv: vec2f }
 }
 @fragment fn fragmentMain(in: Out) -> @location(0) vec4f {
   // Only the drill overlay uses mask coverage. Physical drill geometry is retained.
+  let ink = textureSample(image, imageSampler, in.uv);
   let coverage = textureSample(soldermask, imageSampler, in.uv).a;
-  return textureSample(image, imageSampler, in.uv) * fade.x * (1 - fade.y * coverage);
+  // Intersect coverage instead of multiplying it: matching antialiased drill
+  // and mask-opening edges must not have their alpha squared.
+  let alpha = min(ink.a, 1 - fade.y * coverage);
+  return ink * fade.x * (alpha / max(ink.a, 0.00001));
 }
 `
 );
