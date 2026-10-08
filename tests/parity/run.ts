@@ -11,6 +11,9 @@ import { prepareComparison } from "./prepare.ts"
 import { comparisonSilkscreenColors } from "./palette"
 import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
 import { Resvg } from "@resvg/resvg-js"
+import { getElementId } from "../../lib/compile-circuit"
+import { indexCases, type ParityReport } from "./check-regressions"
+import { getResolvedColorElementIds } from "./resolved-color-elements"
 const root = fileURLToPath(new URL("../../", import.meta.url))
 const dir = new URL("../actual/parity/", import.meta.url)
 const cases: CapturedCase[] = JSON.parse(
@@ -19,6 +22,10 @@ const cases: CapturedCase[] = JSON.parse(
 const tests: ReferenceTest[] = JSON.parse(
   await readFile(new URL("tests.json", dir), "utf8"),
 )
+const baseReport: ParityReport | undefined = process.env.PARITY_BASE_REPORT
+  ? JSON.parse(await readFile(process.env.PARITY_BASE_REPORT, "utf8"))
+  : undefined
+const baseCases = indexCases(baseReport?.results ?? [])
 const server = await createServer({
   root,
   server: {
@@ -112,6 +119,43 @@ try {
         throw new Error("SVG and GPU output dimensions differ")
       const diff = new PNG({ width: c.width, height: c.height })
       const { changed, rawChanged } = compare(expected, actual, diff)
+      let existingGeometryComparison:
+        | ComparisonResult["existingGeometryComparison"]
+        | undefined
+      const excludedElementIds = getResolvedColorElementIds(
+        baseCases.get(key)?.diagnostics,
+        result.diagnostics,
+      )
+      if (excludedElementIds.length) {
+        // Unsupported colors throw before emitting annotation geometry.
+        // Re-render that same subset to catch changes to existing geometry;
+        // the complete render remains subject to its feature snapshot below.
+        const excludedIds = new Set(excludedElementIds)
+        const existing = await page.evaluate(
+          (scene) => window.parity.render(scene),
+          {
+            ...scene,
+            elements: scene.elements.filter(
+              (element, index) =>
+                !excludedIds.has(getElementId(element, index)),
+            ),
+          },
+        )
+        const existingPng = Buffer.from(existing.png, "base64")
+        existingGeometryComparison = {
+          excludedElementIds,
+          changedPixels: compare(
+            expected,
+            PNG.sync.read(existingPng),
+            new PNG({ width: c.width, height: c.height }),
+          ).changed,
+          diagnostics: existing.diagnostics,
+        }
+        await writeFile(
+          new URL(`${c.id}.existing-geometry.webgpu.png`, dir),
+          existingPng,
+        )
+      }
       snapshots.push({
         id: c.id,
         ...(await featureSnapshot(c.id, expected, actual, key)),
@@ -149,6 +193,7 @@ try {
         inkPixels: ink,
         allowance,
         diagnostics: result.diagnostics,
+        ...(existingGeometryComparison ? { existingGeometryComparison } : {}),
       })
       console.log(
         `${pass ? "PASS" : "DIFF"} ${c.id} ${c.testName}: ${changed} pixels (${ink} ink)`,
@@ -214,7 +259,7 @@ body{font:14px system-ui;background:#161616;color:#eee;margin:24px}section{borde
   results
     .map(
       (r) =>
-        `<section id="${r.id}"><h2>${escape(r.status.toUpperCase())} · ${r.id} · ${escape(r.test)}</h2>${r.status === "not-comparable" ? `<p class="notice">Not compared: ${escape(r.reason)}</p>` : r.status === "error" ? `<p class="notice">Render failed: ${escape(r.error)}</p>` : `<p>${r.changedPixels} differing pixels; allowance ${r.allowance}. Layer: ${escape(r.layer)}.</p><div class="scroll"><div class="pair"><figure><figcaption>circuit-to-svg</figcaption><a href="${r.id}.svg.svg"><img loading="lazy" src="${r.id}.svg.png" alt="circuit-to-svg reference"></a></figure><figure><figcaption>circuit-json-webgpu</figcaption><img loading="lazy" src="${r.id}.webgpu.png" alt="WebGPU render"></figure></div></div>${r.pass ? "" : `<details><summary>Show pixel diff and diagnostics</summary><img loading="lazy" src="${r.id}.diff.png" alt="pixel diff"><pre>${escape(JSON.stringify(r.diagnostics, null, 2))}</pre></details>`}`}</section>`,
+        `<section id="${r.id}"><h2>${escape(r.status.toUpperCase())} · ${r.id} · ${escape(r.test)}</h2>${r.status === "not-comparable" ? `<p class="notice">Not compared: ${escape(r.reason)}</p>` : r.status === "error" ? `<p class="notice">Render failed: ${escape(r.error)}</p>` : `<p>${r.changedPixels} differing pixels; allowance ${r.allowance}. Layer: ${escape(r.layer)}.</p><div class="scroll"><div class="pair"><figure><figcaption>circuit-to-svg</figcaption><a href="${r.id}.svg.svg"><img loading="lazy" src="${r.id}.svg.png" alt="circuit-to-svg reference"></a></figure><figure><figcaption>circuit-json-webgpu</figcaption><img loading="lazy" src="${r.id}.webgpu.png" alt="WebGPU render"></figure></div></div>${r.pass ? "" : `<details><summary>Show pixel diff and diagnostics</summary><img loading="lazy" src="${r.id}.diff.png" alt="pixel diff"><pre>${escape(JSON.stringify({ diagnostics: r.diagnostics, existingGeometryComparison: r.existingGeometryComparison }, null, 2))}</pre></details>`}`}</section>`,
     )
     .join("") +
   "</body></html>"

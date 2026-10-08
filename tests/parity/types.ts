@@ -41,4 +41,9 @@ export type ComparisonResult = {
   inkPixels?: number
   allowance?: number
   diagnostics?: Diagnostic[]
+  existingGeometryComparison?: {
+    excludedElementIds: string[]
+    changedPixels: number
+    diagnostics: Diagnostic[]
+  }
 }

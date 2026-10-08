@@ -1,6 +1,8 @@
 import { appendFileSync, readFileSync } from "node:fs"
 import type { Diagnostic } from "../../lib/types"
 import type { ComparisonResult, ReferenceTest } from "./types"
+import { getResolvedColorElementIds } from "./resolved-color-elements"
+import { snapshotKey } from "./snapshot-key"
 
 export type ParityReport = {
   upstreamCommit: string
@@ -41,14 +43,14 @@ function currentDiagnosticsAreSubsetOfBase({
   return true
 }
 
-const indexCases = (results: ComparisonResult[]) => {
+export const indexCases = (results: ComparisonResult[]) => {
   const counts = new Map<string, number>()
   return new Map(
     results.map((result) => {
       const test = JSON.stringify([result.path, result.test])
       const ordinal = counts.get(test) ?? 0
       counts.set(test, ordinal + 1)
-      return [JSON.stringify([test, ordinal]), result]
+      return [snapshotKey(result.path, result.test, ordinal), result]
     }),
   )
 }
@@ -110,10 +112,32 @@ export function findParityRegressions(
       continue
     }
     if (result.status === "pass") continue
+    // A color fix can reveal text whose font already differs from SVG. Keep
+    // the full comparison and require its updated snapshot, while checking
+    // the geometry the base could render against the same pixel limit.
+    const restoredIds = getResolvedColorElementIds(
+      before?.diagnostics,
+      result.diagnostics,
+    )
+    const existing = result.existingGeometryComparison
+    const canCompareExistingGeometry =
+      restoredIds.length > 0 &&
+      existing &&
+      JSON.stringify(existing.excludedElementIds) ===
+        JSON.stringify(restoredIds) &&
+      Number.isFinite(existing.changedPixels) &&
+      existing.changedPixels >= 0 &&
+      currentDiagnosticsAreSubsetOfBase({
+        baseDiagnostics: result.diagnostics,
+        currentDiagnostics: existing.diagnostics,
+      })
+    const changedPixels = canCompareExistingGeometry
+      ? existing.changedPixels
+      : result.changedPixels!
     if (
       !before ||
       before.status !== "mismatch" ||
-      result.changedPixels! > (before.changedPixels ?? -1) ||
+      changedPixels > (before.changedPixels ?? -1) ||
       !currentDiagnosticsAreSubsetOfBase({
         baseDiagnostics: before.diagnostics,
         currentDiagnostics: result.diagnostics,
