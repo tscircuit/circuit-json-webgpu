@@ -28,6 +28,14 @@ test.each<[string, Color]>([
   expect(parseColor(value)).toEqual(expected)
 })
 
+test.each<[string, Color]>([
+  ["hsl(120, 100%, 50%)", [0, 1, 0, 1]],
+  ["hsla(240, 100%, 50%, 0.5)", [0, 0, 1, 0.5]],
+  ["rgb(100%, 0%, 0%)", [1, 0, 0, 1]],
+])("normalizes CSS color format %s", (value, expected) => {
+  expect(parseColor(value)).toEqual(expected)
+})
+
 test.each([
   "not-a-color",
   "",
