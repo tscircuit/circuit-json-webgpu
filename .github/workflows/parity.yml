@@ -26,8 +26,6 @@ jobs:
         continue-on-error: true
       - name: Audit proposed revision
         run: xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:parity
-        env:
-          PARITY_BASE_REPORT: .parity-base/tests/actual/parity/report.json
         continue-on-error: true
       - name: Reject parity regressions
         run: bun tests/parity/check-regressions.ts .parity-base/tests/actual/parity/report.json tests/actual/parity/report.json
