@@ -1,3 +1,4 @@
+import colorNames from "color-name"
 import type { Color } from "./types"
 const rgb = (r: number, g: number, b: number): Color => [
   r / 255,
@@ -33,6 +34,11 @@ export const DEFAULT_LAYER_COLORS: Record<string, Color> = {
 export const normalizeLayer = (layer: string) => layer.replace(/_copper$/, "")
 
 export function parseColor(value: string): Color {
+  const name = value.trim().toLowerCase()
+  if (name === "transparent") return [0, 0, 0, 0]
+  if (Object.hasOwn(colorNames, name))
+    return rgb(...colorNames[name as keyof typeof colorNames])
+
   const hex = value.match(/^#([0-9a-f]{3,8})$/i)?.[1]
   if (hex) {
     const full = hex.length <= 4 ? [...hex].map((c) => c + c).join("") : hex

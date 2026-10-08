@@ -271,6 +271,7 @@ function drawKeepout(mesh, rings) {
 }
 
 // lib/colors.ts
+import colorNames from "color-name";
 var rgb = (r, g, b) => [
   r / 255,
   g / 255,
@@ -304,6 +305,10 @@ var DEFAULT_LAYER_COLORS = {
 };
 var normalizeLayer = (layer) => layer.replace(/_copper$/, "");
 function parseColor(value) {
+  const name = value.trim().toLowerCase();
+  if (name === "transparent") return [0, 0, 0, 0];
+  if (Object.hasOwn(colorNames, name))
+    return rgb(...colorNames[name]);
   const hex = value.match(/^#([0-9a-f]{3,8})$/i)?.[1];
   if (hex) {
     const full = hex.length <= 4 ? [...hex].map((c) => c + c).join("") : hex;
