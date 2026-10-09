@@ -108,7 +108,10 @@ try {
         },
       )
       await writeFile(new URL(`${c.id}.svg.svg`, dir), svg)
-      const svgPng = new Resvg(svg, font.options).render().asPng()
+      const hasNoteText = scene.elements.some((e) => e.type === "pcb_note_text")
+      const svgPng = new Resvg(svg, hasNoteText ? font.options : undefined)
+        .render()
+        .asPng()
       await writeFile(new URL(`${c.id}.svg.png`, dir), svgPng)
       const result = await page.evaluate(
         (scene) => window.parity.render(scene),
