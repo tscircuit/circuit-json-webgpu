@@ -70,8 +70,8 @@ function isValidWireTaperSegment(segment) {
 import earcut from "earcut";
 import polygonClipping from "polygon-clipping";
 var MeshBuilder = class {
-  constructor(color = [1, 1, 1, 1], element = 0, category = 0) {
-    this.color = color;
+  constructor(color2 = [1, 1, 1, 1], element = 0, category = 0) {
+    this.color = color2;
     this.element = element;
     this.category = category;
   }
@@ -237,15 +237,15 @@ function clip(points, offset, above) {
 }
 function drawKeepout(mesh, rings) {
   const copperColor = mesh.color;
-  const color = [
+  const color2 = [
     copperColor[0] + (1 - copperColor[0]) * 0.4,
     copperColor[1] + (1 - copperColor[1]) * 0.4,
     copperColor[2] + (1 - copperColor[2]) * 0.4,
     copperColor[3]
   ];
-  mesh.color = [color[0], color[1], color[2], color[3] * 0.2];
+  mesh.color = [color2[0], color2[1], color2[2], color2[3] * 0.2];
   mesh.polygon(rings);
-  mesh.color = color;
+  mesh.color = color2;
   const surface = new MeshBuilder();
   surface.polygon(rings);
   const halfWidth = 0.15 * Math.SQRT2 / 2;
@@ -271,6 +271,7 @@ function drawKeepout(mesh, rings) {
 }
 
 // lib/colors.ts
+import color from "color";
 var rgb = (r, g, b) => [
   r / 255,
   g / 255,
@@ -304,30 +305,17 @@ var DEFAULT_LAYER_COLORS = {
 };
 var normalizeLayer = (layer) => layer.replace(/_copper$/, "");
 function parseColor(value) {
-  const hex = value.match(/^#([0-9a-f]{3,8})$/i)?.[1];
-  if (hex) {
-    const full = hex.length <= 4 ? [...hex].map((c) => c + c).join("") : hex;
-    if (full.length !== 6 && full.length !== 8)
-      throw new Error(`Unsupported color: ${value}`);
+  try {
+    const parsed = color(value.trim().toLowerCase()).rgb();
     return [
-      parseInt(full.slice(0, 2), 16) / 255,
-      parseInt(full.slice(2, 4), 16) / 255,
-      parseInt(full.slice(4, 6), 16) / 255,
-      full.length === 8 ? parseInt(full.slice(6), 16) / 255 : 1
+      parsed.red() / 255,
+      parsed.green() / 255,
+      parsed.blue() / 255,
+      parsed.alpha()
     ];
+  } catch {
+    throw new Error(`Unsupported color: ${value}`);
   }
-  const match = value.match(/^rgba?\(([^)]+)\)$/);
-  if (match) {
-    const channels = match[1].split(",").map((v) => Number(v.trim()));
-    if ((channels.length === 3 || channels.length === 4) && channels.every(Number.isFinite))
-      return [
-        channels[0] / 255,
-        channels[1] / 255,
-        channels[2] / 255,
-        channels[3] ?? 1
-      ];
-  }
-  throw new Error(`Unsupported color: ${value}`);
 }
 
 // lib/text/fill-even-odd.ts
