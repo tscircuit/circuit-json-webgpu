@@ -180,17 +180,16 @@ export function compileCircuitJson(
           index,
           layers: copper,
         })
-      } else if (type === "pcb_trace") {
-        const route = e.route ?? []
+      } else if (input.type === "pcb_trace") {
+        const route = input.route
         if (
-          (e.route_thickness_mode === "interpolated" &&
-            route.some(
-              (p: Element, i: number) =>
-                p.route_type === "wire" &&
-                !hasWireTaper(p) &&
-                route[i + 1]?.route_type === "wire",
-            )) ||
-          route.some((p: Element) => p.route_type === "through_pad")
+          input.route_thickness_mode === "interpolated" &&
+          route.some(
+            (p, i) =>
+              p.route_type === "wire" &&
+              !hasWireTaper(p) &&
+              route[i + 1]?.route_type === "wire",
+          )
         )
           throw new Error(
             "Interpolated/through-pad traces are not supported yet",
@@ -201,27 +200,49 @@ export function compileCircuitJson(
             throw new Error("Invalid teardrop geometry or interpolation mode")
           get(point.layer, index).polygon([polygon])
         }
+        for (const point of route) {
+          if (point.route_type !== "through_pad") continue
+          for (const layer of new Set([point.start_layer, point.end_layer]))
+            get(layer, index).line(point.start, point.end, point.width)
+        }
         for (let i = 1; i < route.length; i++) {
-          const a = route[i - 1],
+          let a = route[i - 1],
             b = route[i]
           if (hasWireTaper(a)) continue
+          if (a.route_type === "through_pad")
+            a = {
+              route_type: "wire",
+              ...a.end,
+              layer: a.end_layer,
+              width: a.width,
+            }
+          if (b.route_type === "through_pad")
+            b = {
+              route_type: "wire",
+              ...b.start,
+              layer: b.start_layer,
+              width: b.width,
+            }
           // Connect wires to a via on the adjacent copper layer, but never
           // connect two unrelated runs across a layer transition.
-          const layer =
+          if (
             a.route_type === "wire" &&
             b.route_type === "wire" &&
             a.layer === b.layer
-              ? a.layer
-              : a.route_type === "wire" &&
-                  b.route_type === "via" &&
-                  [b.from_layer, b.to_layer].includes(a.layer)
-                ? a.layer
-                : a.route_type === "via" &&
-                    b.route_type === "wire" &&
-                    [a.from_layer, a.to_layer].includes(b.layer)
-                  ? b.layer
-                  : undefined
-          if (layer) get(layer, index).line(a, b, a.width ?? b.width ?? 0.15)
+          )
+            get(a.layer, index).line(a, b, a.width)
+          else if (
+            a.route_type === "wire" &&
+            b.route_type === "via" &&
+            [b.from_layer, b.to_layer].includes(a.layer)
+          )
+            get(a.layer, index).line(a, b, a.width)
+          else if (
+            a.route_type === "via" &&
+            b.route_type === "wire" &&
+            [a.from_layer, a.to_layer].includes(b.layer)
+          )
+            get(b.layer, index).line(a, b, b.width)
         }
       } else if (type === "pcb_copper_pour") {
         get(e.layer, index, false, 1).polygon(shape(e))

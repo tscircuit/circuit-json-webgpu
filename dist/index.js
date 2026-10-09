@@ -1037,11 +1037,11 @@ function compileCircuitJson(elements, options = {}) {
           index,
           layers: copper
         });
-      } else if (type === "pcb_trace") {
-        const route = e.route ?? [];
-        if (e.route_thickness_mode === "interpolated" && route.some(
+      } else if (input.type === "pcb_trace") {
+        const route = input.route;
+        if (input.route_thickness_mode === "interpolated" && route.some(
           (p, i) => p.route_type === "wire" && !hasWireTaper(p) && route[i + 1]?.route_type === "wire"
-        ) || route.some((p) => p.route_type === "through_pad"))
+        ))
           throw new Error(
             "Interpolated/through-pad traces are not supported yet"
           );
@@ -1051,11 +1051,34 @@ function compileCircuitJson(elements, options = {}) {
             throw new Error("Invalid teardrop geometry or interpolation mode");
           get(point.layer, index).polygon([polygon]);
         }
+        for (const point of route) {
+          if (point.route_type !== "through_pad") continue;
+          for (const layer of /* @__PURE__ */ new Set([point.start_layer, point.end_layer]))
+            get(layer, index).line(point.start, point.end, point.width);
+        }
         for (let i = 1; i < route.length; i++) {
-          const a = route[i - 1], b = route[i];
+          let a = route[i - 1], b = route[i];
           if (hasWireTaper(a)) continue;
-          const layer = a.route_type === "wire" && b.route_type === "wire" && a.layer === b.layer ? a.layer : a.route_type === "wire" && b.route_type === "via" && [b.from_layer, b.to_layer].includes(a.layer) ? a.layer : a.route_type === "via" && b.route_type === "wire" && [a.from_layer, a.to_layer].includes(b.layer) ? b.layer : void 0;
-          if (layer) get(layer, index).line(a, b, a.width ?? b.width ?? 0.15);
+          if (a.route_type === "through_pad")
+            a = {
+              route_type: "wire",
+              ...a.end,
+              layer: a.end_layer,
+              width: a.width
+            };
+          if (b.route_type === "through_pad")
+            b = {
+              route_type: "wire",
+              ...b.start,
+              layer: b.start_layer,
+              width: b.width
+            };
+          if (a.route_type === "wire" && b.route_type === "wire" && a.layer === b.layer)
+            get(a.layer, index).line(a, b, a.width);
+          else if (a.route_type === "wire" && b.route_type === "via" && [b.from_layer, b.to_layer].includes(a.layer))
+            get(a.layer, index).line(a, b, a.width);
+          else if (a.route_type === "via" && b.route_type === "wire" && [a.from_layer, a.to_layer].includes(b.layer))
+            get(b.layer, index).line(a, b, b.width);
         }
       } else if (type === "pcb_copper_pour") {
         get(e.layer, index, false, 1).polygon(shape(e));
