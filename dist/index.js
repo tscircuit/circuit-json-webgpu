@@ -1037,14 +1037,12 @@ function compileCircuitJson(elements, options = {}) {
           index,
           layers: copper
         });
-      } else if (type === "pcb_trace") {
-        const route = e.route ?? [];
-        if (e.route_thickness_mode === "interpolated" && route.some(
+      } else if (input.type === "pcb_trace") {
+        const route = input.route;
+        if (input.route_thickness_mode === "interpolated" && route.some(
           (p, i) => p.route_type === "wire" && !hasWireTaper(p) && route[i + 1]?.route_type === "wire"
-        ) || route.some((p) => p.route_type === "through_pad"))
-          throw new Error(
-            "Interpolated/through-pad traces are not supported yet"
-          );
+        ))
+          throw new Error("Interpolated traces are not supported yet");
         for (const point of getWireTaperSegments(route)) {
           const polygon = getWireTaperPolygon(point);
           if (!polygon.length)
@@ -1052,10 +1050,27 @@ function compileCircuitJson(elements, options = {}) {
           get(point.layer, index).polygon([polygon]);
         }
         for (let i = 1; i < route.length; i++) {
-          const a = route[i - 1], b = route[i];
+          let a = route[i - 1], b = route[i];
           if (hasWireTaper(a)) continue;
+          if (a.route_type === "through_pad")
+            a = {
+              route_type: "wire",
+              ...a.end,
+              layer: a.end_layer,
+              width: a.width
+            };
+          if (b.route_type === "through_pad")
+            b = {
+              route_type: "wire",
+              ...b.start,
+              layer: b.start_layer,
+              width: b.width
+            };
           const layer = a.route_type === "wire" && b.route_type === "wire" && a.layer === b.layer ? a.layer : a.route_type === "wire" && b.route_type === "via" && [b.from_layer, b.to_layer].includes(a.layer) ? a.layer : a.route_type === "via" && b.route_type === "wire" && [a.from_layer, a.to_layer].includes(b.layer) ? b.layer : void 0;
-          if (layer) get(layer, index).line(a, b, a.width ?? b.width ?? 0.15);
+          if (layer && a.route_type === "wire")
+            get(layer, index).line(a, b, a.width);
+          else if (layer && b.route_type === "wire")
+            get(layer, index).line(a, b, b.width);
         }
       } else if (type === "pcb_copper_pour") {
         get(e.layer, index, false, 1).polygon(shape(e));

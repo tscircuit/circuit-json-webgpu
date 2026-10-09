@@ -24,13 +24,47 @@ function area(mesh: ReturnType<MeshBuilder["build"]>) {
   return area
 }
 
-test("through-pad layer transitions reject the surrounding trace", () => {
+test("through-pad layer transitions connect each wire to its pad anchor", () => {
   const scene = compileCircuitJson([
     {
       type: "pcb_trace",
       pcb_trace_id: "trace",
       route: [
-        { route_type: "wire", x: -4, y: 0, width: 0.4, layer: "top" },
+        { route_type: "wire", x: -4, y: 1, width: 0.4, layer: "top" },
+        {
+          route_type: "through_pad",
+          start: { x: -1, y: 1 },
+          end: { x: 1, y: -1 },
+          start_layer: "top",
+          end_layer: "bottom",
+          width: 0.4,
+        },
+        { route_type: "wire", x: 4, y: -1, width: 0.4, layer: "bottom" },
+      ],
+    },
+  ])
+  expect(scene.diagnostics).toEqual([])
+  expect(scene.layers.map((layer) => layer.name)).toEqual(["top", "bottom"])
+  expect(area(scene.layers[0].paint)).toBeCloseTo(1.324, 3)
+  expect(area(scene.layers[1].paint)).toBeCloseTo(1.324, 3)
+  const vertexStride = 8
+  const topX = scene.layers[0].paint.vertices.filter(
+    (_, i) => i % vertexStride === 0,
+  )
+  const bottomX = scene.layers[1].paint.vertices.filter(
+    (_, i) => i % vertexStride === 0,
+  )
+  expect(Math.max(...topX)).toBeCloseTo(-0.8)
+  expect(Math.min(...bottomX)).toBeCloseTo(0.8)
+})
+
+test("through-pad anchors do not connect wires on unrelated layers", () => {
+  const scene = compileCircuitJson([
+    {
+      type: "pcb_trace",
+      pcb_trace_id: "trace",
+      route: [
+        { route_type: "wire", x: -4, y: 0, width: 0.4, layer: "bottom" },
         {
           route_type: "through_pad",
           start: { x: 0, y: 0 },
@@ -39,11 +73,11 @@ test("through-pad layer transitions reject the surrounding trace", () => {
           end_layer: "bottom",
           width: 0.4,
         },
-        { route_type: "wire", x: 4, y: 0, width: 0.4, layer: "bottom" },
+        { route_type: "wire", x: 4, y: 0, width: 0.4, layer: "top" },
       ],
     },
   ])
-  expect(scene.diagnostics).toHaveLength(1)
+  expect(scene.diagnostics).toEqual([])
   expect(scene.layers).toHaveLength(0)
 })
 
