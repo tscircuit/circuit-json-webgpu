@@ -45,8 +45,8 @@ test("through-pad layer transitions connect each wire to its pad anchor", () => 
   ])
   expect(scene.diagnostics).toEqual([])
   expect(scene.layers.map((layer) => layer.name)).toEqual(["top", "bottom"])
-  expect(area(scene.layers[0].paint)).toBeCloseTo(1.324, 3)
-  expect(area(scene.layers[1].paint)).toBeCloseTo(1.324, 3)
+  expect(area(scene.layers[0].paint)).toBeCloseTo(2.58, 3)
+  expect(area(scene.layers[1].paint)).toBeCloseTo(2.58, 3)
   const vertexStride = 8
   const topX = scene.layers[0].paint.vertices.filter(
     (_, i) => i % vertexStride === 0,
@@ -54,8 +54,8 @@ test("through-pad layer transitions connect each wire to its pad anchor", () => 
   const bottomX = scene.layers[1].paint.vertices.filter(
     (_, i) => i % vertexStride === 0,
   )
-  expect(Math.max(...topX)).toBeCloseTo(-0.8)
-  expect(Math.min(...bottomX)).toBeCloseTo(0.8)
+  expect(Math.max(...topX)).toBeCloseTo(1.2)
+  expect(Math.min(...bottomX)).toBeCloseTo(-1.2)
 })
 
 test("through-pad anchors do not connect wires on unrelated layers", () => {
@@ -78,7 +78,31 @@ test("through-pad anchors do not connect wires on unrelated layers", () => {
     },
   ])
   expect(scene.diagnostics).toEqual([])
-  expect(scene.layers).toHaveLength(0)
+  expect(scene.layers.map((layer) => layer.name)).toEqual(["top", "bottom"])
+  expect(area(scene.layers[0].paint)).toBeCloseTo(0.124, 3)
+  expect(area(scene.layers[1].paint)).toBeCloseTo(0.124, 3)
+})
+
+test("a same-layer through-pad span is drawn once", () => {
+  const scene = compileCircuitJson([
+    {
+      type: "pcb_trace",
+      pcb_trace_id: "trace",
+      route: [
+        {
+          route_type: "through_pad",
+          start: { x: -1, y: 0 },
+          end: { x: 1, y: 0 },
+          start_layer: "top",
+          end_layer: "top",
+          width: 0.4,
+        },
+      ],
+    },
+  ])
+  expect(scene.diagnostics).toEqual([])
+  expect(scene.layers.map((layer) => layer.name)).toEqual(["top"])
+  expect(area(scene.layers[0].paint)).toBeCloseTo(0.924, 3)
 })
 
 test("rectangular soldermask openings erase only the selected mask layer", () => {

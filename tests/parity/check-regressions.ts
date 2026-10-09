@@ -15,14 +15,11 @@ export type ParityReport = {
 }
 
 function getDiagnosticKey(diagnostic: Diagnostic): string {
-  // Through-pad support renamed the existing interpolated-trace diagnostic.
-  const message =
-    diagnostic.type === "pcb_trace" &&
-    diagnostic.message ===
-      "Error: Interpolated/through-pad traces are not supported yet"
-      ? "Error: Interpolated traces are not supported yet"
-      : diagnostic.message
-  return JSON.stringify([diagnostic.elementId, diagnostic.type, message])
+  return JSON.stringify([
+    diagnostic.elementId,
+    diagnostic.type,
+    diagnostic.message,
+  ])
 }
 
 function currentDiagnosticsAreSubsetOfBase({
