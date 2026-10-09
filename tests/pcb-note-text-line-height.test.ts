@@ -2,7 +2,7 @@ import { expect, test } from "bun:test"
 import { MeshBuilder } from "../lib/geometry"
 import { drawText } from "../lib/text/draw-text"
 
-test("multiline PCB notes advance by one font size, including blank lines", () => {
+test("PCB notes use SVG first-line anchoring and one-em tspan advances", () => {
   for (const fontSize of [1, 2.4]) {
     for (const yAxis of ["up", "down"] as const) {
       const bounds = (text: string) => {
@@ -25,14 +25,17 @@ test("multiline PCB notes advance by one font size, including blank lines", () =
       const single = bounds("A")
       for (const [text, advances] of [
         ["A\nA", 1],
-        ["A\\nA", 1],
-        ["A\n\nA", 2],
+        ["A\nA\nA", 2],
+        ["A\n\nA", 1],
       ] as const) {
         const multiline = bounds(text)
         expect(
           multiline.maxY - multiline.minY - (single.maxY - single.minY),
         ).toBeCloseTo(advances * fontSize, 6)
-        expect((multiline.minY + multiline.maxY) / 2).toBeCloseTo(0, 6)
+        expect(yAxis === "up" ? multiline.maxY : multiline.minY).toBeCloseTo(
+          yAxis === "up" ? single.maxY : single.minY,
+          6,
+        )
       }
     }
   }

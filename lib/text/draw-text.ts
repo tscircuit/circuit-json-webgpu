@@ -3,23 +3,22 @@ import { MeshBuilder, rotate } from "../geometry"
 import type { Point } from "../types"
 import { getAlphabetLayout } from "circuit-to-canvas/lib/drawer/shapes/text/getAlphabetLayout"
 import { getTextGeometry } from "circuit-to-canvas/lib/drawer/shapes/text/getTextStartPosition"
+import { drawPcbNoteText } from "./draw-pcb-note-text"
 
-/** Reuse alphabet glyph geometry; PCB notes use one-em line spacing. */
+/** PCB notes match SVG text; physical board text uses alphabet outlines. */
 export function drawText(
   mesh: MeshBuilder,
   e: Record<string, any>,
   yAxis: "up" | "down" = "up",
+  pcbNoteFont?: ArrayBuffer,
 ) {
+  if (e.type === "pcb_note_text")
+    return drawPcbNoteText(mesh, e, yAxis, pcbNoteFont)
   const text = String(e.text ?? "")
   if (!text) return
   const c = e.anchor_position ?? e.center ?? { x: e.x ?? 0, y: e.y ?? 0 }
   const fontSize = e.font_size ?? 1
-  const isNote = e.type === "pcb_note_text"
   const layout = getAlphabetLayout(text, fontSize)
-  if (isNote) {
-    layout.lineHeight = fontSize
-    layout.height = layout.lines.length * fontSize
-  }
   const geometry = getTextGeometry(
     e.anchor_alignment ?? "center",
     layout,
@@ -28,12 +27,10 @@ export function drawText(
   const isFabrication = e.type === "pcb_fabrication_note_text"
   const mirrored = isFabrication
     ? false
-    : isNote
-      ? (e.is_mirrored_from_top_view ?? e.layer === "bottom")
-      : e.type === "pcb_silkscreen_text"
-        ? e.layer === "bottom"
-        : (e.is_mirrored ?? e.layer === "bottom")
-  const rotation = isNote || isFabrication ? 0 : (e.ccw_rotation ?? 0)
+    : e.type === "pcb_silkscreen_text"
+      ? e.layer === "bottom"
+      : (e.is_mirrored ?? e.layer === "bottom")
+  const rotation = isFabrication ? 0 : (e.ccw_rotation ?? 0)
   const sign = yAxis === "up" ? -1 : 1
   const transform = (p: Point) =>
     rotate(
@@ -41,7 +38,7 @@ export function drawText(
       c,
       -sign * rotation,
     )
-  if (e.is_knockout && !isNote && !isFabrication) {
+  if (e.is_knockout && !isFabrication) {
     const b = geometry.bounds
     if (!b) return
     const p = {

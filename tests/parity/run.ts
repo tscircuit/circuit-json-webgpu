@@ -11,6 +11,7 @@ import { prepareComparison } from "./prepare.ts"
 import { comparisonSilkscreenColors } from "./palette"
 import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
 import { Resvg } from "@resvg/resvg-js"
+import { getSvgNoteFont } from "./svg-note-font"
 const root = fileURLToPath(new URL("../../", import.meta.url))
 const dir = new URL("../actual/parity/", import.meta.url)
 const cases: CapturedCase[] = JSON.parse(
@@ -57,6 +58,13 @@ try {
   page.on("pageerror", (e) => console.error("Browser:", e.message))
   await page.goto(`${server.resolvedUrls!.local[0]}tests/parity/`)
   await page.waitForFunction(() => window.parity)
+  if (cases.some((c) => c.elements.some((e) => e.type === "pcb_note_text"))) {
+    const font = await getSvgNoteFont()
+    await page.evaluate(
+      (font) => window.parity.setPcbNoteFont(font),
+      font.toString("base64"),
+    )
+  }
   for (const c of cases) {
     if (
       process.env.PARITY_TEXT_ONLY &&
