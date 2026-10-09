@@ -569,15 +569,17 @@ function drawText(mesh, e, yAxis = "up") {
   if (!text) return;
   const c = e.anchor_position ?? e.center ?? { x: e.x ?? 0, y: e.y ?? 0 };
   const fontSize = e.font_size ?? 1;
+  const isNote = e.type === "pcb_note_text";
   const layout = getAlphabetLayout(text, fontSize);
-  layout.lineHeight = fontSize;
-  layout.height = layout.lines.length * fontSize;
+  if (isNote) {
+    layout.lineHeight = fontSize;
+    layout.height = layout.lines.length * fontSize;
+  }
   const geometry = getTextGeometry(
     e.anchor_alignment ?? "center",
     layout,
     fontSize
   );
-  const isNote = e.type === "pcb_note_text";
   const isFabrication = e.type === "pcb_fabrication_note_text";
   const mirrored = isFabrication ? false : isNote ? e.is_mirrored_from_top_view ?? e.layer === "bottom" : e.type === "pcb_silkscreen_text" ? e.layer === "bottom" : e.is_mirrored ?? e.layer === "bottom";
   const rotation = isNote || isFabrication ? 0 : e.ccw_rotation ?? 0;

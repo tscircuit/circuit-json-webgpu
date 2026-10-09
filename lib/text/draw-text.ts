@@ -4,7 +4,7 @@ import type { Point } from "../types"
 import { getAlphabetLayout } from "circuit-to-canvas/lib/drawer/shapes/text/getAlphabetLayout"
 import { getTextGeometry } from "circuit-to-canvas/lib/drawer/shapes/text/getTextStartPosition"
 
-/** Reuse alphabet glyph geometry with one-em line spacing for PCB text. */
+/** Reuse alphabet glyph geometry; PCB notes use one-em line spacing. */
 export function drawText(
   mesh: MeshBuilder,
   e: Record<string, any>,
@@ -14,15 +14,17 @@ export function drawText(
   if (!text) return
   const c = e.anchor_position ?? e.center ?? { x: e.x ?? 0, y: e.y ?? 0 }
   const fontSize = e.font_size ?? 1
+  const isNote = e.type === "pcb_note_text"
   const layout = getAlphabetLayout(text, fontSize)
-  layout.lineHeight = fontSize
-  layout.height = layout.lines.length * fontSize
+  if (isNote) {
+    layout.lineHeight = fontSize
+    layout.height = layout.lines.length * fontSize
+  }
   const geometry = getTextGeometry(
     e.anchor_alignment ?? "center",
     layout,
     fontSize,
   )
-  const isNote = e.type === "pcb_note_text"
   const isFabrication = e.type === "pcb_fabrication_note_text"
   const mirrored = isFabrication
     ? false
