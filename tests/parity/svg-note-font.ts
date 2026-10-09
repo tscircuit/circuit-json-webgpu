@@ -1,58 +1,49 @@
-import { readFile, readdir } from "node:fs/promises"
-import { join } from "node:path"
-import { Resvg } from "@resvg/resvg-js"
+import { appendFile, mkdir, writeFile } from "node:fs/promises"
+import { dirname, join } from "node:path"
+import { fileURLToPath } from "node:url"
+import type { ResvgRenderOptions } from "@resvg/resvg-js"
 import { parse } from "opentype.js"
+import { noteFontData } from "../../lib/text/note-font-data"
 
-// Identify the font actually used for Arial/sans-serif, including a missing-font
-// fallback. Compare resolved outlines; never alter the SVG or its font settings.
-const probe = `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000"><text x="500" y="500" font-family="Arial, sans-serif" font-size="100" text-anchor="middle" dominant-baseline="central">AgWi0129 AV</text></svg>`
+/** Use the bundled font in both renderers, independent of installed OS fonts. */
+export async function getSvgNoteFont(path: string) {
+  const data = Buffer.from(noteFontData, "base64")
+  const font = parse(Uint8Array.from(data).buffer)
+  // resvg reads OpenType files; the WebGPU renderer also accepts bundled WOFF.
+  await writeFile(path, Buffer.from(font.toArrayBuffer()))
+  const options: ResvgRenderOptions = {
+    font: {
+      fontFiles: [path],
+      loadSystemFonts: false,
+      defaultFontFamily: font.names.fontFamily.en,
+      sansSerifFamily: font.names.fontFamily.en,
+    },
+  }
+  return { data, options }
+}
 
-export async function getSvgNoteFont(): Promise<Buffer> {
-  const reference = new Resvg(probe).toString()
-  const directories =
-    process.platform === "darwin"
-      ? ["/System/Library/Fonts", "/Library/Fonts"]
-      : process.platform === "win32"
-        ? [join(process.env.WINDIR ?? "C:\\Windows", "Fonts")]
-        : ["/usr/share/fonts", "/usr/local/share/fonts"]
-  const files: string[] = []
-  for (const directory of directories) {
-    const entries = await readdir(directory, {
-      recursive: true,
-      withFileTypes: true,
-    }).catch(() => [])
-    files.push(
-      ...entries
-        .filter((entry) => entry.isFile() && /\.(ttf|otf)$/i.test(entry.name))
-        .map((entry) => join(entry.parentPath, entry.name)),
-    )
-  }
-  // Common Arial installations and Linux's default fallback are tried first.
-  files.sort(
-    (a, b) =>
-      Number(!/[/\\](Arial\.ttf|arial\.ttf|Inconsolata\.otf)$/.test(a)) -
-      Number(!/[/\\](Arial\.ttf|arial\.ttf|Inconsolata\.otf)$/.test(b)),
+// Older revisions use resvg's system-font loading. Give both CI checkouts the
+// same fontconfig directory so their references use identical font outlines.
+export async function prepareSvgFontConfig(directory: string) {
+  await mkdir(directory, { recursive: true })
+  const font = await getSvgNoteFont(join(directory, "note.otf"))
+  const config = join(directory, "fonts.conf")
+  const escapedDirectory = dirname(config)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+  await writeFile(
+    config,
+    `<?xml version="1.0"?><fontconfig><dir>${escapedDirectory}</dir></fontconfig>\n`,
   )
-  for (const file of files) {
-    try {
-      const data = await readFile(file)
-      const font = parse(Uint8Array.from(data).buffer)
-      const resolved = new Resvg(probe, {
-        font: {
-          fontFiles: [file],
-          loadSystemFonts: false,
-          defaultFontFamily: font.names.fontFamily.en,
-        },
-      }).toString()
-      if (resolved === reference) {
-        console.log(`PCB note SVG font: ${font.names.fullName.en} (${file})`)
-        return data
-      }
-    } catch {
-      // Some system font formats are unsupported by the outline reader.
-    }
-  }
-  throw new Error(
-    "Could not resolve the SVG PCB note font to a supported system TTF/OTF file",
+  return { ...font, config }
+}
+
+if (import.meta.main) {
+  const { config } = await prepareSvgFontConfig(
+    fileURLToPath(new URL("../actual/parity/fonts/", import.meta.url)),
   )
+  if (process.env.GITHUB_ENV)
+    await appendFile(process.env.GITHUB_ENV, `FONTCONFIG_FILE=${config}\n`)
+  console.log(`Deterministic SVG font config: ${config}`)
 }

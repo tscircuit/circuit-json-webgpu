@@ -58,13 +58,13 @@ try {
   page.on("pageerror", (e) => console.error("Browser:", e.message))
   await page.goto(`${server.resolvedUrls!.local[0]}tests/parity/`)
   await page.waitForFunction(() => window.parity)
-  if (cases.some((c) => c.elements.some((e) => e.type === "pcb_note_text"))) {
-    const font = await getSvgNoteFont()
-    await page.evaluate(
-      (font) => window.parity.setPcbNoteFont(font),
-      font.toString("base64"),
-    )
-  }
+  const font = await getSvgNoteFont(
+    fileURLToPath(new URL("note-font.otf", dir)),
+  )
+  await page.evaluate(
+    (data) => window.parity.setPcbNoteFont(data),
+    font.data.toString("base64"),
+  )
   for (const c of cases) {
     if (
       process.env.PARITY_TEXT_ONLY &&
@@ -108,7 +108,7 @@ try {
         },
       )
       await writeFile(new URL(`${c.id}.svg.svg`, dir), svg)
-      const svgPng = new Resvg(svg).render().asPng()
+      const svgPng = new Resvg(svg, font.options).render().asPng()
       await writeFile(new URL(`${c.id}.svg.png`, dir), svgPng)
       const result = await page.evaluate(
         (scene) => window.parity.render(scene),

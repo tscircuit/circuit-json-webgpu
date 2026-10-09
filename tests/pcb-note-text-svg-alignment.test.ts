@@ -1,23 +1,19 @@
 import { expect, test } from "bun:test"
-import { mkdtemp, rm, writeFile } from "node:fs/promises"
+import { mkdtemp, rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { Resvg } from "@resvg/resvg-js"
 import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
-import { parse } from "opentype.js"
 import { MeshBuilder } from "../lib/geometry"
 import { drawText } from "../lib/text/draw-text"
-import { noteFontData } from "../lib/text/note-font-data"
+import { getSvgNoteFont } from "./parity/svg-note-font"
 
 test("PCB note geometry follows SVG text anchors and baselines", async () => {
   const directory = await mkdtemp(join(tmpdir(), "pcb-note-font-"))
   const fontPath = join(directory, "note.otf")
-  // Supply the same font to the independent SVG rasterizer on every OS.
-  const font = parse(
-    Uint8Array.from(atob(noteFontData), (c) => c.charCodeAt(0)).buffer,
-  )
-  await writeFile(fontPath, Buffer.from(font.toArrayBuffer()))
   try {
+    // Exercise the same deterministic font setup used by the full parity audit.
+    const font = await getSvgNoteFont(fontPath)
     for (const alignment of [
       "center",
       "top_left",
@@ -49,13 +45,7 @@ test("PCB note geometry follows SVG text anchors and baselines", async () => {
         )![0]
         const reference = new Resvg(
           `<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500">${element}</svg>`,
-          {
-            font: {
-              fontFiles: [fontPath],
-              loadSystemFonts: false,
-              defaultFontFamily: "Liberation Sans",
-            },
-          },
+          font.options,
         ).getBBox()!
         for (const yAxis of ["up", "down"] as const) {
           const mesh = new MeshBuilder()
