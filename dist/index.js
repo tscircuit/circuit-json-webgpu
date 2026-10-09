@@ -570,6 +570,8 @@ function drawText(mesh, e, yAxis = "up") {
   const c = e.anchor_position ?? e.center ?? { x: e.x ?? 0, y: e.y ?? 0 };
   const fontSize = e.font_size ?? 1;
   const layout = getAlphabetLayout(text, fontSize);
+  layout.lineHeight = fontSize;
+  layout.height = layout.lines.length * fontSize;
   const geometry = getTextGeometry(
     e.anchor_alignment ?? "center",
     layout,

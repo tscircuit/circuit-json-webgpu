@@ -4,7 +4,7 @@ import type { Point } from "../types"
 import { getAlphabetLayout } from "circuit-to-canvas/lib/drawer/shapes/text/getAlphabetLayout"
 import { getTextGeometry } from "circuit-to-canvas/lib/drawer/shapes/text/getTextStartPosition"
 
-/** Layout matches circuit-to-canvas; only the final primitive sink is GPU triangles. */
+/** Reuse alphabet glyph geometry with one-em line spacing for PCB text. */
 export function drawText(
   mesh: MeshBuilder,
   e: Record<string, any>,
@@ -15,6 +15,8 @@ export function drawText(
   const c = e.anchor_position ?? e.center ?? { x: e.x ?? 0, y: e.y ?? 0 }
   const fontSize = e.font_size ?? 1
   const layout = getAlphabetLayout(text, fontSize)
+  layout.lineHeight = fontSize
+  layout.height = layout.lines.length * fontSize
   const geometry = getTextGeometry(
     e.anchor_alignment ?? "center",
     layout,
