@@ -18,8 +18,6 @@ jobs:
       - run: bun install
         working-directory: .parity-base
       - run: bunx playwright install --with-deps chromium
-      - name: Prepare shared deterministic SVG font
-        run: bun tests/parity/svg-note-font.ts
       # The strict audit has known failures on main. Run both revisions on the
       # same runner; the required comparison below rejects every new regression.
       - name: Audit base revision
