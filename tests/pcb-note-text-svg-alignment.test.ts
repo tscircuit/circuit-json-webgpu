@@ -21,7 +21,7 @@ test("PCB note geometry follows SVG text anchors and baselines", async () => {
       "bottom_left",
       "bottom_right",
     ] as const) {
-      for (const text of ["Ag", "Ag\nA", "Ag\n\nA", "\nAg", "A\\nA"]) {
+      for (const text of ["Ag", "AVAV", "Ag\nA", "Ag\n\nA", "\nAg", "A\\nA"]) {
         const note = {
           type: "pcb_note_text" as const,
           pcb_note_text_id: "note",
@@ -49,7 +49,7 @@ test("PCB note geometry follows SVG text anchors and baselines", async () => {
         ).getBBox()!
         for (const yAxis of ["up", "down"] as const) {
           const mesh = new MeshBuilder()
-          drawText(mesh, note, yAxis)
+          drawText(mesh, note, yAxis, Uint8Array.from(font.data).buffer)
           const xs = mesh.vertices
             .filter((_, i) => i % 8 === 0)
             .map((x) => 250 + 50 * x)

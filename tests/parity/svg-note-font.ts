@@ -7,16 +7,18 @@ import { noteFontData } from "../../lib/text/note-font-data"
 
 /** Use the bundled font in both renderers, independent of installed OS fonts. */
 export async function getSvgNoteFont(path: string) {
-  const data = Buffer.from(noteFontData, "base64")
-  const font = parse(Uint8Array.from(data).buffer)
-  // resvg reads OpenType files; the WebGPU renderer also accepts bundled WOFF.
-  await writeFile(path, Buffer.from(font.toArrayBuffer()))
+  const font = parse(
+    Uint8Array.from(Buffer.from(noteFontData, "base64")).buffer,
+  )
+  // Both renderers receive exactly the same OpenType data.
+  const data = Buffer.from(font.toArrayBuffer())
+  await writeFile(path, data)
   const options: ResvgRenderOptions = {
     font: {
       fontFiles: [path],
       loadSystemFonts: false,
-      defaultFontFamily: font.names.fontFamily.en,
-      sansSerifFamily: font.names.fontFamily.en,
+      defaultFontFamily: "Liberation Sans",
+      sansSerifFamily: "Liberation Sans",
     },
   }
   return { data, options }
