@@ -42,6 +42,32 @@ test("a previously passing case cannot become a mismatch", () => {
   expect(findParityRegressions(base, report())).toHaveLength(1)
 })
 
+test("renaming the legacy interpolated-trace diagnostic preserves parity", () => {
+  const base = report()
+  const head = report()
+  const diagnostic = {
+    elementId: "trace",
+    type: "pcb_trace",
+    message: "Error: Interpolated/through-pad traces are not supported yet",
+  }
+  base.results[0].diagnostics = [diagnostic]
+  head.results[0].diagnostics = [
+    {
+      ...diagnostic,
+      message: "Error: Interpolated traces are not supported yet",
+    },
+  ]
+  expect(findParityRegressions(base, head)).toEqual([])
+  head.results[0].changedPixels = 11
+  expect(findParityRegressions(base, head)).toHaveLength(1)
+  head.results[0].changedPixels = 10
+  head.results[0].diagnostics[0].elementId = "another-trace"
+  expect(findParityRegressions(base, head)).toHaveLength(1)
+  head.results[0].diagnostics[0].elementId = "trace"
+  head.results[0].diagnostics[0].message = "Error: Invalid trace geometry"
+  expect(findParityRegressions(base, head)).toHaveLength(1)
+})
+
 test("missing comparisons, skipped renders, render errors, and failed snapshots fail", () => {
   for (const status of ["error", "not-comparable"]) {
     const head = report()

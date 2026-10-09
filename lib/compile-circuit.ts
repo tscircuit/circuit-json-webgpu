@@ -191,9 +191,7 @@ export function compileCircuitJson(
               route[i + 1]?.route_type === "wire",
           )
         )
-          throw new Error(
-            "Interpolated/through-pad traces are not supported yet",
-          )
+          throw new Error("Interpolated traces are not supported yet")
         for (const point of getWireTaperSegments(route)) {
           const polygon = getWireTaperPolygon(point)
           if (!polygon.length)
