@@ -541,9 +541,9 @@ try {
         .split(",")[1],
     }
   })
-  assert.equal(throughPad.diagnostics.length, 1)
-  assert.deepEqual(pixel(throughPad.png, 280, 300), [0, 0, 0, 255])
-  assert.deepEqual(pixel(throughPad.png, 520, 300), [0, 0, 0, 255])
+  assert.deepEqual(throughPad.diagnostics, [])
+  assert.deepEqual(pixel(throughPad.png, 280, 300), layerColors.top)
+  assert.deepEqual(pixel(throughPad.png, 520, 300), layerColors.bottom)
   await snapshot("through-pad-trace")
   for (const name of names) {
     const stats = await page.evaluate(
