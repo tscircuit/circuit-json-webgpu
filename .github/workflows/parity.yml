@@ -11,7 +11,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.base.sha || (github.event.before != '0000000000000000000000000000000000000000' && github.event.before) || 'main' }}
+          # PRs compare against their base; default-branch pushes against the
+          # previous revision; other events against the default branch.
+          ref: >-
+            ${{ github.event.pull_request.base.sha ||
+                (github.event_name == 'push' &&
+                 github.ref_type == 'branch' &&
+                 github.ref_name == github.event.repository.default_branch &&
+                 github.event.before != '0000000000000000000000000000000000000000' &&
+                 github.event.before) ||
+                format('refs/heads/{0}', github.event.repository.default_branch) }}
           path: .parity-base
       - uses: oven-sh/setup-bun@v2
       - run: bun install
