@@ -750,3 +750,47 @@ test("translated fabrication paths tolerate round-cap floating-point noise", () 
     }
   }
 })
+
+test("silkscreen ovals preserve radii, rotation, center, and layer", () => {
+  const radius_x = 2,
+    radius_y = 1
+  const center = { x: 3, y: -2 }
+  const strokeWidth = 0.1 // Canvas and SVG use a fixed 0.1 mm oval stroke.
+  const vertexStride = 8 // x, y, r, g, b, a, element index, category.
+  for (const layer of ["top", "bottom"] as const) {
+    for (const ccw_rotation of [undefined, 0, 45, 90]) {
+      const scene = compileCircuitJson([
+        {
+          type: "pcb_silkscreen_oval",
+          pcb_silkscreen_oval_id: "oval",
+          pcb_component_id: "component",
+          layer,
+          center,
+          radius_x,
+          radius_y,
+          ...(ccw_rotation === undefined ? {} : { ccw_rotation }),
+        },
+      ])
+      expect(scene.diagnostics).toEqual([])
+      expect(scene.layers.map((mesh) => mesh.name)).toEqual([
+        `${layer}_silkscreen`,
+      ])
+      const mesh = scene.layers[0].paint
+      expect(mesh.indices.length).toBeGreaterThan(0)
+      const radians = ((ccw_rotation ?? 0) * Math.PI) / 180
+      const xs: number[] = [],
+        ys: number[] = []
+      for (let i = 0; i < mesh.vertices.length; i += vertexStride) {
+        const x = mesh.vertices[i] - center.x,
+          y = mesh.vertices[i + 1] - center.y
+        xs.push(x * Math.cos(radians) + y * Math.sin(radians))
+        ys.push(-x * Math.sin(radians) + y * Math.cos(radians))
+      }
+      expect(Math.max(...xs)).toBeCloseTo(radius_x + strokeWidth / 2, 2)
+      expect(Math.min(...xs)).toBeCloseTo(-radius_x - strokeWidth / 2, 2)
+      expect(Math.max(...ys)).toBeCloseTo(radius_y + strokeWidth / 2, 2)
+      expect(Math.min(...ys)).toBeCloseTo(-radius_y - strokeWidth / 2, 2)
+      expect(scene.layers[0].erase.indices.length).toBe(0)
+    }
+  }
+})
