@@ -491,6 +491,60 @@ try {
   // Only the opening exposes copper; the surrounding soldermask stays intact.
   assert.deepEqual(pixel(soldermask.png, 400, 300), layerColors.top)
   assert.deepEqual(pixel(soldermask.png, 580, 300), [12, 55, 33, 255])
+  const throughPad = await page.evaluate(async () => {
+    const drawer = window.gpuTest.drawer
+    drawer.drawElements(
+      [
+        {
+          type: "pcb_plated_hole",
+          pcb_plated_hole_id: "pad",
+          shape: "circle",
+          x: 0,
+          y: 0,
+          outer_diameter: 1.6,
+          hole_diameter: 0.8,
+          layers: ["top", "bottom"],
+        },
+        {
+          type: "pcb_trace",
+          pcb_trace_id: "trace",
+          route: [
+            { route_type: "wire", x: -4, y: 0, width: 0.4, layer: "top" },
+            {
+              route_type: "through_pad",
+              start: { x: 0, y: 0 },
+              end: { x: 0, y: 0 },
+              start_layer: "top",
+              end_layer: "bottom",
+              width: 0.4,
+              pcb_plated_hole_id: "pad",
+            },
+            { route_type: "wire", x: 4, y: 0, width: 0.4, layer: "bottom" },
+          ],
+        },
+      ],
+      {
+        transform: { a: 60, b: 0, c: 0, d: -60, e: 400, f: 300 },
+        layers: ["top", "bottom", "drill"],
+        selectedLayer: "top",
+        hiddenLayerOpacity: 1,
+        showSolderMask: false,
+        background: [0, 0, 0, 1],
+      },
+    )
+    await drawer.flush()
+    return {
+      diagnostics: drawer.diagnostics,
+      png: document
+        .querySelector("canvas")!
+        .toDataURL("image/png")
+        .split(",")[1],
+    }
+  })
+  assert.equal(throughPad.diagnostics.length, 1)
+  assert.deepEqual(pixel(throughPad.png, 280, 300), [0, 0, 0, 255])
+  assert.deepEqual(pixel(throughPad.png, 520, 300), [0, 0, 0, 255])
+  await snapshot("through-pad-trace")
   for (const name of names) {
     const stats = await page.evaluate(
       (name) => window.gpuTest.renderFixture(name),
@@ -638,7 +692,7 @@ try {
     errors.filter((e) => !e.includes("404")),
     [],
   )
-  const report = { snapshots: names.length + 2, adapter, large, navigation }
+  const report = { snapshots: names.length + 3, adapter, large, navigation }
   await writeFile(
     new URL("./actual/report.json", import.meta.url),
     JSON.stringify(report, null, 2),

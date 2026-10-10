@@ -24,6 +24,29 @@ function area(mesh: ReturnType<MeshBuilder["build"]>) {
   return area
 }
 
+test("through-pad layer transitions reject the surrounding trace", () => {
+  const scene = compileCircuitJson([
+    {
+      type: "pcb_trace",
+      pcb_trace_id: "trace",
+      route: [
+        { route_type: "wire", x: -4, y: 0, width: 0.4, layer: "top" },
+        {
+          route_type: "through_pad",
+          start: { x: 0, y: 0 },
+          end: { x: 0, y: 0 },
+          start_layer: "top",
+          end_layer: "bottom",
+          width: 0.4,
+        },
+        { route_type: "wire", x: 4, y: 0, width: 0.4, layer: "bottom" },
+      ],
+    },
+  ])
+  expect(scene.diagnostics).toHaveLength(1)
+  expect(scene.layers).toHaveLength(0)
+})
+
 test("rectangular soldermask openings erase only the selected mask layer", () => {
   const scene = compileCircuitJson([
     {
