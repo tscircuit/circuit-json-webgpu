@@ -49,18 +49,50 @@ export async function checkXRay() {
   ) as CircuitJson
   const capture = () => canvas.toDataURL("image/png").split(",")[1]
   try {
-    const annotations = [
-      "silkscreen",
-      "fabrication_note",
-      "note",
-      "courtyard",
-    ].map((group, i) => ({
-      type: `pcb_${group}_line`,
-      layer: "top",
-      start: { x: -7 + i * 4, y: 8 },
-      end: { x: -5 + i * 4, y: 8 },
-      stroke_width: 1,
-    })) as unknown as CircuitJson
+    const annotations: CircuitJson = [
+      {
+        type: "pcb_silkscreen_line",
+        pcb_silkscreen_line_id: "xray_silkscreen",
+        pcb_component_id: "component",
+        layer: "top",
+        x1: -7,
+        y1: 8,
+        x2: -5,
+        y2: 8,
+        stroke_width: 1,
+      },
+      {
+        type: "pcb_fabrication_note_path",
+        pcb_fabrication_note_path_id: "xray_fabrication",
+        pcb_component_id: "component",
+        layer: "top",
+        route: [
+          { x: -3, y: 8 },
+          { x: -1, y: 8 },
+        ],
+        stroke_width: 1,
+      },
+      {
+        type: "pcb_note_line",
+        pcb_note_line_id: "xray_note",
+        layer: "top",
+        x1: 1,
+        y1: 8,
+        x2: 3,
+        y2: 8,
+        stroke_width: 1,
+      },
+      {
+        type: "pcb_courtyard_outline",
+        pcb_courtyard_outline_id: "xray_courtyard",
+        pcb_component_id: "component",
+        layer: "top",
+        outline: [
+          { x: 5, y: 8 },
+          { x: 7, y: 8 },
+        ],
+      },
+    ]
     drawer.drawElements([...elements, unrelated, ...annotations, ...drills], {
       showSilkscreen: true,
       showFabricationNotes: true,
