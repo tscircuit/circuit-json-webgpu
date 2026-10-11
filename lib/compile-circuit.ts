@@ -279,6 +279,17 @@ export function compileCircuitJson(
             mesh.color = parseColor(e.color)
           drawText(mesh, e, options.textYAxis)
         } else if (
+          input.type === "pcb_note_line" ||
+          input.type === "pcb_silkscreen_line"
+        ) {
+          if (input.type === "pcb_note_line" && input.color)
+            mesh.color = parseColor(input.color)
+          mesh.line(
+            { x: input.x1, y: input.y1 },
+            { x: input.x2, y: input.y2 },
+            input.stroke_width ?? 0.1,
+          )
+        } else if (
           type.endsWith("_path") ||
           type.endsWith("_line") ||
           type.endsWith("_outline")

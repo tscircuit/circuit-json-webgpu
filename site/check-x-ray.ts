@@ -57,8 +57,12 @@ export async function checkXRay() {
     ].map((group, i) => ({
       type: `pcb_${group}_line`,
       layer: "top",
-      start: { x: -7 + i * 4, y: 8 },
-      end: { x: -5 + i * 4, y: 8 },
+      ...(group === "silkscreen" || group === "note"
+        ? { x1: -7 + i * 4, y1: 8, x2: -5 + i * 4, y2: 8 }
+        : {
+            start: { x: -7 + i * 4, y: 8 },
+            end: { x: -5 + i * 4, y: 8 },
+          }),
       stroke_width: 1,
     })) as unknown as CircuitJson
     drawer.drawElements([...elements, unrelated, ...annotations, ...drills], {
