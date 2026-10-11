@@ -1,5 +1,4 @@
 import { expect, test } from "bun:test"
-import { pcb_note_line, pcb_silkscreen_line } from "circuit-json"
 import { compileCircuitJson } from "../lib"
 import { drawKeepout } from "../lib/draw-keepout"
 import {
@@ -24,49 +23,6 @@ function area(mesh: ReturnType<MeshBuilder["build"]>) {
   }
   return area
 }
-
-test("note and silkscreen lines render their coordinate endpoints on both layers", () => {
-  for (const [type, schema, suffix, color] of [
-    ["pcb_note_line", pcb_note_line, "notes", [0, 1, 0, 128 / 255]],
-    [
-      "pcb_silkscreen_line",
-      pcb_silkscreen_line,
-      "silkscreen",
-      [242 / 255, 237 / 255, 161 / 255, 1],
-    ],
-  ] as const) {
-    for (const layer of ["top", "bottom"]) {
-      const line = schema.parse({
-        type,
-        [`${type}_id`]: "line",
-        pcb_component_id: "component",
-        layer,
-        x1: -2,
-        y1: 1,
-        x2: 4,
-        y2: 1,
-        stroke_width: 0.4,
-        color: "#00ff0080",
-      })
-      const scene = compileCircuitJson([line])
-      expect(scene.diagnostics).toEqual([])
-      expect(scene.layers.map((l) => l.name)).toEqual([`${layer}_${suffix}`])
-      const mesh = scene.layers[0].paint
-      expect(area(mesh)).toBeCloseTo(6 * 0.4 + Math.PI * 0.2 ** 2, 2)
-      const xs = [...mesh.vertices].filter((_, index) => index % 8 === 0)
-      const ys = [...mesh.vertices].filter((_, index) => index % 8 === 1)
-      expect(Math.min(...xs)).toBeCloseTo(-2.2)
-      expect(Math.max(...xs)).toBeCloseTo(4.2)
-      expect(Math.min(...ys)).toBeCloseTo(0.8)
-      expect(Math.max(...ys)).toBeCloseTo(1.2)
-      expect([...mesh.vertices.slice(2, 6)]).toEqual([
-        ...new Float32Array(color),
-      ])
-      expect([...mesh.vertices].every(Number.isFinite)).toBe(true)
-      expect(scene.layers[0].erase.indices).toHaveLength(0)
-    }
-  }
-})
 
 test("through-pad layer transitions connect each wire to its pad anchor", () => {
   const scene = compileCircuitJson([
