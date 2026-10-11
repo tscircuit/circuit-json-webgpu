@@ -112,6 +112,7 @@ export function compileCircuitJson(
   elements: CircuitJson,
   options: {
     textYAxis?: "up" | "down"
+    pcbNoteFont?: ArrayBuffer
     layerColors?: Record<string, import("./types").Color>
   } = {},
 ): CompiledScene {
@@ -277,7 +278,7 @@ export function compileCircuitJson(
         } else if (type.endsWith("_text")) {
           if (e.color && (group === "note" || group === "fabrication_note"))
             mesh.color = parseColor(e.color)
-          drawText(mesh, e, options.textYAxis)
+          drawText(mesh, e, options.textYAxis, options.pcbNoteFont)
         } else if (
           type.endsWith("_path") ||
           type.endsWith("_line") ||

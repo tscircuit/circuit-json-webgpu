@@ -12,19 +12,20 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE.Liberation"
   ],
   "repository": "github:tscircuit/circuit-json-webgpu",
   "license": "MIT",
   "scripts": {
     "build": "tsup lib/index.ts --format esm --dts --clean",
     "typecheck": "bun tests/parity/prepare-upstream.ts && tsc --noEmit && tsc --noEmit -p tsconfig.reference.json",
-    "test": "bun test tests/dispose.test.ts tests/geometry.test.ts tests/text.test.ts tests/upstream-integrity.test.ts tests/parity-comparison.test.ts tests/parity-prepare.test.ts tests/parity-regressions.test.ts tests/parity-removed-diagnostics.test.ts tests/teardrop-geometry.test.ts tests/ti-drv8307evm-fabrication-dimensions.test.ts",
+    "test": "bun test tests/dispose.test.ts tests/geometry.test.ts tests/text.test.ts tests/parse-color-named-colors.test.ts tests/parse-color-hex-rgb.test.ts tests/parse-color-css-formats.test.ts tests/parse-color-invalid-input.test.ts tests/pcb-note-text-named-color.test.ts tests/pcb-note-text-line-height.test.ts tests/pcb-note-text-svg-alignment.test.ts tests/pcb-note-text-custom-font.test.ts tests/upstream-integrity.test.ts tests/parity-comparison.test.ts tests/parity-note-font-scope.test.ts tests/parity-prepare.test.ts tests/parity-regressions.test.ts tests/parity-removed-diagnostics.test.ts tests/teardrop-geometry.test.ts tests/ti-drv8307evm-fabrication-dimensions.test.ts",
     "test:visual": "bun tests/visual.ts",
     "snapshots:update": "UPDATE_SNAPSHOTS=1 bun tests/visual.ts",
     "dev": "vite --host 127.0.0.1",
-    "format": "biome format lib site scripts tsup.config.ts tests/teardrop-geometry.test.ts tests/teardrop-visual.ts tests/dispose.test.ts tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.ts tests/parity-prepare.test.ts tests/parity-regressions.test.ts tests/parity-removed-diagnostics.test.ts tests/ti-drv8307evm-fabrication-dimensions.test.ts tests/upstream-integrity.test.ts tests/parity tests/visual.ts --write",
-    "format:check": "biome format lib site scripts tsup.config.ts tests/teardrop-geometry.test.ts tests/teardrop-visual.ts tests/dispose.test.ts tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.ts tests/parity-prepare.test.ts tests/parity-regressions.test.ts tests/parity-removed-diagnostics.test.ts tests/ti-drv8307evm-fabrication-dimensions.test.ts tests/upstream-integrity.test.ts tests/parity tests/visual.ts",
+    "format": "biome format lib site scripts tsup.config.ts tests/teardrop-geometry.test.ts tests/teardrop-visual.ts tests/dispose.test.ts tests/geometry.test.ts tests/text.test.ts tests/parse-color-named-colors.test.ts tests/parse-color-hex-rgb.test.ts tests/parse-color-css-formats.test.ts tests/parse-color-invalid-input.test.ts tests/pcb-note-text-named-color.test.ts tests/pcb-note-text-line-height.test.ts tests/pcb-note-text-svg-alignment.test.ts tests/pcb-note-text-custom-font.test.ts tests/parity-comparison.test.ts tests/parity-note-font-scope.test.ts tests/parity-prepare.test.ts tests/parity-regressions.test.ts tests/parity-removed-diagnostics.test.ts tests/ti-drv8307evm-fabrication-dimensions.test.ts tests/upstream-integrity.test.ts tests/parity tests/visual.ts --write",
+    "format:check": "biome format lib site scripts tsup.config.ts tests/teardrop-geometry.test.ts tests/teardrop-visual.ts tests/dispose.test.ts tests/geometry.test.ts tests/text.test.ts tests/parse-color-named-colors.test.ts tests/parse-color-hex-rgb.test.ts tests/parse-color-css-formats.test.ts tests/parse-color-invalid-input.test.ts tests/pcb-note-text-named-color.test.ts tests/pcb-note-text-line-height.test.ts tests/pcb-note-text-svg-alignment.test.ts tests/pcb-note-text-custom-font.test.ts tests/parity-comparison.test.ts tests/parity-note-font-scope.test.ts tests/parity-prepare.test.ts tests/parity-regressions.test.ts tests/parity-removed-diagnostics.test.ts tests/ti-drv8307evm-fabrication-dimensions.test.ts tests/upstream-integrity.test.ts tests/parity tests/visual.ts",
     "test:reference": "bun tests/parity/prepare-upstream.ts && bun test --preload ./tests/upstream/circuit-to-canvas/tests/fixtures/preload.ts ./tests/upstream/circuit-to-canvas/tests",
     "test:parity": "bun tests/parity/audit.ts",
     "test:parity-layout": "bun tests/parity/check-layout.ts",
@@ -37,8 +38,10 @@
   },
   "dependencies": {
     "@tscircuit/alphabet": "^0.0.25",
+    "color": "^4.2.3",
     "earcut": "^3.0.2",
-    "polygon-clipping": "^0.15.7"
+    "polygon-clipping": "^0.15.7",
+    "opentype.js": "1.3.4"
   },
   "peerDependencies": {
     "circuit-json": ">=0.0.518"
@@ -46,6 +49,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/bun": "^1.3.0",
+    "@types/color": "^3.0.6",
     "@types/earcut": "^3.0.0",
     "@types/pngjs": "^6.0.5",
     "@webgpu/types": "^0.1.64",
@@ -68,7 +72,8 @@
     "looks-same": "^10.0.1",
     "schematic-symbols": "^0.0.202",
     "transformation-matrix": "^3.1.0",
-    "circuit-to-canvas": "github:tscircuit/circuit-to-canvas#fa8405c67634e287b79a1506eedde077ef6accb0"
+    "circuit-to-canvas": "github:tscircuit/circuit-to-canvas#fa8405c67634e287b79a1506eedde077ef6accb0",
+    "@types/opentype.js": "^1.3.8"
   },
   "overrides": {
     "sharp": "^0.34.3"

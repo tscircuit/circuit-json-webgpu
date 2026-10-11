@@ -5,11 +5,17 @@ import { parseColor } from "../../lib/colors"
 import { comparisonSilkscreenColors } from "./palette"
 let canvas: HTMLCanvasElement
 let drawer: CircuitToWebGpuDrawer
+let pcbNoteFont: ArrayBuffer | undefined
+function setPcbNoteFont(base64: string) {
+  if (drawer) throw new Error("Set the note font before rendering")
+  pcbNoteFont = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)).buffer
+}
 async function render(scene: Scene) {
   if (!drawer) {
     canvas = document.createElement("canvas")
     document.body.append(canvas)
     drawer = await CircuitToWebGpuDrawer.create(canvas, {
+      pcbNoteFont,
       layerColors: {
         top_silkscreen: parseColor(comparisonSilkscreenColors.top),
         bottom_silkscreen: parseColor(comparisonSilkscreenColors.bottom),
@@ -41,6 +47,7 @@ async function render(scene: Scene) {
 Object.assign(window, {
   parity: {
     render,
+    setPcbNoteFont,
     dispose() {
       drawer?.dispose()
     },
@@ -49,6 +56,10 @@ Object.assign(window, {
 
 declare global {
   interface Window {
-    parity: { render: typeof render; dispose(): void }
+    parity: {
+      render: typeof render
+      setPcbNoteFont: typeof setPcbNoteFont
+      dispose(): void
+    }
   }
 }
