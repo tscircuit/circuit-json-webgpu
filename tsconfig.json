@@ -19,8 +19,6 @@
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "@parity-renderer": ["./lib/index.ts"],
-      "@parity-renderer/*": ["./lib/*"],
       "lib/*": [
         "./lib/*"
       ],

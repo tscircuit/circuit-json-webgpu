@@ -26,7 +26,7 @@ jobs:
         run: xvfb-run -a env WEBGPU_SOFTWARE=1 PARITY_RENDERER_ROOT=.parity-base bun run test:parity
         continue-on-error: true
       - name: Preserve base report
-        run: cp tests/actual/parity/report.json tests/actual/parity/base-report.json
+        run: mv tests/actual/parity/report.json tests/actual/parity/base-report.json
       - name: Audit proposed revision
         run: xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:parity
         continue-on-error: true

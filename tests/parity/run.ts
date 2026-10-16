@@ -28,8 +28,9 @@ const tests: ReferenceTest[] = JSON.parse(
 const server = await createServer({
   root,
   resolve: {
-    alias: { "@parity-renderer": resolve(rendererRoot, "lib") },
+    alias: { "../../lib": resolve(rendererRoot, "lib") },
   },
+  optimizeDeps: { entries: [resolve(root, "tests/parity/index.html")] },
   server: {
     fs: { allow: [root, rendererRoot] },
     host: "127.0.0.1",
