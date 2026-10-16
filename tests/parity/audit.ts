@@ -47,7 +47,15 @@ console.log(
 const tests: ReferenceTest[] = JSON.parse(
   readFileSync(resolve(actual, "tests.json"), "utf8"),
 )
-if (tests.length !== 164 || new Set(tests.map((t) => t.path)).size !== 116)
+const expectedTestFiles = Object.keys(manifest.files).filter((path) =>
+  path.endsWith(".test.ts"),
+)
+const executedTestFiles = new Set(tests.map((test) => test.path))
+if (
+  tests.length !== 207 ||
+  executedTestFiles.size !== expectedTestFiles.length ||
+  expectedTestFiles.some((path) => !executedTestFiles.has(path))
+)
   throw Error("Incomplete upstream test execution")
 const result = spawnSync("bun", ["tests/parity/run.ts"], {
   cwd: root,

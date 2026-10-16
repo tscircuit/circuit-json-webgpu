@@ -6,7 +6,7 @@ concurrency:
 jobs:
   parity:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -15,25 +15,23 @@ jobs:
           path: .parity-base
       - uses: oven-sh/setup-bun@v2
       - run: bun install
-      - name: Install base audit dependencies
+      - run: bun install
         working-directory: .parity-base
-        run: |
-          bun install
-          svg_reference_version=$(bun -p 'require("../node_modules/circuit-to-svg/package.json").version')
-          svg_schema_version=$(bun -p 'require("../node_modules/circuit-json/package.json").version')
-          bun add --dev --no-save "circuit-to-svg@$svg_reference_version" "circuit-json@$svg_schema_version"
       - run: bunx playwright install --with-deps chromium
       # The strict audit has known failures on main. Run both revisions on the
-      # same runner; the required comparison below rejects every new regression.
+      # same runner with the same current fixtures and SVG reference. Only the
+      # renderer source and its runtime dependencies come from the base checkout.
+      # The required comparison below still rejects every renderer regression.
       - name: Audit base revision
-        run: xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:parity
-        working-directory: .parity-base
+        run: xvfb-run -a env WEBGPU_SOFTWARE=1 PARITY_RENDERER_ROOT=.parity-base bun run test:parity
         continue-on-error: true
+      - name: Preserve base report
+        run: cp tests/actual/parity/report.json tests/actual/parity/base-report.json
       - name: Audit proposed revision
         run: xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:parity
         continue-on-error: true
       - name: Reject parity regressions
-        run: bun tests/parity/check-regressions.ts .parity-base/tests/actual/parity/report.json tests/actual/parity/report.json
+        run: bun tests/parity/check-regressions.ts tests/actual/parity/base-report.json tests/actual/parity/report.json
       - run: bun run test:parity-layout
         if: always()
       - uses: actions/upload-artifact@v4

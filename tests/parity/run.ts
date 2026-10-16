@@ -3,6 +3,7 @@ import { featureSnapshot } from "./snapshot"
 import type { CapturedCase, ReferenceTest, ComparisonResult } from "./types"
 import { readFile, writeFile, mkdir } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
+import { resolve } from "node:path"
 import { createServer } from "vite"
 import { chromium } from "playwright"
 import { PNG } from "pngjs"
@@ -11,7 +12,12 @@ import { prepareComparison } from "./prepare.ts"
 import { comparisonSilkscreenColors } from "./palette"
 import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
 import { Resvg } from "@resvg/resvg-js"
+import upstreamManifest from "./upstream-manifest.json"
+import svgPackage from "circuit-to-svg/package.json"
 const root = fileURLToPath(new URL("../../", import.meta.url))
+// Both revisions use this harness, fixtures and SVG version. Only the renderer
+// source (and its own runtime dependencies) comes from the selected checkout.
+const rendererRoot = resolve(root, process.env.PARITY_RENDERER_ROOT ?? ".")
 const dir = new URL("../actual/parity/", import.meta.url)
 const cases: CapturedCase[] = JSON.parse(
   await readFile(new URL("cases.json", dir), "utf8"),
@@ -21,7 +27,11 @@ const tests: ReferenceTest[] = JSON.parse(
 )
 const server = await createServer({
   root,
+  resolve: {
+    alias: { "@parity-renderer": resolve(rendererRoot, "lib") },
+  },
   server: {
+    fs: { allow: [root, rendererRoot] },
     host: "127.0.0.1",
     port: 0,
     hmr: false,
@@ -188,7 +198,8 @@ const report = {
   textRenderCalls: pureTextResults.length,
   textParityPassed: pureTextResults.filter((r) => r.pass).length,
   textParityFailed: pureTextResults.filter((r) => r.pass === false).length,
-  upstreamCommit: "fa8405c67634e287b79a1506eedde077ef6accb0",
+  upstreamCommit: upstreamManifest.commit,
+  referenceSvgVersion: svgPackage.version,
   testFiles: new Set(tests.map((t) => t.path)).size,
   tests: tests.length,
   referencePassed: tests.filter((t) => t.status === "passed").length,

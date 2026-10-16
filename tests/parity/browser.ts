@@ -1,7 +1,7 @@
 import type { prepareComparison } from "./prepare"
 type Scene = NonNullable<ReturnType<typeof prepareComparison>["scene"]>
-import { CircuitToWebGpuDrawer } from "../../lib"
-import { parseColor } from "../../lib/colors"
+import { CircuitToWebGpuDrawer } from "@parity-renderer"
+import { parseColor } from "@parity-renderer/colors"
 import { comparisonSilkscreenColors } from "./palette"
 let canvas: HTMLCanvasElement
 let drawer: CircuitToWebGpuDrawer
