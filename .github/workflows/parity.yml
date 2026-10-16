@@ -15,10 +15,11 @@ jobs:
           path: .parity-base
       - uses: oven-sh/setup-bun@v2
       - run: bun install
-      - name: Install base with the same SVG reference
+      - name: Install base with the same SVG reference and schema
         run: |
-          svg_version="$(bun -p "require('../package.json').devDependencies['circuit-to-svg']")"
-          bun add --dev --exact "circuit-to-svg@$svg_version"
+          svg_version="$(bun -p "require('../node_modules/circuit-to-svg/package.json').version")"
+          schema_version="$(bun -p "require('../node_modules/circuit-json/package.json').version")"
+          bun add --dev --exact "circuit-to-svg@$svg_version" "circuit-json@$schema_version"
         working-directory: .parity-base
       - run: bunx playwright install --with-deps chromium
       # The strict audit has known failures on main. Run both revisions on the
