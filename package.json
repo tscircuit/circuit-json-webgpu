@@ -20,11 +20,11 @@
     "build": "tsup lib/index.ts --format esm --dts --clean",
     "typecheck": "bun tests/parity/prepare-upstream.ts && tsc --noEmit && tsc --noEmit -p tsconfig.reference.json",
     "test": "bun test tests/dispose.test.ts tests/geometry.test.ts tests/text.test.ts tests/upstream-integrity.test.ts tests/parity-comparison.test.ts tests/parity-prepare.test.ts tests/parity-regressions.test.ts tests/parity-removed-diagnostics.test.ts tests/teardrop-geometry.test.ts tests/ti-drv8307evm-fabrication-dimensions.test.ts",
-    "test:visual": "bun tests/visual.ts",
-    "snapshots:update": "UPDATE_SNAPSHOTS=1 bun tests/visual.ts",
+    "test:visual": "bun tests/visual.ts && bun run test:via-layers",
+    "snapshots:update": "UPDATE_SNAPSHOTS=1 bun run test:visual",
     "dev": "vite --host 127.0.0.1",
-    "format": "biome format lib site scripts tsup.config.ts tests/teardrop-geometry.test.ts tests/teardrop-visual.ts tests/dispose.test.ts tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.ts tests/parity-prepare.test.ts tests/parity-regressions.test.ts tests/parity-removed-diagnostics.test.ts tests/ti-drv8307evm-fabrication-dimensions.test.ts tests/upstream-integrity.test.ts tests/parity tests/visual.ts --write",
-    "format:check": "biome format lib site scripts tsup.config.ts tests/teardrop-geometry.test.ts tests/teardrop-visual.ts tests/dispose.test.ts tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.ts tests/parity-prepare.test.ts tests/parity-regressions.test.ts tests/parity-removed-diagnostics.test.ts tests/ti-drv8307evm-fabrication-dimensions.test.ts tests/upstream-integrity.test.ts tests/parity tests/visual.ts",
+    "format": "biome format lib site scripts tsup.config.ts tests/teardrop-geometry.test.ts tests/teardrop-visual.ts tests/dispose.test.ts tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.ts tests/parity-prepare.test.ts tests/parity-regressions.test.ts tests/parity-removed-diagnostics.test.ts tests/ti-drv8307evm-fabrication-dimensions.test.ts tests/upstream-integrity.test.ts tests/parity tests/visual.ts tests/via-layer-visibility.test.ts tests/via-layer-visibility.browser.ts tests/fixtures/via-layer-visibility.ts --write",
+    "format:check": "biome format lib site scripts tsup.config.ts tests/teardrop-geometry.test.ts tests/teardrop-visual.ts tests/dispose.test.ts tests/geometry.test.ts tests/text.test.ts tests/parity-comparison.test.ts tests/parity-prepare.test.ts tests/parity-regressions.test.ts tests/parity-removed-diagnostics.test.ts tests/ti-drv8307evm-fabrication-dimensions.test.ts tests/upstream-integrity.test.ts tests/parity tests/visual.ts tests/via-layer-visibility.test.ts tests/via-layer-visibility.browser.ts tests/fixtures/via-layer-visibility.ts",
     "test:reference": "bun tests/parity/prepare-upstream.ts && bun test --preload ./tests/upstream/circuit-to-canvas/tests/fixtures/preload.ts ./tests/upstream/circuit-to-canvas/tests",
     "test:parity": "bun tests/parity/audit.ts",
     "test:parity-layout": "bun tests/parity/check-layout.ts",
@@ -33,7 +33,9 @@
     "test:snapshots": "SNAPSHOT_TEST_ONLY=1 bun tests/parity/audit.ts",
     "snapshots:features:update": "UPDATE_SNAPSHOTS=1 SNAPSHOT_TEST_ONLY=1 bun tests/parity/audit.ts",
     "build:site": "vite build --target esnext --outDir site-dist",
-    "test:teardrops": "bun tests/teardrop-visual.ts"
+    "test:teardrops": "bun tests/teardrop-visual.ts",
+    "test:via-layers": "bun test tests/via-layer-visibility.test.ts",
+    "snapshots:via-layers:update": "UPDATE_SNAPSHOTS=1 bun run test:via-layers"
   },
   "dependencies": {
     "@tscircuit/alphabet": "^0.0.25",
