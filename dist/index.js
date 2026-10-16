@@ -278,6 +278,136 @@ function drawKeepout(mesh, rings) {
   mesh.color = copperColor;
 }
 
+// node_modules/circuit-to-canvas/lib/drawer/create-board-owner-map.ts
+function createBoardOwnerMap(circuitJson) {
+  const boardOwnerMap = /* @__PURE__ */ new Map();
+  const parentById = /* @__PURE__ */ new Map();
+  const boardsById = /* @__PURE__ */ new Map();
+  for (const element of circuitJson) {
+    switch (element.type) {
+      case "pcb_board":
+        boardsById.set(element.pcb_board_id, element);
+        break;
+      case "source_group": {
+        const parentGroupId = element.parent_subcircuit_id ?? element.parent_source_group_id;
+        parentById.set(
+          element.source_group_id,
+          element.subcircuit_id ?? parentGroupId
+        );
+        if (element.is_subcircuit && element.subcircuit_id) {
+          parentById.set(element.subcircuit_id, parentGroupId);
+        }
+        break;
+      }
+      case "pcb_group":
+        parentById.set(
+          element.pcb_group_id,
+          element.subcircuit_id ?? element.source_group_id
+        );
+        break;
+      case "pcb_component":
+        parentById.set(
+          element.pcb_component_id,
+          element.subcircuit_id ?? element.pcb_group_id
+        );
+        break;
+      case "pcb_trace":
+        parentById.set(
+          element.pcb_trace_id,
+          element.subcircuit_id ?? element.pcb_group_id ?? element.pcb_component_id
+        );
+        break;
+      case "pcb_via":
+        parentById.set(
+          element.pcb_via_id,
+          element.subcircuit_id ?? element.pcb_group_id ?? element.pcb_trace_id
+        );
+        break;
+    }
+  }
+  const boards = [...boardsById.values()];
+  for (const board of boards) {
+    boardOwnerMap.set(board.pcb_board_id, board);
+    if (board.subcircuit_id) {
+      boardOwnerMap.set(board.subcircuit_id, board);
+    }
+  }
+  const singleBoard = boards.length === 1 ? boards[0] : void 0;
+  const resolvingIds = /* @__PURE__ */ new Set();
+  function resolveBoard(id) {
+    if (boardOwnerMap.has(id)) {
+      return boardOwnerMap.get(id);
+    }
+    if (!parentById.has(id)) {
+      return void 0;
+    }
+    if (resolvingIds.has(id)) {
+      return void 0;
+    }
+    resolvingIds.add(id);
+    const parentId = parentById.get(id);
+    let board = singleBoard;
+    if (parentId) {
+      board = resolveBoard(parentId);
+    }
+    resolvingIds.delete(id);
+    boardOwnerMap.set(id, board);
+    return board;
+  }
+  for (const id of parentById.keys()) {
+    resolveBoard(id);
+  }
+  return boardOwnerMap;
+}
+
+// lib/get-trace-vias.ts
+var DEFAULT_VIA_HOLE_DIAMETER = 0.25;
+var DEFAULT_VIA_OUTER_DIAMETER = 0.6;
+function getTraceVias(elements) {
+  const owners = createBoardOwnerMap([...elements]);
+  const viasByPosition = /* @__PURE__ */ new Map();
+  const positionKey = (id, x, y) => `${owners.get(id)?.pcb_board_id ?? ""}:${x}:${y}`;
+  for (const element of elements) {
+    if (element.type !== "pcb_via") continue;
+    const key = positionKey(element.pcb_via_id, element.x, element.y);
+    const vias = viasByPosition.get(key) ?? [];
+    vias.push(element);
+    viasByPosition.set(key, vias);
+  }
+  const result = [];
+  for (const [index, trace] of elements.entries()) {
+    if (trace.type !== "pcb_trace") continue;
+    const board = owners.get(trace.pcb_trace_id);
+    for (const [routeIndex, point] of trace.route.entries()) {
+      if (point.route_type !== "via") continue;
+      const key = positionKey(trace.pcb_trace_id, point.x, point.y);
+      const vias = viasByPosition.get(key) ?? [];
+      if (vias.some(
+        (via2) => via2.layers.includes(point.from_layer) && via2.layers.includes(point.to_layer)
+      ))
+        continue;
+      const via = {
+        type: "pcb_via",
+        pcb_via_id: `${trace.pcb_trace_id}_route_via_${routeIndex}`,
+        pcb_trace_id: trace.pcb_trace_id,
+        pcb_group_id: trace.pcb_group_id,
+        subcircuit_id: trace.subcircuit_id,
+        x: point.x,
+        y: point.y,
+        layers: [point.from_layer, point.to_layer],
+        hole_diameter: point.hole_diameter ?? board?.min_via_hole_diameter ?? DEFAULT_VIA_HOLE_DIAMETER,
+        outer_diameter: point.outer_diameter ?? board?.min_via_pad_diameter ?? DEFAULT_VIA_OUTER_DIAMETER,
+        tented_on_top: point.tented_on_top,
+        tented_on_bottom: point.tented_on_bottom
+      };
+      result.push([index, via]);
+      vias.push(via);
+      viasByPosition.set(key, vias);
+    }
+  }
+  return result;
+}
+
 // lib/colors.ts
 var rgb = (r, g, b) => [
   r / 255,
@@ -1010,7 +1140,10 @@ function compileCircuitJson(elements, options = {}) {
   const openings = [];
   const keepouts = [];
   const cutouts = [];
-  for (const [index, input] of elements.entries()) {
+  for (const [index, input] of [
+    ...elements.entries(),
+    ...getTraceVias(elements)
+  ]) {
     const e = input, type = e.type;
     try {
       if (type === "pcb_board" || type === "pcb_panel") {

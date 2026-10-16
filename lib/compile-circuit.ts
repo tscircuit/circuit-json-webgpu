@@ -4,6 +4,7 @@ import {
   hasWireTaper,
 } from "./get-wire-taper-polygon"
 import { drawKeepout } from "./draw-keepout"
+import { getTraceVias } from "./get-trace-vias"
 import { drawPcbDimension } from "./pcb-dimension/draw-pcb-dimension"
 import { drawText } from "./text/draw-text"
 import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
@@ -143,7 +144,10 @@ export function compileCircuitJson(
   const openings: { element: Element; index: number; layers: string[] }[] = []
   const keepouts: { rings: Point[][]; index: number; layers: string[] }[] = []
   const cutouts: { rings: Point[][]; index: number }[] = []
-  for (const [index, input] of elements.entries()) {
+  for (const [index, input] of [
+    ...elements.entries(),
+    ...getTraceVias(elements),
+  ]) {
     const e = input as Element,
       type: string = e.type
     try {

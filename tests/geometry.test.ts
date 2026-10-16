@@ -1,5 +1,7 @@
 import { expect, test } from "bun:test"
 import { compileCircuitJson } from "../lib"
+import { getTraceVias } from "../lib/get-trace-vias"
+import type { CircuitJson } from "../lib/types"
 import { drawKeepout } from "../lib/draw-keepout"
 import {
   ellipse,
@@ -405,11 +407,192 @@ test("wire-to-via segments stay on the adjacent layer without bridging other run
       ],
     },
   ] as any)
-  expect(scene.layers.map((l) => l.name).sort()).toEqual(["bottom", "top"])
+  expect(scene.layers.map((l) => l.name).sort()).toEqual([
+    "board",
+    "bottom",
+    "drill",
+    "soldermask_bottom",
+    "soldermask_top",
+    "top",
+  ])
   expect(area(scene.layers.find((l) => l.name === "top")!.paint)).toBeCloseTo(
-    5 + Math.PI / 4,
+    5 + Math.PI / 4 + Math.PI * (0.6 / 2) ** 2,
     1,
   )
+})
+
+const routeViaTrace = {
+  type: "pcb_trace" as const,
+  pcb_trace_id: "route-via-trace",
+  route: [
+    {
+      route_type: "wire" as const,
+      x: -4,
+      y: 0,
+      width: 0.3,
+      layer: "top" as const,
+    },
+    {
+      route_type: "via" as const,
+      x: 0,
+      y: 0,
+      from_layer: "top" as const,
+      to_layer: "bottom" as const,
+      hole_diameter: 1,
+      outer_diameter: 2,
+    },
+    {
+      route_type: "wire" as const,
+      x: 4,
+      y: 0,
+      width: 0.3,
+      layer: "bottom" as const,
+    },
+  ],
+}
+const explicitRouteVia = {
+  type: "pcb_via" as const,
+  pcb_via_id: "explicit-via",
+  x: 0,
+  y: 0,
+  layers: ["top", "bottom"] as ("top" | "bottom")[],
+  hole_diameter: 1,
+  outer_diameter: 2,
+}
+
+test("route vias emit copper, erasures and drills with the parent trace identity", () => {
+  const input = [routeViaTrace]
+  const original = structuredClone(input)
+  const scene = compileCircuitJson(input)
+  const control = compileCircuitJson([routeViaTrace, explicitRouteVia])
+  expect(scene.diagnostics).toEqual([])
+  expect(scene.elementIds).toEqual([routeViaTrace.pcb_trace_id])
+  expect(scene.triangleCount).toBe(control.triangleCount)
+  for (const layer of scene.layers) {
+    const expected = control.layers.find((l) => l.name === layer.name)!
+    for (const mode of ["paint", "erase"] as const) {
+      expect(layer[mode].indices).toEqual(expected[mode].indices)
+      // All geometry is identical except the explicit via's selection index.
+      expect(layer[mode].vertices).toEqual(
+        expected[mode].vertices.map((value, i) => (i % 8 === 6 ? 0 : value)),
+      )
+    }
+  }
+  for (const name of [
+    "top",
+    "bottom",
+    "board",
+    "soldermask_top",
+    "soldermask_bottom",
+  ])
+    expect(
+      scene.layers.find((l) => l.name === name)!.erase.indices.length,
+    ).toBeGreaterThan(0)
+  expect(area(scene.layers.find((l) => l.name === "drill")!.paint)).toBeCloseTo(
+    Math.PI / 4,
+    1,
+  )
+  expect(input).toEqual(original)
+})
+
+test("explicit vias suppress route duplicates regardless of input order", () => {
+  for (const input of [
+    [routeViaTrace, explicitRouteVia],
+    [explicitRouteVia, routeViaTrace],
+  ])
+    expect(getTraceVias(input)).toEqual([])
+  expect(
+    getTraceVias([routeViaTrace, { ...routeViaTrace, pcb_trace_id: "other" }]),
+  ).toHaveLength(1)
+  // A blind via at the same position does not replace a through via.
+  expect(
+    getTraceVias([
+      routeViaTrace,
+      { ...explicitRouteVia, layers: ["top", "inner1"] },
+    ]),
+  ).toHaveLength(1)
+})
+
+test("route via sizes use explicit dimensions, owning board rules, then reference defaults", () => {
+  const board = {
+    type: "pcb_board" as const,
+    pcb_board_id: "board",
+    subcircuit_id: "sub",
+    center: { x: 0, y: 0 },
+    width: 10,
+    height: 10,
+    thickness: 1.6,
+    num_layers: 2,
+    material: "fr4" as const,
+    min_via_hole_diameter: 0.4,
+    min_via_pad_diameter: 0.9,
+  }
+  const trace = {
+    ...routeViaTrace,
+    pcb_group_id: "group",
+    route: [
+      {
+        route_type: "via" as const,
+        x: 0,
+        y: 0,
+        from_layer: "top" as const,
+        to_layer: "bottom" as const,
+      },
+    ],
+  }
+  const context: CircuitJson = [
+    board,
+    {
+      ...board,
+      pcb_board_id: "other-board",
+      subcircuit_id: "other-sub",
+      min_via_hole_diameter: 0.8,
+    },
+    {
+      type: "pcb_group",
+      pcb_group_id: "group",
+      subcircuit_id: "sub",
+      source_group_id: "source",
+      center: { x: 0, y: 0 },
+      anchor_alignment: "center",
+      pcb_component_ids: [],
+    },
+  ]
+  expect(getTraceVias([...context, trace])[0][1]).toMatchObject({
+    hole_diameter: 0.4,
+    outer_diameter: 0.9,
+  })
+  expect(
+    getTraceVias([...context, { ...trace, route: routeViaTrace.route }])[0][1],
+  ).toMatchObject({ hole_diameter: 1, outer_diameter: 2 })
+  expect(getTraceVias([trace])[0][1]).toMatchObject({
+    hole_diameter: 0.25,
+    outer_diameter: 0.6,
+  })
+  expect(
+    getTraceVias([
+      ...context,
+      trace,
+      { ...explicitRouteVia, subcircuit_id: "other-sub" },
+    ]),
+  ).toHaveLength(1)
+})
+
+test("blind route vias erase only their copper layers and do not drill through the board", () => {
+  const scene = compileCircuitJson([
+    {
+      ...routeViaTrace,
+      route: [{ ...routeViaTrace.route[1], to_layer: "inner1" }],
+    },
+  ] as CircuitJson)
+  expect(scene.diagnostics).toEqual([])
+  expect(scene.layers.map((l) => l.name).sort()).toEqual([
+    "inner1",
+    "soldermask_top",
+    "top",
+  ])
+  for (const layer of scene.layers)
+    expect(layer.erase.indices.length).toBeGreaterThan(0)
 })
 
 test("square holes compile, including rotated holes", () => {

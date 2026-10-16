@@ -18,6 +18,9 @@ jobs:
       - name: Install base audit dependencies
         working-directory: .parity-base
         run: |
+          # Both revisions must use the same corrected SVG reference.
+          cp -R ../patches .
+          bun -e 'const pkg = await Bun.file("package.json").json(); pkg.patchedDependencies = (await Bun.file("../package.json").json()).patchedDependencies; await Bun.write("package.json", JSON.stringify(pkg, null, 2));'
           bun install
           svg_reference_version=$(bun -p 'require("../node_modules/circuit-to-svg/package.json").version')
           svg_schema_version=$(bun -p 'require("../node_modules/circuit-json/package.json").version')

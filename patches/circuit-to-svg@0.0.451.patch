@@ -1,0 +1,52 @@
+diff --git a/dist/index.js b/dist/index.js
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1194,7 +1194,7 @@
+   }
+   for (const [index, point] of trace.route.entries()) {
+     if (!point || point.route_type !== "via") continue;
+-    if (getStandaloneViaPositionKeys(ctx).has(getPositionKey(point))) continue;
++    if (hasMatchingStandaloneVia(ctx, trace, point)) continue;
+     svgObjects.push(
+       ...createSvgObjectsFromPcbVia(
+         createSyntheticViaFromRoutePoint(trace, point, index, ctx),
+@@ -1259,8 +1259,8 @@
+     pcb_group_id: trace.pcb_group_id,
+     x: point.x,
+     y: point.y,
+-    outer_diameter: outerDiameter,
+-    hole_diameter: holeDiameter,
++    outer_diameter: parseOptionalDistance(point.outer_diameter) ?? outerDiameter,
++    hole_diameter: parseOptionalDistance(point.hole_diameter) ?? holeDiameter,
+     layers: [point.from_layer, point.to_layer],
+     tented_on_top: point.tented_on_top,
+     tented_on_bottom: point.tented_on_bottom
+@@ -1299,10 +1299,24 @@
+     outerDiameter
+   };
+ }
+-function getStandaloneViaPositionKeys(ctx) {
+-  return ctx.standaloneViaPositionKeys ??= new Set(
+-    ctx.circuitJson?.filter((elm) => elm.type === "pcb_via").map((via) => getPositionKey(via)) ?? []
+-  );
++function hasMatchingStandaloneVia(ctx, trace, point) {
++  const keyFor = (id, position) => JSON.stringify([
++    ctx.boardOwnerMap?.get(id)?.pcb_board_id,
++    getPositionKey(position)
++  ]);
++  if (!ctx.standaloneViasByPosition) {
++    ctx.standaloneViasByPosition = new Map();
++    for (const via of ctx.circuitJson ?? []) {
++      if (via.type !== "pcb_via") continue;
++      const key = keyFor(via.pcb_via_id, via);
++      const vias = ctx.standaloneViasByPosition.get(key) ?? [];
++      vias.push(via);
++      ctx.standaloneViasByPosition.set(key, vias);
++    }
++  }
++  return ctx.standaloneViasByPosition.get(keyFor(trace.pcb_trace_id, point))?.some(
++    (via) => via.layers.includes(point.from_layer) && via.layers.includes(point.to_layer)
++  ) ?? false;
+ }
+ function getPositionKey(point) {
+   const x = parseOptionalDistance(point.x);
