@@ -4,6 +4,7 @@ import {
   hasWireTaper,
 } from "./get-wire-taper-polygon"
 import { drawKeepout } from "./draw-keepout"
+import { drawPcbBend } from "./draw-pcb-bend"
 import { drawPcbDimension } from "./pcb-dimension/draw-pcb-dimension"
 import { drawText } from "./text/draw-text"
 import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
@@ -121,6 +122,11 @@ export function compileCircuitJson(
   const board = elements.find((e) => e.type === "pcb_board") as
     | Element
     | undefined
+  const boards = new Map(
+    elements
+      .filter((e) => e.type === "pcb_board")
+      .map((e) => [e.pcb_board_id, e]),
+  )
   const copper = [
     "top",
     ...Array.from(
@@ -153,6 +159,11 @@ export function compileCircuitJson(
         for (const ring of rings) get("edge_cuts", index).path(ring, 0.1, true)
         for (const side of ["top", "bottom"])
           get(`soldermask_${side}`, index).polygon(rings)
+      } else if (input.type === "pcb_bend") {
+        const owner = boards.get(input.pcb_board_id)
+        // Match the flat SVG view: an absent owner has no resolvable placement.
+        if (owner)
+          drawPcbBend(get("bend", index), input, owner, options.textYAxis)
       } else if (type === "pcb_cutout") {
         cutouts.push({ rings: shape(e), index })
         get("edge_cuts", index).path(shape(e)[0], 0.05, true)
@@ -385,7 +396,7 @@ export function compileCircuitJson(
   for (const { rings, index } of cutouts) {
     get("drill", index).polygon(rings)
     for (const name of builders.keys())
-      if (name !== "edge_cuts" && name !== "drill")
+      if (name !== "edge_cuts" && name !== "drill" && name !== "bend")
         get(name, index, true).polygon(rings)
   }
   const layers = [...builders].map(([name, mesh]) => ({

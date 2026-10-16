@@ -369,6 +369,7 @@ export class CircuitToWebGpuDrawer {
         if (filter && !filter.has(l.name)) return false
         if (xRayActive && !this.isCopper(l.name)) return false
         if (l.name === "board" && !o.showBoardMaterial) return false
+        if (l.name === "bend" && !o.showBendLines) return false
         if (
           l.name.startsWith("soldermask_") &&
           (!o.showSolderMask || l.name !== `soldermask_${selected}`)
@@ -478,7 +479,7 @@ export class CircuitToWebGpuDrawer {
     return /^(top|bottom|inner\d+)$/.test(layer)
   }
   private opacity(layer: string, selected: string, hidden: number) {
-    return ["board", "drill", "edge_cuts"].includes(layer) ||
+    return ["board", "drill", "edge_cuts", "bend"].includes(layer) ||
       layer === selected ||
       layer.startsWith(`${selected}_`) ||
       layer.endsWith(`_${selected}`)
@@ -493,6 +494,7 @@ export class CircuitToWebGpuDrawer {
     return 40
   }
   private order(layer: string, selected: string) {
+    if (layer === "bend") return 300
     if (layer === "board") return -100
     if (layer === "drill") return 200
     if (layer === "edge_cuts") return 150

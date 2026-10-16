@@ -278,65 +278,8 @@ function drawKeepout(mesh, rings) {
   mesh.color = copperColor;
 }
 
-// lib/colors.ts
-var rgb = (r, g, b) => [
-  r / 255,
-  g / 255,
-  b / 255,
-  1
-];
-var DEFAULT_LAYER_COLORS = {
-  board: rgb(70, 72, 72),
-  top: rgb(200, 52, 52),
-  bottom: rgb(77, 127, 196),
-  inner1: rgb(127, 200, 127),
-  inner2: rgb(206, 125, 44),
-  inner3: rgb(79, 203, 203),
-  inner4: rgb(219, 98, 139),
-  inner5: rgb(167, 165, 198),
-  inner6: rgb(40, 204, 217),
-  inner7: rgb(232, 178, 167),
-  inner8: rgb(242, 237, 161),
-  drill: rgb(255, 38, 226),
-  top_silkscreen: rgb(242, 237, 161),
-  bottom_silkscreen: rgb(242, 237, 161),
-  soldermask_top: rgb(12, 55, 33),
-  soldermask_bottom: rgb(12, 55, 33),
-  top_fabrication: [1, 1, 1, 0.5],
-  bottom_fabrication: [1, 1, 1, 0.5],
-  top_notes: rgb(89, 148, 220),
-  bottom_notes: rgb(89, 148, 220),
-  top_courtyard: rgb(255, 0, 245),
-  bottom_courtyard: rgb(38, 233, 255),
-  edge_cuts: rgb(208, 210, 205)
-};
-var normalizeLayer = (layer) => layer.replace(/_copper$/, "");
-function parseColor(value) {
-  const hex = value.match(/^#([0-9a-f]{3,8})$/i)?.[1];
-  if (hex) {
-    const full = hex.length <= 4 ? [...hex].map((c) => c + c).join("") : hex;
-    if (full.length !== 6 && full.length !== 8)
-      throw new Error(`Unsupported color: ${value}`);
-    return [
-      parseInt(full.slice(0, 2), 16) / 255,
-      parseInt(full.slice(2, 4), 16) / 255,
-      parseInt(full.slice(4, 6), 16) / 255,
-      full.length === 8 ? parseInt(full.slice(6), 16) / 255 : 1
-    ];
-  }
-  const match = value.match(/^rgba?\(([^)]+)\)$/);
-  if (match) {
-    const channels = match[1].split(",").map((v) => Number(v.trim()));
-    if ((channels.length === 3 || channels.length === 4) && channels.every(Number.isFinite))
-      return [
-        channels[0] / 255,
-        channels[1] / 255,
-        channels[2] / 255,
-        channels[3] ?? 1
-      ];
-  }
-  throw new Error(`Unsupported color: ${value}`);
-}
+// lib/draw-pcb-bend.ts
+import { glyphAdvanceRatio as glyphAdvanceRatio2, textMetrics as textMetrics2 } from "@tscircuit/alphabet";
 
 // lib/text/fill-even-odd.ts
 function contains(ring, p) {
@@ -634,6 +577,125 @@ function drawText(mesh, e, yAxis = "up") {
       mesh,
       group.map((ring) => ring.map(transform2))
     );
+}
+
+// lib/draw-pcb-bend.ts
+var LABEL = "BEND LINE";
+var LABEL_WIDTH = Array.from(LABEL).reduce(
+  (width, character) => width + (glyphAdvanceRatio2[character] ?? textMetrics2.spaceWidthRatio),
+  0
+);
+function drawPcbBend(mesh, bend, board, textYAxis = "up") {
+  const start = {
+    x: board.center.x + bend.start.x,
+    y: board.center.y + bend.start.y
+  };
+  const end = {
+    x: board.center.x + bend.end.x,
+    y: board.center.y + bend.end.y
+  };
+  const dx = end.x - start.x, dy = end.y - start.y, length = Math.hypot(dx, dy);
+  if (![start.x, start.y, end.x, end.y, length].every(Number.isFinite) || length === 0)
+    throw new Error("Bend centerline endpoints must be finite and distinct");
+  const ux = dx / length, uy = dy / length, rotation = Math.atan2(dy, dx) * 180 / Math.PI;
+  for (let offset2 = 0; offset2 < length; offset2 += 0.75 + 0.4) {
+    const stop = Math.min(offset2 + 0.75, length);
+    const midpoint2 = (offset2 + stop) / 2;
+    mesh.polygon([
+      rectangle(
+        {
+          x: start.x + ux * midpoint2,
+          y: start.y + uy * midpoint2
+        },
+        stop - offset2,
+        0.15,
+        0,
+        rotation
+      )
+    ]);
+  }
+  const ySign = textYAxis === "up" ? -1 : 1;
+  let angle = Math.atan2(ySign * dy, dx);
+  if (angle >= Math.PI / 2) angle -= Math.PI;
+  if (angle < -Math.PI / 2) angle += Math.PI;
+  const fontSize = Math.min(0.5, length * 0.8 / LABEL_WIDTH);
+  const offset = fontSize * 0.6 + 0.2;
+  drawText(
+    mesh,
+    {
+      type: "pcb_bend_label",
+      text: LABEL,
+      font_size: fontSize,
+      anchor_alignment: "center",
+      anchor_position: {
+        x: (start.x + end.x) / 2 + Math.sin(angle) * offset,
+        y: (start.y + end.y) / 2 - ySign * Math.cos(angle) * offset
+      },
+      ccw_rotation: -angle * 180 / Math.PI
+    },
+    textYAxis
+  );
+}
+
+// lib/colors.ts
+var rgb = (r, g, b) => [
+  r / 255,
+  g / 255,
+  b / 255,
+  1
+];
+var DEFAULT_LAYER_COLORS = {
+  board: rgb(70, 72, 72),
+  top: rgb(200, 52, 52),
+  bottom: rgb(77, 127, 196),
+  inner1: rgb(127, 200, 127),
+  inner2: rgb(206, 125, 44),
+  inner3: rgb(79, 203, 203),
+  inner4: rgb(219, 98, 139),
+  inner5: rgb(167, 165, 198),
+  inner6: rgb(40, 204, 217),
+  inner7: rgb(232, 178, 167),
+  inner8: rgb(242, 237, 161),
+  drill: rgb(255, 38, 226),
+  top_silkscreen: rgb(242, 237, 161),
+  bottom_silkscreen: rgb(242, 237, 161),
+  soldermask_top: rgb(12, 55, 33),
+  soldermask_bottom: rgb(12, 55, 33),
+  top_fabrication: [1, 1, 1, 0.5],
+  bottom_fabrication: [1, 1, 1, 0.5],
+  top_notes: rgb(89, 148, 220),
+  bottom_notes: rgb(89, 148, 220),
+  top_courtyard: rgb(255, 0, 245),
+  bottom_courtyard: rgb(38, 233, 255),
+  edge_cuts: rgb(208, 210, 205),
+  bend: rgb(255, 213, 79)
+};
+var normalizeLayer = (layer) => layer.replace(/_copper$/, "");
+function parseColor(value) {
+  const hex = value.match(/^#([0-9a-f]{3,8})$/i)?.[1];
+  if (hex) {
+    const full = hex.length <= 4 ? [...hex].map((c) => c + c).join("") : hex;
+    if (full.length !== 6 && full.length !== 8)
+      throw new Error(`Unsupported color: ${value}`);
+    return [
+      parseInt(full.slice(0, 2), 16) / 255,
+      parseInt(full.slice(2, 4), 16) / 255,
+      parseInt(full.slice(4, 6), 16) / 255,
+      full.length === 8 ? parseInt(full.slice(6), 16) / 255 : 1
+    ];
+  }
+  const match = value.match(/^rgba?\(([^)]+)\)$/);
+  if (match) {
+    const channels = match[1].split(",").map((v) => Number(v.trim()));
+    if ((channels.length === 3 || channels.length === 4) && channels.every(Number.isFinite))
+      return [
+        channels[0] / 255,
+        channels[1] / 255,
+        channels[2] / 255,
+        channels[3] ?? 1
+      ];
+  }
+  throw new Error(`Unsupported color: ${value}`);
 }
 
 // node_modules/@tscircuit/math-utils/dist/chunk-5J3PCV4D.js
@@ -989,6 +1051,9 @@ function compileCircuitJson(elements, options = {}) {
   const builders = /* @__PURE__ */ new Map();
   const diagnostics = [], elementIds = elements.map(getElementId);
   const board = elements.find((e) => e.type === "pcb_board");
+  const boards = new Map(
+    elements.filter((e) => e.type === "pcb_board").map((e) => [e.pcb_board_id, e])
+  );
   const copper = [
     "top",
     ...Array.from(
@@ -1019,6 +1084,10 @@ function compileCircuitJson(elements, options = {}) {
         for (const ring of rings) get("edge_cuts", index).path(ring, 0.1, true);
         for (const side of ["top", "bottom"])
           get(`soldermask_${side}`, index).polygon(rings);
+      } else if (input.type === "pcb_bend") {
+        const owner = boards.get(input.pcb_board_id);
+        if (owner)
+          drawPcbBend(get("bend", index), input, owner, options.textYAxis);
       } else if (type === "pcb_cutout") {
         cutouts.push({ rings: shape(e), index });
         get("edge_cuts", index).path(shape(e)[0], 0.05, true);
@@ -1212,7 +1281,7 @@ function compileCircuitJson(elements, options = {}) {
   for (const { rings, index } of cutouts) {
     get("drill", index).polygon(rings);
     for (const name of builders.keys())
-      if (name !== "edge_cuts" && name !== "drill")
+      if (name !== "edge_cuts" && name !== "drill" && name !== "bend")
         get(name, index, true).polygon(rings);
   }
   const layers = [...builders].map(([name, mesh]) => ({
@@ -1612,6 +1681,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
       if (filter && !filter.has(l.name)) return false;
       if (xRayActive && !this.isCopper(l.name)) return false;
       if (l.name === "board" && !o.showBoardMaterial) return false;
+      if (l.name === "bend" && !o.showBendLines) return false;
       if (l.name.startsWith("soldermask_") && (!o.showSolderMask || l.name !== `soldermask_${selected}`))
         return false;
       if (l.name.includes("silkscreen") && o.showSilkscreen === false)
@@ -1699,7 +1769,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
     return /^(top|bottom|inner\d+)$/.test(layer);
   }
   opacity(layer, selected, hidden) {
-    return ["board", "drill", "edge_cuts"].includes(layer) || layer === selected || layer.startsWith(`${selected}_`) || layer.endsWith(`_${selected}`) ? 1 : Math.max(0, Math.min(1, hidden));
+    return ["board", "drill", "edge_cuts", "bend"].includes(layer) || layer === selected || layer.startsWith(`${selected}_`) || layer.endsWith(`_${selected}`) ? 1 : Math.max(0, Math.min(1, hidden));
   }
   xRayOrder(layer, selected) {
     if (layer === "drill") return 200;
@@ -1709,6 +1779,7 @@ var CircuitToWebGpuDrawer = class _CircuitToWebGpuDrawer {
     return 40;
   }
   order(layer, selected) {
+    if (layer === "bend") return 300;
     if (layer === "board") return -100;
     if (layer === "drill") return 200;
     if (layer === "edge_cuts") return 150;

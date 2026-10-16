@@ -29,6 +29,7 @@ export const DEFAULT_LAYER_COLORS: Record<string, Color> = {
   top_courtyard: rgb(255, 0, 245),
   bottom_courtyard: rgb(38, 233, 255),
   edge_cuts: rgb(208, 210, 205),
+  bend: rgb(255, 213, 79),
 }
 export const normalizeLayer = (layer: string) => layer.replace(/_copper$/, "")
 

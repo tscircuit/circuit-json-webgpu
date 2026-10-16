@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test"
-import { compileCircuitJson } from "../lib"
-import type { CircuitJson } from "../lib"
+import type { PcbBend, PcbBoard } from "circuit-json"
+import { compileCircuitJson, type CircuitJson } from "../lib"
 import { drawKeepout } from "../lib/draw-keepout"
 import {
   ellipse,
@@ -26,21 +26,133 @@ function area(mesh: ReturnType<MeshBuilder["build"]>) {
   return area
 }
 
-test("PCB bends produce unsupported-element diagnostics without drawing their centerlines", () => {
-  const scene = compileCircuitJson(pcbBend as CircuitJson)
-  expect(scene.diagnostics).toEqual([
+test("PCB bends render on their owning boards without changing the flat board geometry", () => {
+  const elements = pcbBend as CircuitJson
+  const before = structuredClone(elements)
+  const scene = compileCircuitJson(elements)
+  expect(scene.diagnostics).toEqual([])
+  const mesh = scene.layers.find((layer) => layer.name === "bend")!.paint
+  const vertices = Array.from({ length: mesh.vertices.length / 8 }, (_, i) => [
+    ...mesh.vertices.slice(i * 8, i * 8 + 8),
+  ])
+  const horizontal = vertices.filter(
+    (v) => scene.elementIds[v[6]] === "horizontal",
+  )
+  const vertical = vertices.filter((v) => scene.elementIds[v[6]] === "vertical")
+  expect(horizontal.length).toBeGreaterThan(0)
+  expect(vertical.length).toBeGreaterThan(0)
+  expect(Math.min(...horizontal.map((v) => v[0]))).toBeCloseTo(-20)
+  expect(Math.max(...horizontal.map((v) => v[0]))).toBeCloseTo(-4.3)
+  expect(Math.min(...vertical.map((v) => v[1]))).toBeCloseTo(-8)
+  expect(Math.max(...vertical.map((v) => v[1]))).toBeCloseTo(7.7)
+  expect(Math.max(...vertical.map((v) => v[0]))).toBeCloseTo(16.075)
+  expect([...mesh.vertices.slice(2, 6)]).toEqual([
+    1,
+    Math.fround(213 / 255),
+    Math.fround(79 / 255),
+    1,
+  ])
+  const flat = compileCircuitJson(elements.filter((e) => e.type !== "pcb_bend"))
+  expect(scene.layers.filter((layer) => layer.name !== "bend")).toEqual(
+    flat.layers,
+  )
+  expect(elements).toEqual(before)
+})
+
+const bendBoard = pcbBend[0] as PcbBoard
+const horizontalBend = pcbBend[2] as PcbBend
+
+test("bend labels stay on the same side when horizontal, vertical, and diagonal endpoints reverse", () => {
+  for (const end of [
+    { x: 8, y: 6 },
+    { x: -8, y: -6 },
+    { x: 8, y: -6 },
+  ]) {
+    for (const textYAxis of ["up", "down"] as const) {
+      const bend = { ...horizontalBend, end }
+      const dx = end.x - bend.start.x,
+        dy = end.y - bend.start.y
+      const labelVertices = (input: PcbBend) => {
+        const mesh = compileCircuitJson([input, bendBoard], {
+          textYAxis,
+        }).layers.find((layer) => layer.name === "bend")!.paint
+        const points = []
+        for (let i = 0; i < mesh.vertices.length; i += 8) {
+          const x = mesh.vertices[i],
+            y = mesh.vertices[i + 1]
+          const distance =
+            Math.abs(dx * (y - 6) - dy * (x + 20)) / Math.hypot(dx, dy)
+          if (distance > 0.1) points.push([x, y])
+        }
+        return points
+      }
+      const forward = labelVertices(bend)
+      expect(forward.length).toBeGreaterThan(0)
+      expect(
+        labelVertices({ ...bend, start: bend.end, end: bend.start }),
+      ).toEqual(forward)
+    }
+  }
+})
+
+test("short zero-angle bends fit their dash and label inside the finite segment", () => {
+  const scene = compileCircuitJson([
+    bendBoard,
     {
-      elementId: "horizontal",
-      type: "pcb_bend",
-      message: "Error: Unsupported PCB element",
-    },
-    {
-      elementId: "vertical",
-      type: "pcb_bend",
-      message: "Error: Unsupported PCB element",
+      ...horizontalBend,
+      start: { x: 0, y: 0 },
+      end: { x: 0.5, y: 0 },
+      bend_angle: 0,
     },
   ])
-  expect(scene.layers.some((layer) => layer.name === "bend")).toBe(false)
+  expect(scene.diagnostics).toEqual([])
+  const mesh = scene.layers.find((layer) => layer.name === "bend")!.paint
+  const xs = [...mesh.vertices].filter((_, i) => i % 8 === 0)
+  expect(Math.min(...xs)).toBeCloseTo(-12)
+  expect(Math.max(...xs)).toBeCloseTo(-11.5)
+  expect(area(mesh)).toBeGreaterThan(0.5 * 0.15)
+})
+
+test("bends with missing board references are omitted like the SVG overlay", () => {
+  const scene = compileCircuitJson([horizontalBend])
+  expect(scene.diagnostics).toEqual([])
+  expect(scene.triangleCount).toBe(0)
+})
+
+test("invalid bend centerlines report diagnostics", () => {
+  for (const end of [
+    horizontalBend.start,
+    { x: Number.NaN, y: 0 },
+    { x: Infinity, y: 0 },
+  ]) {
+    const scene = compileCircuitJson([bendBoard, { ...horizontalBend, end }])
+    expect(scene.diagnostics).toEqual([
+      {
+        elementId: "horizontal",
+        type: "pcb_bend",
+        message: "Error: Bend centerline endpoints must be finite and distinct",
+      },
+    ])
+  }
+})
+
+test("cutouts do not erase the mechanical bend overlay", () => {
+  const scene = compileCircuitJson([
+    bendBoard,
+    horizontalBend,
+    {
+      type: "pcb_cutout",
+      pcb_cutout_id: "cut",
+      shape: "rect",
+      center: { x: -12, y: 6 },
+      width: 2,
+      height: 2,
+    },
+  ])
+  expect(scene.diagnostics).toEqual([])
+  expect(
+    scene.layers.find((layer) => layer.name === "bend")!.erase.indices.length,
+  ).toBe(0)
 })
 
 test("through-pad layer transitions connect each wire to its pad anchor", () => {
