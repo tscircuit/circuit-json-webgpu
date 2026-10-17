@@ -617,26 +617,67 @@ try {
   assert(pcbBendScene)
   const pcbBend = await page.evaluate((scene) => {
     const drawer = window.gpuTest.drawer
-    const options = {
+    const canvas = document.querySelector("canvas")!
+    const capture = () => canvas.toDataURL("image/png").split(",")[1]
+    drawer.drawElements(scene.elements as unknown as CircuitJson, {
       transform: scene.transform,
-      showBendLines: true,
       selectedLayer: "top",
       hiddenLayerOpacity: 0,
-      background: [0, 0, 0, 1] as const,
-    }
-    drawer.drawElements(scene.elements as unknown as CircuitJson, options)
+      background: [0, 0, 0, 1],
+    })
+    const hidden = capture()
+    const uploads = drawer.stats.geometryUploads
+    drawer.render({ showBendLines: true })
+    const top = capture()
+    drawer.render({ selectedLayer: "bottom" })
+    const bottom = capture()
+    drawer.render({ layers: ["top", "edge_cuts"] })
+    const filtered = capture()
+    drawer.render({ layers: undefined, showBendLines: false })
+    const disabled = capture()
+    drawer.render({ showBendLines: true, selectedLayer: "top" })
     return {
       diagnostics: drawer.diagnostics,
-      png: document
-        .querySelector("canvas")!
-        .toDataURL("image/png")
-        .split(",")[1],
+      hidden,
+      top,
+      bottom,
+      filtered,
+      disabled,
+      geometryUploads: drawer.stats.geometryUploads - uploads,
     }
   }, pcbBendScene)
   assert.deepEqual(pcbBend.diagnostics, [])
-  // The owning boards remain, but neither bend centerline is rendered.
-  assert.deepEqual(pixel(pcbBend.png, 123, 215), [0, 0, 0, 255])
-  assert.deepEqual(pixel(pcbBend.png, 623, 408), [0, 0, 0, 255])
+  for (const png of [
+    pcbBend.hidden,
+    pcbBend.top,
+    pcbBend.bottom,
+    pcbBend.filtered,
+    pcbBend.disabled,
+  ]) {
+    assert(pixel(png, 92, 200)[0] > 0, "Left board outline remains visible")
+    assert(pixel(png, 428, 200)[0] > 0, "Right board outline remains visible")
+  }
+  for (const png of [pcbBend.top, pcbBend.bottom]) {
+    assert.deepEqual(pixel(png, 123, 215), [255, 213, 79, 255])
+    assert.deepEqual(pixel(png, 623, 408), [255, 213, 79, 255])
+    assert.deepEqual(pixel(png, 133, 215), [0, 0, 0, 255], "Bend dash gap")
+    assert.deepEqual(pixel(png, 118, 215), [0, 0, 0, 255], "Finite bend start")
+    assert.deepEqual(pixel(png, 346, 215), [0, 0, 0, 255], "Finite bend end")
+  }
+  for (const png of [pcbBend.hidden, pcbBend.filtered, pcbBend.disabled]) {
+    assert.deepEqual(pixel(png, 123, 215), [0, 0, 0, 255])
+    assert.deepEqual(pixel(png, 623, 408), [0, 0, 0, 255])
+  }
+  assert.equal(
+    pcbBend.top,
+    pcbBend.bottom,
+    "Bend labels are independent of the selected copper side",
+  )
+  assert.equal(
+    pcbBend.geometryUploads,
+    0,
+    "Bend visibility reuses retained geometry",
+  )
   const pcbBendSvg = convertCircuitJsonToPcbSvg(
     pcbBendScene.elements as Parameters<typeof convertCircuitJsonToPcbSvg>[0],
     {
@@ -682,7 +723,7 @@ try {
       await featureSnapshot(
         "pcb-bend",
         pcbBendReference,
-        PNG.sync.read(Buffer.from(pcbBend.png, "base64")),
+        PNG.sync.read(Buffer.from(pcbBend.top, "base64")),
         "pcb-bend",
       )
     ).pass,

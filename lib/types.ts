@@ -25,6 +25,7 @@ export type RenderOptions = {
   showFabricationNotes?: boolean
   showPcbNotes?: boolean
   showCourtyards?: boolean
+  showBendLines?: boolean
   highlightedElementIds?: readonly string[]
   /** Copper belonging to an inspected net. Supply resolved PCB element IDs.
    * Selected copper is opaque on every layer; other copper uses hiddenLayerOpacity.

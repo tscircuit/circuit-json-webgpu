@@ -1,3 +1,4 @@
+import { glyphAdvanceRatio, textMetrics } from "@tscircuit/alphabet"
 import {
   getWireTaperPolygon,
   getWireTaperSegments,
@@ -15,6 +16,13 @@ import {
   rotate,
 } from "./geometry"
 import type { CircuitJson, CompiledScene, Diagnostic, Point } from "./types"
+
+const BEND_LABEL = "BEND LINE"
+const BEND_LABEL_WIDTH = Array.from(BEND_LABEL).reduce(
+  (width, character) =>
+    width + (glyphAdvanceRatio[character] ?? textMetrics.spaceWidthRatio),
+  0,
+)
 
 type Element = Record<string, any>
 export function getElementId(element: Element, index = 0): string {
@@ -121,6 +129,11 @@ export function compileCircuitJson(
   const board = elements.find((e) => e.type === "pcb_board") as
     | Element
     | undefined
+  const boards = new Map(
+    elements
+      .filter((e) => e.type === "pcb_board")
+      .map((e) => [e.pcb_board_id, e]),
+  )
   const copper = [
     "top",
     ...Array.from(
@@ -153,6 +166,76 @@ export function compileCircuitJson(
         for (const ring of rings) get("edge_cuts", index).path(ring, 0.1, true)
         for (const side of ["top", "bottom"])
           get(`soldermask_${side}`, index).polygon(rings)
+      } else if (input.type === "pcb_bend") {
+        const owner = boards.get(input.pcb_board_id)
+        // Match the flat SVG view: an absent owner has no resolvable placement.
+        if (!owner) continue
+        const mesh = get("bend", index)
+        // Endpoints are relative to the owning board center. Group transforms
+        // have already been resolved by the producer.
+        const start = {
+          x: owner.center.x + input.start.x,
+          y: owner.center.y + input.start.y,
+        }
+        const end = {
+          x: owner.center.x + input.end.x,
+          y: owner.center.y + input.end.y,
+        }
+        const dx = end.x - start.x,
+          dy = end.y - start.y,
+          length = Math.hypot(dx, dy)
+        if (
+          ![start.x, start.y, end.x, end.y, length].every(Number.isFinite) ||
+          length === 0
+        )
+          throw new Error(
+            "Bend centerline endpoints must be finite and distinct",
+          )
+
+        const ux = dx / length,
+          uy = dy / length,
+          rotation = (Math.atan2(dy, dx) * 180) / Math.PI
+        // Butt caps keep each dash inside the finite segment, including short bends.
+        for (let offset = 0; offset < length; offset += 0.75 + 0.4) {
+          const stop = Math.min(offset + 0.75, length)
+          const midpoint = (offset + stop) / 2
+          mesh.polygon([
+            rectangle(
+              {
+                x: start.x + ux * midpoint,
+                y: start.y + uy * midpoint,
+              },
+              stop - offset,
+              0.15,
+              0,
+              rotation,
+            ),
+          ])
+        }
+
+        // Keep the label upright and on the same side when endpoints reverse.
+        const textYAxis = options.textYAxis ?? "up"
+        const ySign = textYAxis === "up" ? -1 : 1
+        let angle = Math.atan2(ySign * dy, dx)
+        if (angle >= Math.PI / 2) angle -= Math.PI
+        if (angle < -Math.PI / 2) angle += Math.PI
+        const fontSize = Math.min(0.5, (length * 0.8) / BEND_LABEL_WIDTH)
+        const offset = fontSize * 0.6 + 0.2
+        drawText(
+          mesh,
+          {
+            type: "pcb_bend_label",
+            text: BEND_LABEL,
+            font_size: fontSize,
+            anchor_alignment: "center",
+            anchor_position: {
+              x: (start.x + end.x) / 2 + Math.sin(angle) * offset,
+              y: (start.y + end.y) / 2 - ySign * Math.cos(angle) * offset,
+            },
+            ccw_rotation: (-angle * 180) / Math.PI,
+          },
+          textYAxis,
+        )
       } else if (type === "pcb_cutout") {
         cutouts.push({ rings: shape(e), index })
         get("edge_cuts", index).path(shape(e)[0], 0.05, true)
@@ -345,8 +428,7 @@ export function compileCircuitJson(
           "pcb_trace_hint",
           "pcb_anchor",
           "pcb_breakout_point", // Routing target metadata, not visible geometry.
-          // Mechanical flex elements are not drawn in circuit-to-canvas's 2D view.
-          "pcb_bend",
+          // Stiffeners are not drawn in the flat PCB view.
           "pcb_stiffener",
         ].includes(type) &&
         !/_(error|warning)$/.test(type)
@@ -388,7 +470,7 @@ export function compileCircuitJson(
   for (const { rings, index } of cutouts) {
     get("drill", index).polygon(rings)
     for (const name of builders.keys())
-      if (name !== "edge_cuts" && name !== "drill")
+      if (name !== "edge_cuts" && name !== "drill" && name !== "bend")
         get(name, index, true).polygon(rings)
   }
   const layers = [...builders].map(([name, mesh]) => ({
