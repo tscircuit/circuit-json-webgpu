@@ -4,6 +4,8 @@ import {
   hasWireTaper,
 } from "./get-wire-taper-polygon"
 import { drawKeepout } from "./draw-keepout"
+import { buildTracePolygon } from "circuit-to-canvas/lib/drawer/elements/pcb-trace/build-trace-polygon"
+import { getInterpolatedWireRuns } from "./get-interpolated-wire-runs"
 import { drawPcbDimension } from "./pcb-dimension/draw-pcb-dimension"
 import { drawText } from "./text/draw-text"
 import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
@@ -182,18 +184,10 @@ export function compileCircuitJson(
         })
       } else if (input.type === "pcb_trace") {
         const route = input.route
-        if (
-          input.route_thickness_mode === "interpolated" &&
-          route.some(
-            (p, i) =>
-              p.route_type === "wire" &&
-              !hasWireTaper(p) &&
-              route[i + 1]?.route_type === "wire",
-          )
-        )
-          throw new Error(
-            "Interpolated/through-pad traces are not supported yet",
-          )
+        const interpolated = input.route_thickness_mode === "interpolated"
+        if (interpolated)
+          for (const run of getInterpolatedWireRuns(route))
+            get(run[0].layer, index).polygon([buildTracePolygon(run)])
         for (const point of getWireTaperSegments(route)) {
           const polygon = getWireTaperPolygon(point)
           if (!polygon.length)
@@ -209,6 +203,12 @@ export function compileCircuitJson(
           let a = route[i - 1],
             b = route[i]
           if (hasWireTaper(a)) continue
+          if (
+            interpolated &&
+            a.route_type === "wire" &&
+            b.route_type === "wire"
+          )
+            continue // These segments belong to the continuous polygon above.
           if (a.route_type === "through_pad")
             a = {
               route_type: "wire",

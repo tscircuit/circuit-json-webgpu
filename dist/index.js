@@ -278,6 +278,104 @@ function drawKeepout(mesh, rings) {
   mesh.color = copperColor;
 }
 
+// node_modules/circuit-to-canvas/lib/drawer/elements/pcb-trace/normalize-trace-direction.ts
+function normalizeTraceDirection(x, y) {
+  const length = Math.hypot(x, y);
+  if (length <= Number.EPSILON) return { x: 0, y: 0 };
+  return { x: x / length, y: y / length };
+}
+
+// node_modules/circuit-to-canvas/lib/drawer/elements/pcb-trace/get-trace-direction-at.ts
+function getTraceDirectionAt(points, index) {
+  const count = points.length;
+  if (count < 2) return { x: 1, y: 0 };
+  if (index <= 0) {
+    const next2 = points[1];
+    const current2 = points[0];
+    if (!next2 || !current2) return { x: 1, y: 0 };
+    const dir = normalizeTraceDirection(next2.x - current2.x, next2.y - current2.y);
+    return dir.x === 0 && dir.y === 0 ? { x: 1, y: 0 } : dir;
+  }
+  if (index >= count - 1) {
+    const prev2 = points[count - 2];
+    const current2 = points[count - 1];
+    if (!prev2 || !current2) return { x: 1, y: 0 };
+    const dir = normalizeTraceDirection(current2.x - prev2.x, current2.y - prev2.y);
+    return dir.x === 0 && dir.y === 0 ? { x: 1, y: 0 } : dir;
+  }
+  const prev = points[index - 1];
+  const current = points[index];
+  const next = points[index + 1];
+  if (!prev || !current || !next) return { x: 1, y: 0 };
+  const prevDir = normalizeTraceDirection(
+    current.x - prev.x,
+    current.y - prev.y
+  );
+  const nextDir = normalizeTraceDirection(
+    next.x - current.x,
+    next.y - current.y
+  );
+  const sum = normalizeTraceDirection(
+    prevDir.x + nextDir.x,
+    prevDir.y + nextDir.y
+  );
+  if (sum.x === 0 && sum.y === 0) {
+    if (prevDir.x !== 0 || prevDir.y !== 0) return prevDir;
+    if (nextDir.x !== 0 || nextDir.y !== 0) return nextDir;
+    return { x: 1, y: 0 };
+  }
+  return sum;
+}
+
+// node_modules/circuit-to-canvas/lib/drawer/elements/pcb-trace/build-trace-polygon.ts
+function buildTracePolygon(points) {
+  const left = [];
+  const right = [];
+  for (let i = 0; i < points.length; i++) {
+    const point = points[i];
+    if (!point) continue;
+    const dir = getTraceDirectionAt(points, i);
+    const normal = normalizeTraceDirection(-dir.y, dir.x);
+    const offset = point.width / 2;
+    left.push({
+      x: point.x + normal.x * offset,
+      y: point.y + normal.y * offset
+    });
+    right.push({
+      x: point.x - normal.x * offset,
+      y: point.y - normal.y * offset
+    });
+  }
+  return left.concat(right.reverse());
+}
+
+// lib/get-interpolated-wire-runs.ts
+function getInterpolatedWireRuns(route) {
+  const runs = [];
+  let run = [];
+  for (const point of route) {
+    if (point.route_type !== "wire") {
+      run = flushInterpolatedWireRun({ run, runs });
+      continue;
+    }
+    if (![point.x, point.y, point.width].every(Number.isFinite) || point.width < 0)
+      throw new Error("Invalid interpolated trace coordinates or width");
+    if (run.length && run[0].layer !== point.layer)
+      run = flushInterpolatedWireRun({ run, runs });
+    run.push(point);
+    if (hasWireTaper(point)) run = flushInterpolatedWireRun({ run, runs });
+  }
+  flushInterpolatedWireRun({ run, runs });
+  return runs;
+}
+function flushInterpolatedWireRun({
+  run,
+  runs
+}) {
+  if (run.length >= 2) runs.push(run);
+  return [];
+}
+
 // lib/colors.ts
 var rgb = (r, g, b) => [
   r / 255,
@@ -1047,12 +1145,10 @@ function compileCircuitJson(elements, options = {}) {
         });
       } else if (input.type === "pcb_trace") {
         const route = input.route;
-        if (input.route_thickness_mode === "interpolated" && route.some(
-          (p, i) => p.route_type === "wire" && !hasWireTaper(p) && route[i + 1]?.route_type === "wire"
-        ))
-          throw new Error(
-            "Interpolated/through-pad traces are not supported yet"
-          );
+        const interpolated = input.route_thickness_mode === "interpolated";
+        if (interpolated)
+          for (const run of getInterpolatedWireRuns(route))
+            get(run[0].layer, index).polygon([buildTracePolygon(run)]);
         for (const point of getWireTaperSegments(route)) {
           const polygon = getWireTaperPolygon(point);
           if (!polygon.length)
@@ -1067,6 +1163,8 @@ function compileCircuitJson(elements, options = {}) {
         for (let i = 1; i < route.length; i++) {
           let a = route[i - 1], b = route[i];
           if (hasWireTaper(a)) continue;
+          if (interpolated && a.route_type === "wire" && b.route_type === "wire")
+            continue;
           if (a.route_type === "through_pad")
             a = {
               route_type: "wire",
@@ -1173,8 +1271,11 @@ function compileCircuitJson(elements, options = {}) {
         "pcb_debug_object",
         "pcb_trace_hint",
         "pcb_anchor",
-        "pcb_breakout_point"
+        "pcb_breakout_point",
         // Routing target metadata, not visible geometry.
+        // Mechanical flex elements are not drawn in circuit-to-canvas's 2D view.
+        "pcb_bend",
+        "pcb_stiffener"
       ].includes(type) && !/_(error|warning)$/.test(type)) {
         throw new Error("Unsupported PCB element");
       }
