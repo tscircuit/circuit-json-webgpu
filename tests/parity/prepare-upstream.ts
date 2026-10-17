@@ -13,6 +13,8 @@ const manifest = JSON.parse(
 )
 // Use a disposable copy: upstream matchers write diffs beside their goldens.
 // Copy every manifest entry so the installed dependency stays untouched.
+// Remove files deleted by a newer pinned revision before rebuilding the copy.
+rmSync(target, { recursive: true, force: true })
 for (const path of Object.keys(manifest.files)) {
   const dest = resolve(target, path)
   mkdirSync(dirname(dest), { recursive: true })

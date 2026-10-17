@@ -8,7 +8,7 @@ import manifest from "./parity/upstream-manifest.json"
 test("every upstream test, fixture, snapshot, and reference source matches the installed pinned dependency byte-for-byte", () => {
   expect(
     Object.keys(manifest.files).filter((p) => p.endsWith(".test.ts")),
-  ).toHaveLength(116)
+  ).toHaveLength(141)
   for (const [path, hash] of Object.entries(manifest.files))
     expect(
       createHash("sha256")

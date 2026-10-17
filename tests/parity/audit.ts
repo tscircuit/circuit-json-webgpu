@@ -10,9 +10,14 @@ import {
 import { createHash } from "node:crypto"
 import { fileURLToPath } from "node:url"
 import { resolve, relative } from "node:path"
-import "./prepare-upstream.ts"
 const root = fileURLToPath(new URL("../../", import.meta.url))
 const upstream = resolve(root, "tests/upstream/circuit-to-canvas")
+const actual = resolve(root, "tests/actual/parity")
+mkdirSync(actual, { recursive: true })
+// A failed preparation or capture must not reuse a previous audit's results.
+for (const file of ["cases.json", "tests.json", "report.json"])
+  rmSync(resolve(actual, file), { force: true })
+await import("./prepare-upstream.ts")
 const manifest = JSON.parse(
   readFileSync(resolve(root, "tests/parity/upstream-manifest.json"), "utf8"),
 )
@@ -24,8 +29,6 @@ for (const [path, hash] of Object.entries(manifest.files)) {
   )
     throw Error(`Upstream file changed: ${path}`)
 }
-const actual = resolve(root, "tests/actual/parity")
-mkdirSync(actual, { recursive: true })
 // Always finish the GPU audit even when upstream's own frozen snapshots drift.
 const reference = spawnSync(
   "bun",
@@ -47,7 +50,15 @@ console.log(
 const tests: ReferenceTest[] = JSON.parse(
   readFileSync(resolve(actual, "tests.json"), "utf8"),
 )
-if (tests.length !== 164 || new Set(tests.map((t) => t.path)).size !== 116)
+const expectedTestFiles = Object.keys(manifest.files).filter((path) =>
+  path.endsWith(".test.ts"),
+)
+const executedTestFiles = new Set(tests.map((test) => test.path))
+if (
+  tests.length !== 207 ||
+  executedTestFiles.size !== expectedTestFiles.length ||
+  expectedTestFiles.some((path) => !executedTestFiles.has(path))
+)
   throw Error("Incomplete upstream test execution")
 const result = spawnSync("bun", ["tests/parity/run.ts"], {
   cwd: root,
@@ -56,7 +67,8 @@ const result = spawnSync("bun", ["tests/parity/run.ts"], {
 })
 // The unchanged upstream matcher writes diff/missing files next to its goldens.
 // Move those into the audit artifacts and keep the generated test workspace pristine.
-for (const entry of readdirSync(upstream, {
+// Stay inside tests: the sibling node_modules contains a schema dependency symlink.
+for (const entry of readdirSync(resolve(upstream, "tests"), {
   recursive: true,
   withFileTypes: true,
 })) {
