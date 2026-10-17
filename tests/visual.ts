@@ -775,6 +775,16 @@ try {
   const large = await page.evaluate(() => window.gpuTest.renderLarge())
   assert.deepEqual(large.diagnostics, [])
   await snapshot("am3352-dev-board")
+  const denseTopVias = await page.evaluate(() =>
+    window.gpuTest.renderDenseVias("top"),
+  )
+  assert.deepEqual(denseTopVias.diagnostics, [])
+  await snapshot("dense-vias-top")
+  const denseInnerVias = await page.evaluate(() =>
+    window.gpuTest.renderDenseVias("inner1"),
+  )
+  assert.deepEqual(denseInnerVias.diagnostics, [])
+  await snapshot("dense-vias-inner")
   const navigation = await page.evaluate(
     async (frameCount) => {
       const drawer = window.gpuTest.drawer,

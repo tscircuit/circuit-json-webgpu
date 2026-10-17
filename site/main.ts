@@ -7,6 +7,7 @@ import {
   type RenderOptions,
 } from "../lib"
 import { fixtures } from "./fixtures"
+import { denseViaFixture } from "./dense-via-fixture"
 const canvas = document.querySelector("canvas")!,
   status = document.querySelector("#status")!
 const drawer = await CircuitToWebGpuDrawer.create(canvas, {
@@ -61,6 +62,18 @@ async function renderLarge() {
   await drawer.flush()
   return { ...drawer.stats, diagnostics: drawer.diagnostics }
 }
+async function renderDenseVias(selectedLayer: "top" | "inner1") {
+  drawer.drawElements(denseViaFixture, {
+    ...defaultOptions,
+    transform: { a: 14, b: 0, c: 0, d: -14, e: 400, f: 300 },
+    selectedLayer,
+    hiddenLayerOpacity: 0,
+    showSolderMask: selectedLayer === "top",
+    showBoardMaterial: true,
+  })
+  await drawer.flush()
+  return { ...drawer.stats, diagnostics: drawer.diagnostics }
+}
 const select = document.querySelector("select")!
 for (const name of [...Object.keys(fixtures), ...Object.keys(xRayFixtures)])
   select.add(new Option(name, name))
@@ -74,6 +87,7 @@ Object.assign(window, {
     checkXRay,
     checkCopperPourOpacity,
     renderLarge,
+    renderDenseVias,
     drawer,
     names: Object.keys(fixtures),
     adapterInfo: drawer.adapterInfo,
@@ -94,6 +108,7 @@ declare global {
       checkCopperPourOpacity: typeof checkCopperPourOpacity
       renderFixture: typeof renderFixture
       renderLarge: typeof renderLarge
+      renderDenseVias: typeof renderDenseVias
       drawer: CircuitToWebGpuDrawer
       names: string[]
       adapterInfo: GPUAdapterInfo | undefined
