@@ -8,6 +8,7 @@ import { drawPcbDimension } from "./pcb-dimension/draw-pcb-dimension"
 import { drawText } from "./text/draw-text"
 import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
 import {
+  adaptiveCircle,
   ellipse,
   expandBrepRing,
   MeshBuilder,
@@ -17,6 +18,8 @@ import {
 import type { CircuitJson, CompiledScene, Diagnostic, Point } from "./types"
 
 type Element = Record<string, any>
+const MAX_FULL_RESOLUTION_VIA_COUNT = 512
+
 export function getElementId(element: Element, index = 0): string {
   return element[`${element.type}_id`] ?? `${element.type}:${index}`
 }
@@ -73,9 +76,9 @@ function shape(e: Element, hole = false): Point[][] {
     const diameter = hole
       ? e.hole_diameter
       : (e.outer_diameter ?? (e.radius != null ? e.radius * 2 : e.diameter))
-    return [
-      ellipse(c, diameter || e.diameter || e.hole_diameter || e.radius * 2),
-    ]
+    const resolvedDiameter =
+      diameter || e.diameter || e.hole_diameter || e.radius * 2
+    return [ellipse(c, resolvedDiameter)]
   }
   const width = hole
     ? (e.hole_width ?? e.hole_diameter)
@@ -118,6 +121,9 @@ export function compileCircuitJson(
   const builders = new Map<string, { paint: MeshBuilder; erase: MeshBuilder }>()
   const diagnostics: Diagnostic[] = [],
     elementIds = elements.map(getElementId)
+  const useAdaptiveViaTessellation =
+    elements.filter((element) => element.type === "pcb_via").length >
+    MAX_FULL_RESOLUTION_VIA_COUNT
   const board = elements.find((e) => e.type === "pcb_board") as
     | Element
     | undefined
@@ -140,7 +146,7 @@ export function compileCircuitJson(
     mesh.category = category
     return mesh
   }
-  const openings: { element: Element; index: number; layers: string[] }[] = []
+  const openings: { rings: Point[][]; index: number; layers: string[] }[] = []
   const keepouts: { rings: Point[][]; index: number; layers: string[] }[] = []
   const cutouts: { rings: Point[][]; index: number }[] = []
   for (const [index, input] of elements.entries()) {
@@ -169,14 +175,22 @@ export function compileCircuitJson(
             to = copper.indexOf(e.to_layer)
           layers = copper.slice(Math.min(from, to), Math.max(from, to) + 1)
         }
-        for (const layer of layers) get(layer, index).polygon(shape(e))
-        openings.push({ element: e, index, layers })
+        const copperRings =
+          type === "pcb_via" && useAdaptiveViaTessellation
+            ? getAdaptiveViaShape({ element: e })
+            : shape(e)
+        for (const layer of layers) get(layer, index).polygon(copperRings)
+        const openingRings =
+          type === "pcb_via" && useAdaptiveViaTessellation
+            ? getAdaptiveViaShape({ element: e, hole: true })
+            : shape(e, true)
+        openings.push({ rings: openingRings, index, layers })
         for (const side of ["top", "bottom"])
           if (layers.includes(side) && !e.is_covered_with_solder_mask)
             get(`soldermask_${side}`, index, true).polygon(shape(e))
       } else if (type === "pcb_hole") {
         openings.push({
-          element: { ...e, shape: e.hole_shape },
+          rings: shape({ ...e, shape: e.hole_shape }, true),
           index,
           layers: copper,
         })
@@ -373,8 +387,7 @@ export function compileCircuitJson(
       })
     }
   }
-  for (const { element, index, layers } of openings) {
-    const rings = shape(element, true)
+  for (const { rings, index, layers } of openings) {
     for (const layer of layers) get(layer, index, true).polygon(rings)
     const isThrough = layers.includes("top") && layers.includes("bottom")
     if (isThrough) {
@@ -405,4 +418,15 @@ export function compileCircuitJson(
       0,
     ),
   }
+}
+
+function getAdaptiveViaShape({
+  element,
+  hole = false,
+}: {
+  element: Element
+  hole?: boolean
+}): Point[][] {
+  const diameterMm = hole ? element.hole_diameter : element.outer_diameter
+  return [adaptiveCircle({ center: center(element), diameterMm })]
 }
