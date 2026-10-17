@@ -1,6 +1,7 @@
 import earcut from "earcut"
 import polygonClipping, { type Polygon } from "polygon-clipping"
 import type { Color, Mesh, Point } from "./types"
+import { getArcSegmentCount } from "./get-arc-segment-count"
 
 /** Tessellation is camera-independent and runs only when circuit data changes. */
 export class MeshBuilder {
@@ -114,12 +115,23 @@ export function ellipse(
   rotation = 0,
 ): Point[] {
   if (!(width > 0 && height > 0)) return []
-  return Array.from({ length: 96 }, (_, i) => {
-    const t = (i * 2 * Math.PI) / 96
+  const xRadiusMm = width / 2
+  const yRadiusMm = height / 2
+  const maxRadiusOfCurvatureMm = Math.max(
+    (xRadiusMm * xRadiusMm) / yRadiusMm,
+    (yRadiusMm * yRadiusMm) / xRadiusMm,
+  )
+  const segmentCount = getArcSegmentCount({
+    radiusMm: maxRadiusOfCurvatureMm,
+    sweepRadians: Math.PI * 2,
+  })
+
+  return Array.from({ length: segmentCount }, (_, index) => {
+    const t = (index * 2 * Math.PI) / segmentCount
     return rotate(
       {
-        x: center.x + (Math.cos(t) * width) / 2,
-        y: center.y + (Math.sin(t) * height) / 2,
+        x: center.x + Math.cos(t) * xRadiusMm,
+        y: center.y + Math.sin(t) * yRadiusMm,
       },
       center,
       rotation,
