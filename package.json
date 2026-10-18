@@ -51,6 +51,7 @@
     "@webgpu/types": "^0.1.64",
     "circuit-json": "^0.0.522",
     "circuit-json-reference": "npm:circuit-json@0.0.501",
+    "circuit-json-util-reference": "npm:@tscircuit/circuit-json-util@0.0.99",
     "pixelmatch": "^7.1.0",
     "playwright": "1.63.0",
     "pngjs": "^7.0.0",
@@ -59,7 +60,7 @@
     "vite": "^6.3.5",
     "@napi-rs/canvas": "^0.1.84",
     "@resvg/resvg-js": "^2.6.2",
-    "@tscircuit/circuit-json-util": "^0.0.99",
+    "@tscircuit/circuit-json-util": "^0.0.116",
     "@tscircuit/math-utils": "^0.0.36",
     "bun-match-svg": "^0.0.14",
     "circuit-json-to-connectivity-map": "^0.0.23",
@@ -68,8 +69,10 @@
     "looks-same": "^10.0.1",
     "schematic-symbols": "^0.0.202",
     "transformation-matrix": "^3.1.0",
-    "circuit-to-canvas": "github:tscircuit/circuit-to-canvas#fa8405c67634e287b79a1506eedde077ef6accb0"
+    "circuit-to-canvas": "github:hrithik18k/circuit-to-canvas#8b42f77b466a304330ba6cea95fb7fb1d90e3f46",
+    "circuit-to-canvas-reference": "github:tscircuit/circuit-to-canvas#fa8405c67634e287b79a1506eedde077ef6accb0"
   },
+  "trustedDependencies": ["circuit-to-canvas"],
   "overrides": {
     "sharp": "^0.34.3"
   },

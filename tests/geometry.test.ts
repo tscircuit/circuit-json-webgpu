@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test"
 import "./parity/prepare-upstream"
 import { compileCircuitJson } from "../lib"
+import type { Point } from "../lib/types"
 import type { CircuitJson } from "../lib"
 import { drawKeepout } from "../lib/draw-keepout"
 import {
@@ -26,6 +27,201 @@ function area(mesh: ReturnType<MeshBuilder["build"]>) {
   }
   return area
 }
+
+function cross({ a, b, c }: { a: Point; b: Point; c: Point }) {
+  return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+}
+
+function meshCovers({
+  mesh,
+  x,
+  y,
+}: { mesh: ReturnType<MeshBuilder["build"]>; x: number; y: number }) {
+  for (let i = 0; i < mesh.indices.length; i += 3) {
+    const [a, b, c] = [...mesh.indices.slice(i, i + 3)].map((index) => ({
+      x: mesh.vertices[index * 8],
+      y: mesh.vertices[index * 8 + 1],
+    }))
+    if (cross({ a, b, c }) === 0) continue
+    const point = { x, y }
+    const sides = [
+      cross({ a, b, c: point }),
+      cross({ a: b, b: c, c: point }),
+      cross({ a: c, b: a, c: point }),
+    ]
+    if (sides.every((side) => side >= 0) || sides.every((side) => side <= 0))
+      return true
+  }
+  return false
+}
+const interpolatedTrace = {
+  type: "pcb_trace" as const,
+  pcb_trace_id: "interpolated",
+  route_thickness_mode: "interpolated" as const,
+  route: [
+    {
+      route_type: "wire" as const,
+      x: 0,
+      y: 0,
+      width: 1,
+      layer: "top" as const,
+    },
+    {
+      route_type: "wire" as const,
+      x: 4,
+      y: 0,
+      width: 3,
+      layer: "top" as const,
+    },
+  ],
+}
+
+test("interpolated traces use both vertex widths with flat ends and no duplicate stroke", () => {
+  const original = structuredClone(interpolatedTrace)
+  for (const route of [
+    interpolatedTrace.route,
+    [...interpolatedTrace.route].reverse(),
+  ]) {
+    const scene = compileCircuitJson([{ ...interpolatedTrace, route }])
+    expect(scene.diagnostics).toEqual([])
+    expect(scene.elementIds).toEqual(["interpolated"])
+    expect(scene.triangleCount).toBe(2)
+    const mesh = scene.layers.find((layer) => layer.name === "top")!.paint
+    expect(area(mesh)).toBeCloseTo(8)
+    expect(meshBounds(mesh)).toEqual([0, 4, -1.5, 1.5])
+    // Half-width grows from 0.5 to 1.5: it is 0.75 at x=1 and 1.25 at x=3.
+    expect(meshCovers({ mesh, x: 1, y: 0.8 })).toBe(false)
+    expect(meshCovers({ mesh, x: 3, y: 1 })).toBe(true)
+    expect(
+      [...mesh.vertices]
+        .filter((_, i) => i % 8 === 6)
+        .every((index) => index === 0),
+    ).toBe(true)
+  }
+  expect(interpolatedTrace).toEqual(original)
+  const constant = compileCircuitJson([
+    { ...interpolatedTrace, route_thickness_mode: "constant" },
+  ])
+  expect(area(constant.layers[0].paint)).toBeCloseTo(4 + Math.PI / 4, 1)
+})
+
+test("interpolated bends use the averaged normal at the shared vertex", () => {
+  const scene = compileCircuitJson([
+    {
+      ...interpolatedTrace,
+      route: [
+        interpolatedTrace.route[0],
+        { ...interpolatedTrace.route[1], width: 2 },
+        { ...interpolatedTrace.route[1], y: 4 },
+      ],
+    },
+  ])
+  expect(scene.diagnostics).toEqual([])
+  const mesh = scene.layers[0].paint
+  const positions = [...mesh.vertices].filter((_, i) => i % 8 < 2)
+  // A right-angle turn has a bisector normal (-1, 1) / sqrt(2).
+  expect(positions[2]).toBeCloseTo(4 - Math.SQRT1_2)
+  expect(positions[3]).toBeCloseTo(Math.SQRT1_2)
+  const bounds = meshBounds(mesh)
+  for (const [i, expected] of [0, 5.5, -Math.SQRT1_2, 4].entries())
+    expect(bounds[i]).toBeCloseTo(expected)
+})
+
+test("interpolated runs stop at layer changes and preserve via and through-pad connectors", () => {
+  for (const transition of [
+    {
+      route_type: "via" as const,
+      x: 6,
+      y: 0,
+      from_layer: "top" as const,
+      to_layer: "bottom" as const,
+    },
+    {
+      route_type: "through_pad" as const,
+      start: { x: 5, y: 0 },
+      end: { x: 7, y: 0 },
+      start_layer: "top" as const,
+      end_layer: "bottom" as const,
+      width: 1,
+    },
+  ]) {
+    const scene = compileCircuitJson([
+      {
+        ...interpolatedTrace,
+        route: [
+          ...interpolatedTrace.route,
+          transition,
+          { ...interpolatedTrace.route[0], x: 10, layer: "bottom" },
+          { ...interpolatedTrace.route[1], x: 14, layer: "bottom" },
+          { ...interpolatedTrace.route[0], x: 100, layer: "inner1" },
+        ],
+      },
+    ])
+    expect(scene.diagnostics).toEqual([])
+    expect(scene.layers.map((layer) => layer.name).sort()).toEqual([
+      "bottom",
+      "top",
+    ])
+    const top = scene.layers.find((layer) => layer.name === "top")!.paint
+    const bottom = scene.layers.find((layer) => layer.name === "bottom")!.paint
+    // Sample the gaps between each interpolated run and the transition anchor.
+    expect(meshCovers({ mesh: top, x: 4.5, y: 0 })).toBe(true)
+    expect(meshCovers({ mesh: bottom, x: 9, y: 0 })).toBe(true)
+    if (transition.route_type === "through_pad") {
+      expect(meshCovers({ mesh: top, x: 6, y: 0 })).toBe(true)
+      expect(meshCovers({ mesh: bottom, x: 6, y: 0 })).toBe(true)
+    }
+    expect(
+      meshBounds(scene.layers.find((layer) => layer.name === "top")!.paint)[1],
+    ).toBeLessThan(9)
+    expect(
+      meshBounds(
+        scene.layers.find((layer) => layer.name === "bottom")!.paint,
+      )[1],
+    ).toBe(14)
+  }
+})
+
+test("explicit outgoing tapers split interpolation without duplicate copper", () => {
+  const scene = compileCircuitJson([
+    {
+      ...interpolatedTrace,
+      route: [
+        interpolatedTrace.route[0],
+        {
+          ...interpolatedTrace.route[1],
+          width: 1,
+          ...{
+            start_width: 1,
+            end_width: 3,
+            width_interpolation_mode: "linear",
+          },
+        },
+        { ...interpolatedTrace.route[1], x: 8 },
+        { ...interpolatedTrace.route[0], x: 12 },
+      ],
+    },
+  ])
+  expect(scene.diagnostics).toEqual([])
+  expect(scene.triangleCount).toBe(6)
+  expect(area(scene.layers[0].paint)).toBeCloseTo(20)
+})
+
+test("invalid interpolated widths retain a diagnostic and never emit nonfinite geometry", () => {
+  for (const width of [NaN, Infinity, -1]) {
+    const scene = compileCircuitJson([
+      {
+        ...interpolatedTrace,
+        route: [
+          interpolatedTrace.route[0],
+          { ...interpolatedTrace.route[1], width },
+        ],
+      },
+    ])
+    expect(scene.diagnostics).toHaveLength(1)
+    expect(scene.triangleCount).toBe(0)
+  }
+})
 
 test("PCB bends leave board geometry unchanged without diagnostics", () => {
   const scene = compileCircuitJson(pcbBend as CircuitJson)

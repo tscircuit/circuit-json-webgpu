@@ -22,7 +22,7 @@ test("every upstream test, fixture, snapshot, and reference source matches the i
     ).toBe(hash)
 })
 
-test("the frozen Canvas reference resolves its original schema separately from the renderer", () => {
+test("the frozen Canvas reference resolves its original dependencies separately from the renderer", () => {
   const rendererRequire = createRequire(import.meta.url)
   const referenceRequire = createRequire(
     resolve(import.meta.dir, "upstream/circuit-to-canvas/package.json"),
@@ -32,5 +32,13 @@ test("the frozen Canvas reference resolves its original schema separately from t
   )
   expect(referenceRequire.resolve("circuit-json/package.json")).not.toBe(
     rendererRequire.resolve("circuit-json/package.json"),
+  )
+  expect(
+    referenceRequire.resolve("@tscircuit/circuit-json-util/package.json"),
+  ).toBe(rendererRequire.resolve("circuit-json-util-reference/package.json"))
+  expect(
+    referenceRequire.resolve("@tscircuit/circuit-json-util/package.json"),
+  ).not.toBe(
+    rendererRequire.resolve("@tscircuit/circuit-json-util/package.json"),
   )
 })
