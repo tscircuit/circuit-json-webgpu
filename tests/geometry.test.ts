@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test"
+import { pcb_plated_hole } from "circuit-json"
 import "./parity/prepare-upstream"
 import { compileCircuitJson } from "../lib"
 import type { CircuitJson } from "../lib"
@@ -14,6 +15,7 @@ import large from "./fixtures/am3352-dev-board.circuit.json"
 import breakout from "./fixtures/f1c100s-breakout.circuit.json"
 import museSockets from "./fixtures/muse-socket-plated-holes.circuit.json"
 import pcbBend from "./fixtures/pcb-bend.circuit.json"
+import { rotatedPadDrillOffsets } from "./fixtures/rotated-pad-drill-offsets"
 
 function area(mesh: ReturnType<MeshBuilder["build"]>) {
   let area = 0
@@ -26,6 +28,35 @@ function area(mesh: ReturnType<MeshBuilder["build"]>) {
   }
   return area
 }
+
+test("rectangular pad rotation does not rotate board-space drill offsets", () => {
+  for (const element of rotatedPadDrillOffsets) {
+    if (element.type !== "pcb_plated_hole") continue
+    const input = pcb_plated_hole.parse(element)
+    const original = structuredClone(input)
+    const scene = compileCircuitJson([input])
+    expect(scene.diagnostics).toEqual([])
+    const drill = scene.layers.find((layer) => layer.name === "drill")!.paint
+    const expectedDrillBounds = [input.x + 0.5, input.x + 1.5, -1.5, -0.5]
+    const drillBounds = meshBounds(drill)
+    for (const [coordinate, expected] of expectedDrillBounds.entries())
+      expect(drillBounds[coordinate]).toBeCloseTo(expected)
+    expect(area(drill)).toBeCloseTo(Math.PI / 4, 2)
+    const quarterTurn = element.rect_ccw_rotation % 180 !== 0
+    for (const name of ["top", "inner1", "bottom"]) {
+      const layer = scene.layers.find((layer) => layer.name === name)!
+      const padBounds = meshBounds(layer.paint)
+      expect(padBounds[1] - padBounds[0]).toBeCloseTo(quarterTurn ? 4 : 6)
+      expect(padBounds[3] - padBounds[2]).toBeCloseTo(quarterTurn ? 6 : 4)
+      expect(area(layer.paint)).toBeCloseTo(24)
+      expect(meshBounds(layer.erase)).toEqual(drillBounds)
+    }
+    expect(
+      meshBounds(scene.layers.find((layer) => layer.name === "board")!.erase),
+    ).toEqual(drillBounds)
+    expect(input).toEqual(original)
+  }
+})
 
 test("PCB bends leave board geometry unchanged without diagnostics", () => {
   const scene = compileCircuitJson(pcbBend as CircuitJson)

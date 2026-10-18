@@ -7,13 +7,7 @@ import { drawKeepout } from "./draw-keepout"
 import { drawPcbDimension } from "./pcb-dimension/draw-pcb-dimension"
 import { drawText } from "./text/draw-text"
 import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
-import {
-  ellipse,
-  expandBrepRing,
-  MeshBuilder,
-  rectangle,
-  rotate,
-} from "./geometry"
+import { ellipse, expandBrepRing, MeshBuilder, rectangle } from "./geometry"
 import type { CircuitJson, CompiledScene, Diagnostic, Point } from "./types"
 
 type Element = Record<string, any>
@@ -56,14 +50,11 @@ function shape(e: Element, hole = false): Point[][] {
   const base = center(e),
     rotation = e.rect_ccw_rotation ?? e.ccw_rotation ?? e.rotation ?? 0
   const c = hole
-    ? rotate(
-        {
-          x: base.x + (e.hole_offset_x ?? 0),
-          y: base.y + (e.hole_offset_y ?? 0),
-        },
-        base,
-        rotation,
-      )
+    ? {
+        // Drill offsets are board-space coordinates, independent of pad rotation.
+        x: base.x + (e.hole_offset_x ?? 0),
+        y: base.y + (e.hole_offset_y ?? 0),
+      }
     : base
   if (
     kind === "circle" ||
