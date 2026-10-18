@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, readFileSync, rmSync, symlinkSync } from "node:fs"
+import { cpSync, mkdirSync, readFileSync, rmSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 import { dirname, resolve } from "node:path"
 import { createRequire } from "node:module"
@@ -19,12 +19,9 @@ for (const path of Object.keys(manifest.files)) {
   cpSync(resolve(installed, path), dest)
 }
 
-// The byte-for-byte pinned Canvas reference uses the schema it was authored
-// against. Keep its types separate from the renderer's current Circuit JSON.
-const referenceSchema = dirname(
-  require.resolve("circuit-json-reference/package.json"),
-)
-const schemaLink = resolve(target, "node_modules/circuit-json")
-mkdirSync(dirname(schemaLink), { recursive: true })
-rmSync(schemaLink, { recursive: true, force: true })
-symlinkSync(referenceSchema, schemaLink, "dir")
+// Remove the legacy schema link so the reference resolves the same Circuit JSON
+// dependency as the renderer, including in workspaces prepared before this change.
+rmSync(resolve(target, "node_modules/circuit-json"), {
+  recursive: true,
+  force: true,
+})
