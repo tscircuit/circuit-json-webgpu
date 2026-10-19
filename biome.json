@@ -13,6 +13,10 @@
       "dist",
       "package.json",
       "*.circuit.json",
+      "tests/upstream/**",
+      "tests/actual/**",
+      "tests/snapshots/**",
+      "tests/fixtures/**/*.json",
       ".codesandbox"
     ]
   },
