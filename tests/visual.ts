@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { readFile, writeFile, mkdir } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import { createServer } from "vite"
-import { chromium } from "playwright"
+import { launchWebGpuBrowser } from "../scripts/lib/launch-webgpu-browser"
 import { PNG } from "pngjs"
 import { Resvg } from "@resvg/resvg-js"
 import { createCanvas } from "@napi-rs/canvas"
@@ -30,25 +30,7 @@ const server = await createServer({
 await server.listen()
 let browser
 try {
-  browser = await chromium.launch({
-    headless: true,
-    args: [
-      "--enable-unsafe-webgpu",
-      ...(process.env.WEBGPU_SOFTWARE
-        ? [
-            "--enable-gpu",
-            "--use-angle=swiftshader",
-            "--use-vulkan=swiftshader",
-            "--enable-features=Vulkan",
-            "--enable-unsafe-swiftshader",
-            "--ignore-gpu-blocklist",
-          ]
-        : []),
-    ],
-    ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
-      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
-      : {}),
-  })
+  browser = await launchWebGpuBrowser()
   const page = await browser.newPage({
     viewport: { width: 900, height: 800 },
     deviceScaleFactor: 1,
