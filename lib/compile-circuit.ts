@@ -334,6 +334,24 @@ export function compileCircuitJson(
           }
         } else if (type === "pcb_silkscreen_graphic" && e.shape === "brep") {
           mesh.polygon(shape(e))
+        } else if (input.type === "pcb_silkscreen_pill") {
+          const points = rectangle(
+            input.center,
+            input.width,
+            input.height,
+            Math.min(input.width, input.height) / 2,
+            input.ccw_rotation ?? 0,
+          )
+          // Match the fixed pill outline used by the SVG renderer.
+          mesh.path(points, 0.1, true)
+        } else if (input.type === "pcb_silkscreen_oval") {
+          const points = ellipse(
+            input.center,
+            input.radius_x * 2,
+            input.radius_y * 2,
+            input.ccw_rotation ?? 0,
+          )
+          mesh.path(points, 0.1, true)
         } else if (type.endsWith("_rect")) {
           const points = rectangle(
             center(e),
