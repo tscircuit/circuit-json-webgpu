@@ -27,7 +27,7 @@ const createSitaraVias = ({
 
 test("TMDS62LEVM-sized vias compile to a bounded mesh", () => {
   const scene = compileCircuitJson(createSitaraVias(), {
-    viaTessellation: "adaptive",
+    renderViasInHighDetail: false,
   })
   const vertexBytes = scene.layers.reduce(
     (byteCount, layer) =>

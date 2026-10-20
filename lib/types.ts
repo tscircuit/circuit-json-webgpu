@@ -45,13 +45,12 @@ export type CompiledScene = {
   diagnostics: Diagnostic[]
   triangleCount: number
 }
-export type ViaTessellation = "full" | "adaptive"
 export type CompileOptions = {
   /** Use down for Canvas-style coordinates; PCB world coordinates default to up. */
   textYAxis?: "up" | "down"
   layerColors?: Record<string, Color>
-  /** Use adaptive via geometry to reduce mesh size while targeting 0.0025 mm chord error. */
-  viaTessellation?: ViaTessellation
+  /** Set false to reduce via mesh size while targeting 0.0025 mm chord error. */
+  renderViasInHighDetail?: boolean
 }
 export type DrawerOptions = CompileOptions & {
   sampleCount?: 1 | 4

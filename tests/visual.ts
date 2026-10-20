@@ -773,7 +773,7 @@ try {
       assert(at(400, 280)[0] < 100)
     }
   }
-  await page.goto(`${siteUrl}?viaTessellation=adaptive`)
+  await page.goto(`${siteUrl}?renderViasInHighDetail=false`)
   await page.waitForFunction(() => window.gpuTest, null, { timeout: 30000 })
   const large = await page.evaluate(() => window.gpuTest.renderLarge())
   assert.deepEqual(large.diagnostics, [])

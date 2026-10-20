@@ -10,11 +10,10 @@ import { fixtures } from "./fixtures"
 import { denseViaFixture } from "./dense-via-fixture"
 const canvas = document.querySelector("canvas")!,
   status = document.querySelector("#status")!
-const viaTessellation = new URLSearchParams(location.search).get(
-  "viaTessellation",
-)
+const renderViasInHighDetail =
+  new URLSearchParams(location.search).get("renderViasInHighDetail") !== "false"
 const drawer = await CircuitToWebGpuDrawer.create(canvas, {
-  viaTessellation: viaTessellation === "adaptive" ? "adaptive" : "full",
+  renderViasInHighDetail,
   onDeviceLost: (message) => {
     status.textContent = message
     throw new Error(message)

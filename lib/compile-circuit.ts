@@ -130,7 +130,7 @@ export function compileCircuitJson(
   const builders = new Map<string, { paint: MeshBuilder; erase: MeshBuilder }>()
   const diagnostics: Diagnostic[] = [],
     elementIds = elements.map(getElementId)
-  const useAdaptiveViaTessellation = options.viaTessellation === "adaptive"
+  const useAdaptiveViaTessellation = options.renderViasInHighDetail === false
   const board = elements.find((e) => e.type === "pcb_board") as
     | Element
     | undefined
