@@ -10,7 +10,12 @@ import type {
   RenderOptions,
 } from "./types"
 
-type GpuMesh = { vertices: GPUBuffer; indices: GPUBuffer; count: number }
+type GpuMesh = {
+  vertices: GPUBuffer
+  indices: GPUBuffer
+  count: number
+  stroke?: GPUBuffer
+}
 type Layer = {
   name: string
   paint: GpuMesh
@@ -57,6 +62,7 @@ export class CircuitToWebGpuDrawer {
   private lost = false
   private paintPipeline: GPURenderPipeline
   private erasePipeline: GPURenderPipeline
+  private paintStrokePipeline: GPURenderPipeline
   private compositePipeline: GPURenderPipeline
   private sampler: GPUSampler
   private options: RenderOptions = {}
@@ -142,11 +148,14 @@ export class CircuitToWebGpuDrawer {
         }),
       ],
     })
-    const geometry = (blend: GPUBlendState): GPURenderPipelineDescriptor => ({
+    const geometry = (
+      blend: GPUBlendState,
+      stroke = false,
+    ): GPURenderPipelineDescriptor => ({
       layout,
       vertex: {
         module,
-        entryPoint: "vertexMain",
+        entryPoint: stroke ? "strokeVertexMain" : "vertexMain",
         buffers: [
           {
             arrayStride: 32,
@@ -157,11 +166,30 @@ export class CircuitToWebGpuDrawer {
               { shaderLocation: 3, offset: 28, format: "float32" },
             ],
           },
+          ...(stroke
+            ? [
+                {
+                  arrayStride: 24,
+                  attributes: [
+                    {
+                      shaderLocation: 4,
+                      offset: 0,
+                      format: "float32x4" as const,
+                    },
+                    {
+                      shaderLocation: 5,
+                      offset: 16,
+                      format: "float32x2" as const,
+                    },
+                  ],
+                },
+              ]
+            : []),
         ],
       },
       fragment: {
         module,
-        entryPoint: "fragmentMain",
+        entryPoint: stroke ? "strokeFragmentMain" : "fragmentMain",
         targets: [{ format: "rgba8unorm", blend }],
       },
       primitive: { topology: "triangle-list" },
@@ -174,6 +202,7 @@ export class CircuitToWebGpuDrawer {
         alpha: { srcFactor: "zero", dstFactor: "one-minus-src-alpha" },
       }),
     )
+    this.paintStrokePipeline = device.createRenderPipeline(geometry(over, true))
     const composite = device.createShaderModule({ code: compositeShader })
     this.compositePipeline = device.createRenderPipeline({
       layout: "auto",
@@ -249,6 +278,9 @@ export class CircuitToWebGpuDrawer {
         vertices: make(mesh.vertices, GPUBufferUsage.VERTEX),
         indices: make(mesh.indices, GPUBufferUsage.INDEX),
         count: mesh.indices.length,
+        stroke:
+          mesh.strokeAttributes &&
+          make(mesh.strokeAttributes, GPUBufferUsage.VERTEX),
       }
     }
     this.layers = scene.layers.map((layer) => ({
@@ -421,19 +453,23 @@ export class CircuitToWebGpuDrawer {
         ],
       })
       for (const [mesh, pipeline] of [
-        [layer.paint, this.paintPipeline],
+        [
+          layer.paint,
+          layer.paint.stroke ? this.paintStrokePipeline : this.paintPipeline,
+        ],
         [layer.erase, this.erasePipeline],
       ] as const) {
         if (!mesh.count) continue
         // Erase geometry (drills/cutouts) must retain its physical meaning in both passes.
         pass.setBindGroup(
           0,
-          xRay && pipeline === this.paintPipeline
+          xRay && mesh === layer.paint
             ? this.xRayCameraGroup!
             : this.cameraGroup!,
         )
         pass.setPipeline(pipeline)
         pass.setVertexBuffer(0, mesh.vertices)
+        if (mesh.stroke) pass.setVertexBuffer(1, mesh.stroke)
         pass.setIndexBuffer(mesh.indices, "uint32")
         pass.drawIndexed(mesh.count)
       }
@@ -562,6 +598,7 @@ export class CircuitToWebGpuDrawer {
       for (const mesh of [layer.paint, layer.erase]) {
         mesh.vertices.destroy()
         mesh.indices.destroy()
+        mesh.stroke?.destroy()
       }
       layer.opacity.destroy()
       layer.texture?.destroy()
