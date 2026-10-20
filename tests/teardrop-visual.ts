@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import { readFile, writeFile } from "node:fs/promises"
 import { createServer } from "vite"
-import { chromium } from "playwright"
+import { launchWebGpuBrowser } from "../scripts/lib/launch-webgpu-browser"
 import { PNG } from "pngjs"
 import pixelmatch from "pixelmatch"
 
@@ -18,25 +18,7 @@ const server = await createServer({
 await server.listen()
 let browser
 try {
-  browser = await chromium.launch({
-    headless: true,
-    ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
-      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
-      : {}),
-    args: [
-      "--enable-unsafe-webgpu",
-      ...(process.env.WEBGPU_SOFTWARE
-        ? [
-            "--enable-gpu",
-            "--use-angle=swiftshader",
-            "--use-vulkan=swiftshader",
-            "--enable-features=Vulkan",
-            "--enable-unsafe-swiftshader",
-            "--ignore-gpu-blocklist",
-          ]
-        : []),
-    ],
-  })
+  browser = await launchWebGpuBrowser()
   const page = await browser.newPage({
     viewport: { width: 900, height: 800 },
     deviceScaleFactor: 1,

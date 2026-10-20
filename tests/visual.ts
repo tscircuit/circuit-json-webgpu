@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { readFile, writeFile, mkdir } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import { createServer } from "vite"
-import { chromium } from "playwright"
+import { launchWebGpuBrowser } from "../scripts/lib/launch-webgpu-browser"
 import { PNG } from "pngjs"
 import { Resvg } from "@resvg/resvg-js"
 import { createCanvas } from "@napi-rs/canvas"
@@ -30,25 +30,7 @@ const server = await createServer({
 await server.listen()
 let browser
 try {
-  browser = await chromium.launch({
-    headless: true,
-    args: [
-      "--enable-unsafe-webgpu",
-      ...(process.env.WEBGPU_SOFTWARE
-        ? [
-            "--enable-gpu",
-            "--use-angle=swiftshader",
-            "--use-vulkan=swiftshader",
-            "--enable-features=Vulkan",
-            "--enable-unsafe-swiftshader",
-            "--ignore-gpu-blocklist",
-          ]
-        : []),
-    ],
-    ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
-      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
-      : {}),
-  })
+  browser = await launchWebGpuBrowser()
   const page = await browser.newPage({
     viewport: { width: 900, height: 800 },
     deviceScaleFactor: 1,
@@ -64,7 +46,8 @@ try {
       console.error(m.text())
     }
   })
-  await page.goto(server.resolvedUrls!.local[0])
+  const siteUrl = server.resolvedUrls!.local[0]
+  await page.goto(siteUrl)
   await page.waitForFunction(() => window.gpuTest, null, { timeout: 30000 })
   const visibility = await page.evaluate(() =>
     window.gpuTest.checkBoardVisibility(),
@@ -772,9 +755,21 @@ try {
       assert(at(400, 280)[0] < 100)
     }
   }
+  await page.goto(`${siteUrl}?renderViasInHighDetail=false`)
+  await page.waitForFunction(() => window.gpuTest, null, { timeout: 30000 })
   const large = await page.evaluate(() => window.gpuTest.renderLarge())
   assert.deepEqual(large.diagnostics, [])
   await snapshot("am3352-dev-board")
+  const denseTopVias = await page.evaluate(() =>
+    window.gpuTest.renderDenseVias("top"),
+  )
+  assert.deepEqual(denseTopVias.diagnostics, [])
+  await snapshot("dense-vias-top")
+  const denseInnerVias = await page.evaluate(() =>
+    window.gpuTest.renderDenseVias("inner1"),
+  )
+  assert.deepEqual(denseInnerVias.diagnostics, [])
+  await snapshot("dense-vias-inner")
   const navigation = await page.evaluate(
     async (frameCount) => {
       const drawer = window.gpuTest.drawer,

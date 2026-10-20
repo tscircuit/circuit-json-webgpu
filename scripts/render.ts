@@ -3,7 +3,7 @@ import { readFile, writeFile, mkdir } from "node:fs/promises"
 import { resolve, dirname } from "node:path"
 import { fileURLToPath } from "node:url"
 import { createServer } from "vite"
-import { chromium } from "playwright"
+import { launchWebGpuBrowser } from "./lib/launch-webgpu-browser"
 import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
 import { compileCircuitJson, type CircuitJson } from "../lib"
 import { prepareComparison } from "../tests/parity/prepare"
@@ -136,25 +136,7 @@ const server = await createServer({
 console.log("Starting local browser server")
 await server.listen()
 console.log("Starting Chromium")
-const browser = await chromium.launch({
-  headless: true,
-  ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
-    ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
-    : {}),
-  args: [
-    "--enable-unsafe-webgpu",
-    ...(process.env.WEBGPU_SOFTWARE
-      ? [
-          "--use-angle=swiftshader",
-          "--enable-unsafe-swiftshader",
-          "--ignore-gpu-blocklist",
-          "--enable-gpu",
-          "--enable-features=Vulkan",
-          "--use-vulkan=swiftshader",
-        ]
-      : []),
-  ],
-})
+const browser = await launchWebGpuBrowser()
 try {
   console.log("Chromium ready; rendering board")
   const page = await browser.newPage()

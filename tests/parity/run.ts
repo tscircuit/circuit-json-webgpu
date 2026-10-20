@@ -4,7 +4,7 @@ import type { CapturedCase, ReferenceTest, ComparisonResult } from "./types"
 import { readFile, writeFile, mkdir } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import { createServer } from "vite"
-import { chromium } from "playwright"
+import { launchWebGpuBrowser } from "../../scripts/lib/launch-webgpu-browser"
 import { PNG } from "pngjs"
 import { compare } from "./compare.ts"
 import { prepareComparison } from "./prepare.ts"
@@ -30,25 +30,7 @@ const server = await createServer({
   logLevel: "error",
 })
 await server.listen()
-const browser = await chromium.launch({
-  headless: true,
-  args: [
-    "--enable-unsafe-webgpu",
-    ...(process.env.WEBGPU_SOFTWARE
-      ? [
-          "--use-angle=swiftshader",
-          "--enable-unsafe-swiftshader",
-          "--ignore-gpu-blocklist",
-          "--enable-gpu",
-          "--enable-features=Vulkan",
-          "--use-vulkan=swiftshader",
-        ]
-      : []),
-  ],
-  ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
-    ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
-    : {}),
-})
+const browser = await launchWebGpuBrowser()
 const occurrence = new Map<string, number>()
 const results: ComparisonResult[] = []
 const snapshots: { id: string; pass: boolean; error?: string }[] = []
