@@ -15,13 +15,15 @@ import {
   rectangle,
   rotate,
 } from "./geometry"
-import type { CircuitJson, CompiledScene, Diagnostic, Point } from "./types"
+import type {
+  CircuitJson,
+  CompiledScene,
+  CompileOptions,
+  Diagnostic,
+  Point,
+} from "./types"
 
 type Element = Record<string, any>
-// Preserve the legacy 96-segment via geometry for ordinary boards. Once via
-// count exceeds this board-wide threshold, adaptive tessellation bounds the
-// aggregate mesh cost; crossing the threshold intentionally updates all vias.
-const MAX_FULL_RESOLUTION_VIA_COUNT = 512
 
 export function getElementId(element: Element, index = 0): string {
   return element[`${element.type}_id`] ?? `${element.type}:${index}`
@@ -123,17 +125,12 @@ function shape(e: Element, hole = false): Point[][] {
 /** Pure, DOM-free compiler. Exposes unsupported geometry rather than silently hiding it. */
 export function compileCircuitJson(
   elements: CircuitJson,
-  options: {
-    textYAxis?: "up" | "down"
-    layerColors?: Record<string, import("./types").Color>
-  } = {},
+  options: CompileOptions = {},
 ): CompiledScene {
   const builders = new Map<string, { paint: MeshBuilder; erase: MeshBuilder }>()
   const diagnostics: Diagnostic[] = [],
     elementIds = elements.map(getElementId)
-  const useAdaptiveViaTessellation =
-    elements.filter((element) => element.type === "pcb_via").length >
-    MAX_FULL_RESOLUTION_VIA_COUNT
+  const useAdaptiveViaTessellation = options.viaTessellation === "adaptive"
   const board = elements.find((e) => e.type === "pcb_board") as
     | Element
     | undefined

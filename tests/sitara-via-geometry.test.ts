@@ -6,7 +6,13 @@ import { TARGET_CIRCLE_CHORD_ERROR_MM } from "../lib/get-circle-segment-count"
 
 const SITARA_VIA_COUNT = 1024
 
-const createSitaraVias = (viaCount = SITARA_VIA_COUNT): PcbVia[] =>
+const createSitaraVias = ({
+  viaCount = SITARA_VIA_COUNT,
+  layers = ["top", "inner1", "inner2", "inner3", "inner4", "bottom"],
+}: {
+  viaCount?: number
+  layers?: PcbVia["layers"]
+} = {}): PcbVia[] =>
   Array.from({ length: viaCount }, (_, index) => ({
     type: "pcb_via",
     pcb_via_id: `pcb_via_${index}`,
@@ -14,13 +20,15 @@ const createSitaraVias = (viaCount = SITARA_VIA_COUNT): PcbVia[] =>
     y: Math.floor(index / 16),
     hole_diameter: 0.2032,
     outer_diameter: 0.4572,
-    layers: ["top", "inner1", "inner2", "inner3", "inner4", "bottom"],
+    layers,
     from_layer: "top",
     to_layer: "bottom",
   }))
 
 test("TMDS62LEVM-sized vias compile to a bounded mesh", () => {
-  const scene = compileCircuitJson(createSitaraVias())
+  const scene = compileCircuitJson(createSitaraVias(), {
+    viaTessellation: "adaptive",
+  })
   const vertexBytes = scene.layers.reduce(
     (byteCount, layer) =>
       byteCount +
@@ -33,12 +41,15 @@ test("TMDS62LEVM-sized vias compile to a bounded mesh", () => {
   expect(vertexBytes).toBeLessThan(24_000_000)
 })
 
-test("sparse via scenes retain full-resolution geometry", () => {
-  const scene = compileCircuitJson(createSitaraVias(1))
+test("via scenes retain full-resolution geometry by default", () => {
+  const viaCount = 513
+  const scene = compileCircuitJson(
+    createSitaraVias({ viaCount, layers: ["top"] }),
+  )
   const topLayer = scene.layers.find((layer) => layer.name === "top")
 
-  expect(topLayer?.paint.indices.length).toBe((96 - 2) * 3)
-  expect(topLayer?.erase.indices.length).toBe((96 - 2) * 3)
+  expect(topLayer?.paint.indices.length).toBe(viaCount * (96 - 2) * 3)
+  expect(topLayer?.erase.indices.length).toBe(viaCount * (96 - 2) * 3)
 })
 
 test("adaptive circles target physical error without exceeding legacy resolution", () => {
