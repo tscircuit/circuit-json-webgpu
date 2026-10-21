@@ -33,6 +33,8 @@ export const compositeShader = /* wgsl */ `
 @group(0) @binding(0) var image: texture_2d<f32>;
 @group(0) @binding(1) var imageSampler: sampler;
 @group(0) @binding(2) var<uniform> fade: vec4f;
+@group(0) @binding(3) var firstText: texture_2d<f32>;
+@group(0) @binding(4) var secondText: texture_2d<f32>;
 struct Out { @builtin(position) position: vec4f, @location(0) uv: vec2f }
 @vertex fn vertexMain(@builtin(vertex_index) index: u32) -> Out {
   let points = array<vec2f, 6>(vec2f(0,0),vec2f(1,0),vec2f(0,1),vec2f(0,1),vec2f(1,0),vec2f(1,1));
@@ -42,6 +44,14 @@ struct Out { @builtin(position) position: vec4f, @location(0) uv: vec2f }
   return out;
 }
 @fragment fn fragmentMain(in: Out) -> @location(0) vec4f {
-  return textureSample(image, imageSampler, in.uv) * fade.x;
+  var color = textureSample(image, imageSampler, in.uv);
+  if (fade.w == 1) {
+    let first = textureSample(firstText, imageSampler, in.uv) * fade.y;
+    let second = textureSample(secondText, imageSampler, in.uv) * fade.z;
+    let text = second + first * (1 - second.a);
+    // Replace drill color beneath text without changing coverage or other layers.
+    color = vec4f(color.rgb * (1 - text.a) + text.rgb * color.a, color.a);
+  }
+  return color * fade.x;
 }
 `
