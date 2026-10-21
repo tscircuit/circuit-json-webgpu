@@ -369,7 +369,11 @@ export class CircuitToWebGpuDrawer {
       filter = o.layers ? new Set(o.layers.map(normalizeLayer)) : undefined
     const visible = this.layers
       .filter((l) => {
-        if (filter && !filter.has(l.name)) return false
+        if (
+          filter &&
+          !filter.has(l.name.replace(/_silkscreen_text$/, "_silkscreen"))
+        )
+          return false
         if (xRayActive && !this.isCopper(l.name)) return false
         if (l.name === "board" && !o.showBoardMaterial) return false
         if (
@@ -499,7 +503,7 @@ export class CircuitToWebGpuDrawer {
     if (layer === "board") return -100
     if (layer === "drill") return 200
     if (layer === "edge_cuts") return 150
-    if (layer.endsWith("_silkscreen"))
+    if (layer.endsWith("_silkscreen_text"))
       return layer.startsWith(`${selected}_`) ? 220 : 210
     const base =
       layer === selected

@@ -147,8 +147,9 @@ export function compileCircuitJson(
     if (!builders.has(name))
       builders.set(name, { paint: new MeshBuilder(), erase: new MeshBuilder() })
     const mesh = builders.get(name)![erase ? "erase" : "paint"]
-    mesh.color = options.layerColors?.[name] ??
-      DEFAULT_LAYER_COLORS[name] ?? [0.75, 0.75, 0.75, 1]
+    const colorLayer = name.replace(/_silkscreen_text$/, "_silkscreen")
+    mesh.color = options.layerColors?.[colorLayer] ??
+      DEFAULT_LAYER_COLORS[colorLayer] ?? [0.75, 0.75, 0.75, 1]
     mesh.element = index
     mesh.category = category
     return mesh
@@ -285,7 +286,10 @@ export function compileCircuitJson(
           user_note: "notes",
         }[group]!
         const layer = `${e.layer ?? "top"}_${suffix}`
-        const mesh = get(layer, index)
+        const mesh = get(
+          type === "pcb_silkscreen_text" ? `${layer}_text` : layer,
+          index,
+        )
         if (
           input.type === "pcb_note_dimension" ||
           input.type === "pcb_fabrication_note_dimension"

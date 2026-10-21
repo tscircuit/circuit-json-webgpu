@@ -27,6 +27,17 @@ function area(mesh: ReturnType<MeshBuilder["build"]>) {
   return area
 }
 
+test("silkscreen text inherits the public silkscreen layer color", () => {
+  const scene = compileCircuitJson(
+    fixtures["silkscreen-text-over-holes"].elements,
+    { layerColors: { top_silkscreen: [1, 0, 0, 1] } },
+  )
+  const text = scene.layers.find(
+    (layer) => layer.name === "top_silkscreen_text",
+  )!
+  expect(Array.from(text.paint.vertices.slice(2, 6))).toEqual([1, 0, 0, 1])
+})
+
 test("PCB bends leave board geometry unchanged without diagnostics", () => {
   const scene = compileCircuitJson(pcbBend as CircuitJson)
   const boardsOnly = compileCircuitJson(

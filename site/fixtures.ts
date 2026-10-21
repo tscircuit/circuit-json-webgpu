@@ -401,7 +401,10 @@ export const fixtures: Record<string, Fixture> = {
         ccw_rotation: 0,
       },
     ],
-    options: { hiddenLayerOpacity: 1 },
+    options: {
+      hiddenLayerOpacity: 1,
+      layers: ["top_silkscreen", "bottom_silkscreen", "top", "bottom", "drill"],
+    },
   },
   "keepouts-top": {
     elements: keepouts,
