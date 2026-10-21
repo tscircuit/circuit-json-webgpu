@@ -499,6 +499,8 @@ export class CircuitToWebGpuDrawer {
     if (layer === "board") return -100
     if (layer === "drill") return 200
     if (layer === "edge_cuts") return 150
+    if (layer.endsWith("_silkscreen"))
+      return layer.startsWith(`${selected}_`) ? 220 : 210
     const base =
       layer === selected
         ? 100

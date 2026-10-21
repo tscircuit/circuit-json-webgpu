@@ -721,13 +721,13 @@ try {
     if (name === "silkscreen-text-over-holes") {
       assert.deepEqual(
         at(288, 300),
-        [255, 38, 226],
-        "Repro: the unplated hole covers top silkscreen text",
+        [242, 237, 161],
+        "Top silkscreen text must stay above the unplated hole",
       )
       assert.deepEqual(
         at(512, 300),
-        [255, 38, 226],
-        "Repro: the plated hole covers bottom silkscreen text",
+        [242, 237, 161],
+        "Bottom silkscreen text must stay above the plated hole",
       )
       assert.deepEqual(at(288, 286), [255, 38, 226])
       assert.deepEqual(at(512, 286), [255, 38, 226])
