@@ -356,6 +356,53 @@ export const keepouts = [
 ] as CircuitJson
 
 export const fixtures: Record<string, Fixture> = {
+  "silkscreen-text-over-holes": {
+    elements: [
+      {
+        type: "pcb_hole",
+        pcb_hole_id: "unplated-hole",
+        hole_shape: "circle",
+        x: -8,
+        y: 0,
+        hole_diameter: 4,
+      },
+      {
+        type: "pcb_plated_hole",
+        pcb_plated_hole_id: "plated-hole",
+        shape: "circle",
+        x: 8,
+        y: 0,
+        outer_diameter: 6,
+        hole_diameter: 4,
+        layers: ["top", "bottom"],
+      },
+      {
+        type: "pcb_silkscreen_text",
+        pcb_silkscreen_text_id: "top-text",
+        pcb_component_id: "component",
+        layer: "top",
+        text: "H",
+        font: "tscircuit2024",
+        font_size: 8,
+        anchor_alignment: "center",
+        anchor_position: { x: -8, y: 0 },
+        ccw_rotation: 0,
+      },
+      {
+        type: "pcb_silkscreen_text",
+        pcb_silkscreen_text_id: "bottom-text",
+        pcb_component_id: "component",
+        layer: "bottom",
+        text: "H",
+        font: "tscircuit2024",
+        font_size: 8,
+        anchor_alignment: "center",
+        anchor_position: { x: 8, y: 0 },
+        ccw_rotation: 0,
+      },
+    ],
+    options: { hiddenLayerOpacity: 1 },
+  },
   "keepouts-top": {
     elements: keepouts,
     options: { selectedLayer: "top", hiddenLayerOpacity: 0 },

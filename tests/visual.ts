@@ -718,6 +718,20 @@ try {
         "Keepouts must remain visible above a later copper pour",
       )
     }
+    if (name === "silkscreen-text-over-holes") {
+      assert.deepEqual(
+        at(288, 300),
+        [255, 38, 226],
+        "Repro: the unplated hole covers top silkscreen text",
+      )
+      assert.deepEqual(
+        at(512, 300),
+        [255, 38, 226],
+        "Repro: the plated hole covers bottom silkscreen text",
+      )
+      assert.deepEqual(at(288, 286), [255, 38, 226])
+      assert.deepEqual(at(512, 286), [255, 38, 226])
+    }
     if (name === "silkscreen-graphics") {
       // World coordinates use the gallery's 14 px/mm camera. Check ink and
       // clear holes independently so snapshot updates cannot fill the counters.
