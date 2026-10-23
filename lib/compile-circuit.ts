@@ -3,6 +3,7 @@ import {
   getWireTaperSegments,
   hasWireTaper,
 } from "./get-wire-taper-polygon"
+import { drawPcbNoteLine } from "./draw-pcb-note-line"
 import { drawKeepout } from "./draw-keepout"
 import { drawPcbDimension } from "./pcb-dimension/draw-pcb-dimension"
 import { drawText } from "./text/draw-text"
@@ -304,12 +305,10 @@ export function compileCircuitJson(
           if (e.color && (group === "note" || group === "fabrication_note"))
             mesh.color = parseColor(e.color)
           drawText(mesh, e, options.textYAxis)
-        } else if (
-          input.type === "pcb_note_line" ||
-          input.type === "pcb_silkscreen_line"
-        ) {
-          if (input.type === "pcb_note_line" && input.color)
-            mesh.color = parseColor(input.color)
+        } else if (input.type === "pcb_note_line") {
+          if (input.color) mesh.color = parseColor(input.color)
+          drawPcbNoteLine({ mesh, line: input })
+        } else if (input.type === "pcb_silkscreen_line") {
           mesh.line(
             { x: input.x1, y: input.y1 },
             { x: input.x2, y: input.y2 },
