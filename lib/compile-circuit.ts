@@ -7,6 +7,8 @@ import { drawKeepout } from "./draw-keepout"
 import { drawPcbDimension } from "./pcb-dimension/draw-pcb-dimension"
 import { drawText } from "./text/draw-text"
 import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
+import { getCoverlayLayerColor } from "./get-coverlay-layer-color"
+import type { PcbBoard } from "circuit-json"
 import {
   adaptiveCircle,
   ellipse,
@@ -132,9 +134,7 @@ export function compileCircuitJson(
   const diagnostics: Diagnostic[] = [],
     elementIds = elements.map(getElementId)
   const useAdaptiveViaTessellation = options.renderViasInHighDetail === false
-  const board = elements.find((e) => e.type === "pcb_board") as
-    | Element
-    | undefined
+  const board = elements.find((e): e is PcbBoard => e.type === "pcb_board")
   const copper = [
     "top",
     ...Array.from(
@@ -149,7 +149,13 @@ export function compileCircuitJson(
       builders.set(name, { paint: new MeshBuilder(), erase: new MeshBuilder() })
     const mesh = builders.get(name)![erase ? "erase" : "paint"]
     const colorLayer = name.replace(/_silkscreen_text$/, "_silkscreen")
+    const input = elements[index]
+    let coverlayLayerColor
+    if (input?.type === "pcb_board") {
+      coverlayLayerColor = getCoverlayLayerColor(input, colorLayer)
+    }
     mesh.color = options.layerColors?.[colorLayer] ??
+      coverlayLayerColor ??
       DEFAULT_LAYER_COLORS[colorLayer] ?? [0.75, 0.75, 0.75, 1]
     mesh.element = index
     mesh.category = category
