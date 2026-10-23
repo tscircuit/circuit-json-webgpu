@@ -1,5 +1,5 @@
 Text layout helpers are imported from the installed MIT-licensed
-`circuit-to-canvas` dependency, pinned in package.json and bun.lock. Only the
+`circuit-to-canvas` dependency, pinned to a Git commit in package.json. Only the
 used text helpers are bundled into the renderer; the Canvas renderer is used
 by the test harness. The upstream license is included in the installed package.
 
