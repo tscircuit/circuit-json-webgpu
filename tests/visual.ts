@@ -15,6 +15,7 @@ import { prepareComparison } from "./parity/prepare"
 import { compose, scale, translate } from "transformation-matrix"
 import type { CircuitJson } from "../lib"
 import pcbBendFixture from "./fixtures/pcb-bend.circuit.json"
+import { fixtures } from "../site/fixtures"
 
 const root = fileURLToPath(new URL("../", import.meta.url))
 const server = await createServer({
@@ -678,6 +679,64 @@ try {
       name,
     )
     assert.deepEqual(stats.diagnostics, [])
+    if (name === "note-path-hex-color") {
+      const fixture = fixtures[name]
+      assert(fixture.options?.transform)
+      const { scene } = prepareComparison({
+        width: 800,
+        height: 600,
+        elements: [...fixture.elements],
+        matrix: fixture.options.transform,
+        contextTransform: { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 },
+        options: {},
+      })
+      assert(scene)
+      const svg = convertCircuitJsonToPcbSvg([...fixture.elements], {
+        width: scene.width,
+        height: scene.height,
+        viewport: scene.viewport,
+        layer: "top",
+        showPcbNotes: true,
+        shouldDrawErrors: false,
+        shouldDrawRatsNest: false,
+        includeVersion: false,
+        drawPaddingOutsideBoard: false,
+        backgroundColor: "#000000",
+      })
+      // Reuse the pinned SVG alphabet loaded for the bend comparison above.
+      const reference = new Resvg(svg, {
+        font: { loadSystemFonts: false, fontFiles: [fileURLToPath(fontFile)] },
+      })
+        .render()
+        .asPng()
+      const screenshot = PNG.sync.read(
+        await page.locator("canvas").screenshot(),
+      )
+      const gpu = new PNG({ width: scene.width, height: scene.height })
+      // Exclude the gallery canvas's CSS border.
+      PNG.bitblt(
+        screenshot,
+        gpu,
+        (screenshot.width - gpu.width) / 2,
+        (screenshot.height - gpu.height) / 2,
+        gpu.width,
+        gpu.height,
+        0,
+        0,
+      )
+      const gpuPng = PNG.sync.write(gpu).toString("base64")
+      const svgPng = reference.toString("base64")
+      // The control centre and the midpoint of the path's first segment.
+      assert.deepEqual(pixel(svgPng, 400, 200), [255, 0, 0, 255])
+      assert.deepEqual(pixel(gpuPng, 400, 200), [255, 0, 0, 255])
+      assert.deepEqual(pixel(svgPng, 320, 420), [255, 0, 0, 255])
+      assert.deepEqual(pixel(gpuPng, 320, 420), [89, 148, 220, 255])
+      assert(
+        (await featureSnapshot(name, PNG.sync.read(reference), gpu, name)).pass,
+        "PCB note path hex color SVG/WebGPU comparison snapshot",
+      )
+      continue
+    }
     const image = await snapshot(name)
     // Independent checks: a board cutout uses the pink drill color; a pour hole
     // reveals the board/bottom copper rather than red top-layer copper.
