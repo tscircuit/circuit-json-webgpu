@@ -183,8 +183,14 @@ const wireTaper = {
   end_width: 0.2,
   width_interpolation_mode: "quadratic",
   layer: "top",
-}
-const endpoint = { route_type: "wire", x: 1, y: 0, width: 0.2, layer: "top" }
+} as const
+const endpoint = {
+  route_type: "wire",
+  x: 1,
+  y: 0,
+  width: 0.2,
+  layer: "top",
+} as const
 test("taper belongs to the outgoing wire segment only", () => {
   const route = [
     { ...endpoint, x: -1, width: 0.6 },
@@ -239,4 +245,31 @@ test("taper is inside a pour only when both endpoints are inside", () => {
       { ...endpoint, is_inside_copper_pour: true },
     ])[0]?.is_inside_copper_pour,
   ).toBe(true)
+})
+
+test("a taper fully inside a copper pour emits no separate copper", () => {
+  const scene = compileCircuitJson([
+    {
+      type: "pcb_trace",
+      pcb_trace_id: "covered-taper",
+      route: [
+        { ...wireTaper, is_inside_copper_pour: true },
+        { ...endpoint, is_inside_copper_pour: true },
+      ],
+    },
+  ])
+  expect(scene.diagnostics).toEqual([])
+  expect(scene.triangleCount).toBe(0)
+})
+
+test("a taper with only one endpoint inside a copper pour remains visible", () => {
+  const scene = compileCircuitJson([
+    {
+      type: "pcb_trace",
+      pcb_trace_id: "partially-covered-taper",
+      route: [{ ...wireTaper, is_inside_copper_pour: true }, endpoint],
+    },
+  ])
+  expect(scene.diagnostics).toEqual([])
+  expect(scene.triangleCount).toBeGreaterThan(0)
 })
