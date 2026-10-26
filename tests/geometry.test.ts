@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test"
+import type { PcbTraceRoutePointWire } from "circuit-json"
 import "./parity/prepare-upstream"
 import { compileCircuitJson } from "../lib"
 import type { CircuitJson } from "../lib"
@@ -14,6 +15,7 @@ import large from "./fixtures/am3352-dev-board.circuit.json"
 import breakout from "./fixtures/f1c100s-breakout.circuit.json"
 import museSockets from "./fixtures/muse-socket-plated-holes.circuit.json"
 import pcbBend from "./fixtures/pcb-bend.circuit.json"
+import { meshCovers } from "./fixtures/mesh-geometry"
 
 function area(mesh: ReturnType<MeshBuilder["build"]>) {
   let area = 0
@@ -127,6 +129,33 @@ test("a same-layer through-pad span is drawn once", () => {
   expect(scene.diagnostics).toEqual([])
   expect(scene.layers.map((layer) => layer.name)).toEqual(["top"])
   expect(area(scene.layers[0].paint)).toBeCloseTo(0.924, 3)
+})
+
+test("covered wire segments are hidden while pour entry and exit remain visible", () => {
+  const wire: PcbTraceRoutePointWire = {
+    route_type: "wire",
+    x: 0,
+    y: 0,
+    width: 0.5,
+    layer: "top",
+  }
+  const scene = compileCircuitJson([
+    {
+      type: "pcb_trace",
+      pcb_trace_id: "partially-covered",
+      route: [
+        { ...wire, x: -6, is_inside_copper_pour: false },
+        { ...wire, x: -2, is_inside_copper_pour: true },
+        { ...wire, x: 2, is_inside_copper_pour: true },
+        { ...wire, x: 6, is_inside_copper_pour: false },
+      ],
+    },
+  ])
+  expect(scene.diagnostics).toEqual([])
+  const mesh = scene.layers[0].paint
+  expect(meshCovers({ mesh, point: { x: 0, y: 0 } })).toBe(false)
+  expect(meshCovers({ mesh, point: { x: -4, y: 0 } })).toBe(true)
+  expect(meshCovers({ mesh, point: { x: 4, y: 0 } })).toBe(true)
 })
 
 test("rectangular soldermask openings erase only the selected mask layer", () => {

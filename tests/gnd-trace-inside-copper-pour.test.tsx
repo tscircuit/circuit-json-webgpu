@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test"
 import { compileCircuitJson, type CircuitJson } from "../lib"
 
-test("repro: GND trace remains visible inside its copper pour", async () => {
+test("GND trace inside its copper pour adds no separate copper", async () => {
   const circuitJson: CircuitJson = [
     {
       type: "pcb_board",
@@ -64,7 +64,7 @@ test("repro: GND trace remains visible inside its copper pour", async () => {
   ]
   const scene = compileCircuitJson(circuitJson)
   expect(scene.diagnostics).toEqual([])
-  expect(scene.triangleCount).toBeGreaterThan(
+  expect(scene.triangleCount).toBe(
     compileCircuitJson(circuitJson.filter((e) => e.type !== "pcb_trace"))
       .triangleCount,
   )

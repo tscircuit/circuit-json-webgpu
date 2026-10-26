@@ -218,6 +218,7 @@ export function compileCircuitJson(
             "Interpolated/through-pad traces are not supported yet",
           )
         for (const point of getWireTaperSegments(route)) {
+          if (point.is_inside_copper_pour) continue
           const polygon = getWireTaperPolygon(point)
           if (!polygon.length)
             throw new Error("Invalid teardrop geometry or interpolation mode")
@@ -251,7 +252,8 @@ export function compileCircuitJson(
           if (
             a.route_type === "wire" &&
             b.route_type === "wire" &&
-            a.layer === b.layer
+            a.layer === b.layer &&
+            !(a.is_inside_copper_pour && b.is_inside_copper_pour)
           )
             get(a.layer, index).line(a, b, a.width)
           else if (
