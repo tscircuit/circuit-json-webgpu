@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, readFileSync, rmSync } from "node:fs"
+import { cpSync, mkdirSync, readFileSync, rmSync, symlinkSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 import { dirname, resolve } from "node:path"
 import { createRequire } from "node:module"
@@ -25,3 +25,18 @@ rmSync(resolve(target, "node_modules/circuit-json"), {
   recursive: true,
   force: true,
 })
+
+// Keep frozen Canvas camera bounds independent of the newer TSX producer helpers.
+const referenceUtil = resolve(
+  target,
+  "node_modules/@tscircuit/circuit-json-util",
+)
+rmSync(referenceUtil, { recursive: true, force: true })
+mkdirSync(dirname(referenceUtil), { recursive: true })
+symlinkSync(
+  dirname(
+    require.resolve("@tscircuit/circuit-json-util-reference/package.json"),
+  ),
+  referenceUtil,
+  "junction",
+)
