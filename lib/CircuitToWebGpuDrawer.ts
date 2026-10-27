@@ -369,15 +369,7 @@ export class CircuitToWebGpuDrawer {
       filter = o.layers ? new Set(o.layers.map(normalizeLayer)) : undefined
     const visible = this.layers
       .filter((l) => {
-        if (
-          filter &&
-          !filter.has(
-            this.isDrill(l.name)
-              ? "drill"
-              : l.name.replace(/_silkscreen_text$/, "_silkscreen"),
-          )
-        )
-          return false
+        if (filter && !this.matchesLayerFilter(l.name, filter)) return false
         if (xRayActive && !this.isCopper(l.name)) return false
         if (l.name === "board" && !o.showBoardMaterial) return false
         if (
@@ -402,9 +394,7 @@ export class CircuitToWebGpuDrawer {
     const selectedLayers = xRayActive
       ? this.xRayLayers
           .filter(
-            (layer) =>
-              !filter ||
-              filter.has(this.isDrill(layer.name) ? "drill" : layer.name),
+            (layer) => !filter || this.matchesLayerFilter(layer.name, filter),
           )
           .sort(
             (a, b) =>
@@ -504,6 +494,21 @@ export class CircuitToWebGpuDrawer {
   }
   private isDrill(layer: string) {
     return layer === "drill" || layer.startsWith("drill:")
+  }
+  private matchesLayerFilter(layer: string, filter: Set<string>) {
+    if (!this.isDrill(layer))
+      return filter.has(layer.replace(/_silkscreen_text$/, "_silkscreen"))
+    if (!filter.has("drill")) return false
+    // A single-side render must not expose drills belonging only to other
+    // copper layers, even when hiddenLayerOpacity is 1 (e.g. SVG comparisons).
+    return (
+      layer === "drill" ||
+      ![...filter].some((name) => this.isCopper(name)) ||
+      layer
+        .slice(6)
+        .split(",")
+        .some((name) => filter.has(name))
+    )
   }
   private opacity(layer: string, selected: string, hidden: number) {
     if (layer.startsWith("drill:"))

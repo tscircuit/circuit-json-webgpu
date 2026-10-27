@@ -109,6 +109,13 @@ try {
     frames.filtered = canvas.toDataURL().split(",")[1]
     drawer.render({
       selectedLayer: "top",
+      layers: ["board", "top", "drill"],
+      hiddenLayerOpacity: 1,
+    })
+    await drawer.flush()
+    frames.singleSide = canvas.toDataURL().split(",")[1]
+    drawer.render({
+      selectedLayer: "top",
       layers: undefined,
       xRayElementIds: ["via-2"],
     })
@@ -136,6 +143,12 @@ try {
     [255, 255, 255, 255],
     "Explicit filters can hide partial-depth drills",
   )
+  for (let i = 0; i < spans.length; i++)
+    assert.deepEqual(
+      pixel(viaDrills.singleSide, 100 + i * 100, 100),
+      spans[i].includes("top") ? [255, 38, 226, 255] : [70, 72, 72, 255],
+      "Explicit copper filters limit drill spans even at full hidden-layer opacity",
+    )
   assert.deepEqual(
     pixel(viaDrills.xray, 300, 100),
     [255, 38, 226, 255],
