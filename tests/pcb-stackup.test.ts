@@ -2,7 +2,7 @@ import { expect, test } from "bun:test"
 import { compileCircuitJson } from "../lib"
 import { createStackupCircuit } from "./fixtures/pcb-stackup"
 
-test("reproduces the stackup diagnostic that stops pcb-viewer's WebGPU worker", async () => {
+test("native TSX stackup metadata leaves rendered PCB geometry unchanged", async () => {
   const elements = await createStackupCircuit()
   const stackup = elements.find((element) => element.type === "pcb_stackup")!
   expect(stackup).toBeDefined()
@@ -15,17 +15,13 @@ test("reproduces the stackup diagnostic that stops pcb-viewer's WebGPU worker", 
   expect(elements.some((element) => element.type === "pcb_trace")).toBe(true)
 
   const scene = compileCircuitJson(elements)
-  expect(scene.diagnostics).toEqual([
-    {
-      elementId: stackup.pcb_stackup_id,
-      type: "pcb_stackup",
-      message: "Error: Unsupported PCB element",
-    },
-  ])
+  expect(scene.diagnostics).toEqual([])
   expect(scene.triangleCount).toBeGreaterThan(0)
-  expect(
-    compileCircuitJson(
-      elements.filter((element) => element.type !== "pcb_stackup"),
-    ).diagnostics,
-  ).toEqual([])
+  const geometry = elements.filter((element) => element.type !== "pcb_stackup")
+  const withoutStackup = compileCircuitJson(geometry)
+  expect(scene.triangleCount).toBe(withoutStackup.triangleCount)
+  // Vertex buffers include input element indices; keep those stable for equality.
+  expect(compileCircuitJson([...geometry, stackup]).layers).toEqual(
+    withoutStackup.layers,
+  )
 })

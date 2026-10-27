@@ -368,6 +368,7 @@ export function compileCircuitJson(
           "pcb_component",
           "pcb_port",
           "pcb_group",
+          "pcb_stackup",
           "pcb_solder_paste",
           "pcb_debug_object",
           "pcb_trace_hint",
