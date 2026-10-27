@@ -61,6 +61,92 @@ try {
       ),
     ]
   }
+  const viaDrills = await page.evaluate(async () => {
+    const drawer = window.gpuTest.drawer
+    const canvas = document.querySelector("canvas")!
+    drawer.drawElements(
+      [
+        {
+          type: "pcb_board",
+          pcb_board_id: "board",
+          center: { x: 0, y: 0 },
+          width: 10,
+          height: 10,
+          num_layers: 6,
+        },
+        ...[
+          ["top", "bottom"],
+          ["top", "inner1"],
+          ["inner1", "inner2"],
+          ["inner4", "bottom"],
+        ].map((layers, i) => ({
+          type: "pcb_via" as const,
+          pcb_via_id: `via-${i}`,
+          x: i,
+          y: 0,
+          outer_diameter: 0.6,
+          hole_diameter: 0.3,
+          layers,
+        })),
+      ] as CircuitJson,
+      {
+        transform: { a: 100, b: 0, c: 0, d: -100, e: 100, f: 100 },
+        selectedLayer: "top",
+        hiddenLayerOpacity: 0,
+        showSilkscreen: false,
+        showBoardMaterial: true,
+        background: [1, 1, 1, 1],
+      },
+    )
+    const frames: Record<string, string> = {}
+    for (const selectedLayer of ["top", "inner1", "inner4", "bottom"]) {
+      drawer.render({ selectedLayer })
+      await drawer.flush()
+      frames[selectedLayer] = canvas.toDataURL().split(",")[1]
+    }
+    drawer.render({ selectedLayer: "inner1", layers: ["inner1"] })
+    await drawer.flush()
+    frames.filtered = canvas.toDataURL().split(",")[1]
+    drawer.render({
+      selectedLayer: "top",
+      layers: undefined,
+      xRayElementIds: ["via-2"],
+    })
+    await drawer.flush()
+    frames.xray = canvas.toDataURL().split(",")[1]
+    return frames
+  })
+  const spans = [
+    ["top", "bottom"],
+    ["top", "inner1"],
+    ["inner1", "inner2"],
+    ["inner4", "bottom"],
+  ]
+  for (const selectedLayer of ["top", "inner1", "inner4", "bottom"])
+    for (let i = 0; i < spans.length; i++)
+      assert.deepEqual(
+        pixel(viaDrills[selectedLayer], 100 + i * 100, 100),
+        i === 0 || spans[i].includes(selectedLayer)
+          ? [255, 38, 226, 255]
+          : [70, 72, 72, 255],
+        `Drill ${i} must follow its copper span on ${selectedLayer}`,
+      )
+  assert.deepEqual(
+    pixel(viaDrills.filtered, 300, 100),
+    [255, 255, 255, 255],
+    "Explicit filters can hide partial-depth drills",
+  )
+  assert.deepEqual(
+    pixel(viaDrills.xray, 300, 100),
+    [255, 38, 226, 255],
+    "Selected buried drills remain visible in X-Ray",
+  )
+  assert.deepEqual(
+    pixel(viaDrills.xray, 100, 100),
+    [255, 255, 255, 255],
+    "Unrelated drills remain hidden in X-Ray",
+  )
+
   const fabrication = await page.evaluate(() => {
     const drawer = window.gpuTest.drawer
     const canvas = document.querySelector("canvas")!
