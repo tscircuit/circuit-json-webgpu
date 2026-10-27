@@ -505,16 +505,20 @@ export class CircuitToWebGpuDrawer {
       layer === "drill" ||
       ![...filter].some((name) => this.isCopper(name)) ||
       layer
-        .slice(6)
+        .split(":")[1]
         .split(",")
         .some((name) => filter.has(name))
     )
   }
   private opacity(layer: string, selected: string, hidden: number) {
-    if (layer.startsWith("drill:"))
-      return layer.slice(6).split(",").includes(selected)
+    if (layer.startsWith("drill:")) {
+      const [, span, tented] = layer.split(":")
+      if (this.options.showSolderMask && tented?.split(",").includes(selected))
+        return 0
+      return span.split(",").includes(selected)
         ? 1
         : Math.max(0, Math.min(1, hidden))
+    }
     return ["board", "drill", "edge_cuts"].includes(layer) ||
       layer === selected ||
       layer.startsWith(`${selected}_`) ||

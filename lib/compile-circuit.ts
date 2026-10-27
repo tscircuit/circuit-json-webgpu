@@ -409,7 +409,18 @@ export function compileCircuitJson(
     if (isThrough) get("board", index, true).polygon(rings)
     // Partial-depth drills follow their copper span's visibility rather than
     // disappearing entirely or showing through unrelated opaque layers.
-    const drill = isThrough ? "drill" : `drill:${[...layers].sort().join(",")}`
+    const element = elements[index] as Element
+    const tented = ["top", "bottom"].filter(
+      (side) =>
+        layers.includes(side) &&
+        (element[`tented_on_${side}`] ??
+          element.is_tented ??
+          element.is_covered_with_solder_mask ??
+          false),
+    )
+    const drill = isThrough
+      ? "drill"
+      : `drill:${[...layers].sort().join(",")}:${tented.join(",")}`
     get(drill, index).polygon(rings)
     for (const side of ["top", "bottom"])
       if (layers.includes(side))

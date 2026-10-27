@@ -82,7 +82,16 @@ try {
         },
       )
       await writeFile(new URL(`${c.id}.svg.svg`, dir), svg)
-      const svgPng = new Resvg(svg).render().asPng()
+      // Unknown SVG fonts must not fall back to whichever system font the
+      // runner happens to enumerate first. Keep Linux reference pixels stable.
+      const svgPng = new Resvg(svg, {
+        font: {
+          defaultFontFamily:
+            process.platform === "linux" ? "DejaVu Sans" : undefined,
+        },
+      })
+        .render()
+        .asPng()
       await writeFile(new URL(`${c.id}.svg.png`, dir), svgPng)
       const result = await page.evaluate(
         (scene) => window.parity.render(scene),

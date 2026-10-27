@@ -159,6 +159,67 @@ try {
     [255, 255, 255, 255],
     "Unrelated drills remain hidden in X-Ray",
   )
+  const tentedDrills = await page.evaluate(async () => {
+    const drawer = window.gpuTest.drawer
+    const canvas = document.querySelector("canvas")!
+    drawer.drawElements(
+      [
+        {
+          type: "pcb_via",
+          pcb_via_id: "tented",
+          x: 0,
+          y: 0,
+          outer_diameter: 0.6,
+          hole_diameter: 0.3,
+          layers: ["inner1", "bottom"],
+          tented_on_bottom: true,
+        },
+        {
+          type: "pcb_via",
+          pcb_via_id: "override",
+          x: 1,
+          y: 0,
+          outer_diameter: 0.6,
+          hole_diameter: 0.3,
+          layers: ["inner1", "bottom"],
+          is_tented: true,
+          tented_on_bottom: false,
+        },
+      ] as CircuitJson,
+      {
+        transform: { a: 100, b: 0, c: 0, d: -100, e: 100, f: 100 },
+        selectedLayer: "bottom",
+        showSolderMask: false,
+        background: [1, 1, 1, 1],
+      },
+    )
+    const frames: Record<string, string> = {}
+    for (const showSolderMask of [false, true]) {
+      drawer.render({ showSolderMask })
+      await drawer.flush()
+      frames[String(showSolderMask)] = canvas.toDataURL().split(",")[1]
+    }
+    drawer.render({ xRayElementIds: ["tented"] })
+    await drawer.flush()
+    frames.xray = canvas.toDataURL().split(",")[1]
+    return frames
+  })
+  assert.deepEqual(pixel(tentedDrills.false, 100, 100), [255, 38, 226, 255])
+  assert.deepEqual(
+    pixel(tentedDrills.true, 100, 100),
+    [255, 255, 255, 255],
+    "Solder mask hides a tented blind drill",
+  )
+  assert.deepEqual(
+    pixel(tentedDrills.true, 200, 100),
+    [255, 38, 226, 255],
+    "Per-side tenting overrides the legacy flag",
+  )
+  assert.deepEqual(
+    pixel(tentedDrills.xray, 100, 100),
+    [255, 38, 226, 255],
+    "X-Ray shows selected drills beneath solder mask",
+  )
 
   const fabrication = await page.evaluate(() => {
     const drawer = window.gpuTest.drawer
