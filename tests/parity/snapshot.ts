@@ -2,6 +2,9 @@ import { access, mkdir, readFile, writeFile } from "node:fs/promises"
 import { PNG } from "pngjs"
 import { Resvg } from "@resvg/resvg-js"
 import { compare } from "./compare"
+import snapshotAliases from "./snapshot-aliases.json"
+
+const aliases: Record<string, string> = snapshotAliases
 
 /** PNG baseline contains labeled, equally sized SVG-left / rendered-GPU-right panels. */
 export async function featureSnapshot(
@@ -44,10 +47,22 @@ export async function featureSnapshot(
       baseline = linux
   }
   if (process.env.UPDATE_SNAPSHOTS) {
+    // Give this case its own file when updating so a changed render cannot
+    // overwrite the baseline used by other cases with identical old output.
     await writeFile(baseline, buffer)
     return { pass: true, updated: true }
   }
   try {
+    // Prefer a case's own baseline (including Linux overrides). Only fall back
+    // to a shared image when its byte-identical duplicate was removed.
+    if (
+      aliases[key] &&
+      !(await access(baseline).then(
+        () => true,
+        () => false,
+      ))
+    )
+      baseline = new URL(`${aliases[key]}.png`, baselineDir)
     const expected = PNG.sync.read(await readFile(baseline))
     if (expected.width !== pair.width || expected.height !== pair.height)
       return { pass: false, error: "Snapshot dimensions changed" }

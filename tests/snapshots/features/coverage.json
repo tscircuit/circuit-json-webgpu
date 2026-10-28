@@ -227,37 +227,37 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-disabled-80819001566d.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "disabling soldermask ignores coverage and margins",
       "path": "tests/elements/pcb-soldermask-disabled.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-disabled-372c55a64d9b.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "disabling soldermask ignores coverage and margins",
       "path": "tests/elements/pcb-soldermask-disabled.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-disabled-6c7bcd5a06b8.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "disabling soldermask ignores coverage and margins",
       "path": "tests/elements/pcb-soldermask-disabled.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-disabled-3ca57d628c26.png",
+      "file": "pcb-soldermask-coverage-flags-4187c6b838a2.png",
       "test": "disabling soldermask ignores coverage and margins",
       "path": "tests/elements/pcb-soldermask-disabled.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-disabled-dd2245feb09f.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "disabling soldermask ignores coverage and margins",
       "path": "tests/elements/pcb-soldermask-disabled.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-disabled-0d61bd21c0b5.png",
+      "file": "pcb-soldermask-coverage-flags-08bef4cf609f.png",
       "test": "disabling soldermask ignores coverage and margins",
       "path": "tests/elements/pcb-soldermask-disabled.test.ts",
       "status": "mismatch"
@@ -377,55 +377,55 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-fdae1227d73b.png",
+      "file": "pcb-soldermask-drill-openings-3b0aa650f21b.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-b579e9673975.png",
+      "file": "pcb-soldermask-drill-openings-3b0aa650f21b.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-ffd7c2fb3a96.png",
+      "file": "pcb-soldermask-drill-openings-2642d02848d3.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-486e01d0259f.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-c65de1d6957d.png",
+      "file": "pcb-soldermask-drill-openings-01c315fd51b9.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-a64a04790d6a.png",
+      "file": "pcb-soldermask-drill-openings-01c315fd51b9.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-76f4acc19153.png",
+      "file": "pcb-soldermask-drill-openings-2642d02848d3.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-093a537d8499.png",
+      "file": "pcb-soldermask-asymmetric-coverage-33cd7e3c3c0a.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-e49e0f06c2dc.png",
+      "file": "pcb-soldermask-drill-openings-3b0aa650f21b.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
@@ -443,7 +443,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-93a4274bdd43.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
@@ -455,73 +455,73 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-6d2f7d1bad7a.png",
+      "file": "pcb-soldermask-drill-openings-01c315fd51b9.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-390506719aa5.png",
+      "file": "pcb-soldermask-drill-openings-0ba0a39fbbb4.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-7962f97af551.png",
+      "file": "pcb-soldermask-asymmetric-coverage-33cd7e3c3c0a.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-4d8685e4db7c.png",
+      "file": "pcb-soldermask-drill-openings-3b0aa650f21b.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-6d18cb938f3c.png",
+      "file": "pcb-soldermask-drill-openings-3b0aa650f21b.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-a5821b3167d1.png",
+      "file": "pcb-soldermask-drill-openings-0ba0a39fbbb4.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-54b1c207819c.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-933c60e67d44.png",
+      "file": "pcb-soldermask-drill-openings-01c315fd51b9.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-9829e90854f7.png",
+      "file": "pcb-soldermask-drill-openings-01c315fd51b9.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-99322f719e8a.png",
+      "file": "pcb-soldermask-drill-openings-0ba0a39fbbb4.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-1628e54a34db.png",
+      "file": "pcb-soldermask-asymmetric-coverage-33cd7e3c3c0a.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-93730a8238e7.png",
+      "file": "pcb-soldermask-drill-openings-619985014d65.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
@@ -539,31 +539,31 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-35068fac7910.png",
+      "file": "pcb-soldermask-coverage-flags-4187c6b838a2.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-ae8d3647941b.png",
+      "file": "pcb-soldermask-drill-openings-44f19ff0fff6.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-461b1f0cd8d8.png",
+      "file": "pcb-soldermask-drill-openings-44f19ff0fff6.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-2a8e941666a6.png",
+      "file": "pcb-soldermask-drill-openings-2642d02848d3.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-159f978a6b07.png",
+      "file": "pcb-soldermask-drill-openings-14ca1efb8dbc.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
@@ -575,25 +575,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-54026294beae.png",
+      "file": "pcb-soldermask-drill-openings-1071d448b707.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-dc4aab3c5225.png",
+      "file": "pcb-soldermask-drill-openings-0bff25f602ad.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-06351d544896.png",
+      "file": "pcb-soldermask-coverage-flags-4187c6b838a2.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-d346b8faf065.png",
+      "file": "pcb-soldermask-drill-openings-4faf12d1e1e6.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
@@ -611,31 +611,31 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-e3eddf899716.png",
+      "file": "pcb-soldermask-drill-openings-14ca1efb8dbc.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-d6fed155b0ee.png",
+      "file": "pcb-soldermask-drill-openings-619985014d65.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-b69be1f5a542.png",
+      "file": "pcb-soldermask-drill-openings-619985014d65.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-8227912cdc60.png",
+      "file": "pcb-soldermask-drill-openings-3dd83a438865.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-199522ea0972.png",
+      "file": "pcb-soldermask-coverage-flags-4187c6b838a2.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
@@ -647,7 +647,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-drill-openings-8aed3a41a587.png",
+      "file": "pcb-soldermask-drill-openings-44f19ff0fff6.png",
       "test": "negative-margin pads preserve drill openings in either order",
       "path": "tests/elements/pcb-soldermask-drill-openings.test.ts",
       "status": "mismatch"
@@ -695,13 +695,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-copper-pour-opacity-866798307d4c.png",
-      "test": "draw copper pours with configurable opacity",
-      "path": "tests/elements/pcb-copper-pour-opacity.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-copper-pour-opacity-d35c1224aa26.png",
+      "file": "pcb-copper-pour-opacity-692a71a789bb.png",
       "test": "draw copper pours with configurable opacity",
       "path": "tests/elements/pcb-copper-pour-opacity.test.ts",
       "status": "mismatch"
@@ -713,7 +707,13 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-copper-pour-opacity-d04e17a0544a.png",
+      "file": "pcb-copper-pour-opacity-692a71a789bb.png",
+      "test": "draw copper pours with configurable opacity",
+      "path": "tests/elements/pcb-copper-pour-opacity.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-copper-pour-opacity-692a71a789bb.png",
       "test": "draw copper pours with configurable opacity",
       "path": "tests/elements/pcb-copper-pour-opacity.test.ts",
       "status": "mismatch"
@@ -767,7 +767,7 @@
       "status": "mismatch"
     },
     {
-      "file": "teardrop-trace-eea62ed63ed1.png",
+      "file": "teardrop-trace-eb556a774a69.png",
       "test": "standalone taper renders and respects layer filtering and trace mode",
       "path": "tests/elements/teardrop-trace.test.ts",
       "status": "pass"
@@ -785,7 +785,7 @@
       "status": "pass"
     },
     {
-      "file": "teardrop-trace-f088066cdd25.png",
+      "file": "teardrop-trace-8d5e70103fca.png",
       "test": "standalone taper renders and respects layer filtering and trace mode",
       "path": "tests/elements/teardrop-trace.test.ts",
       "status": "mismatch"
@@ -941,19 +941,19 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-via-dark-center-transparent-102aa440cb03.png",
+      "file": "pcb-via-dark-center-color-overrides-b8bfb3ac12b6.png",
       "test": "transparent mask colors do not add a dark center",
       "path": "tests/elements/pcb-via-dark-center-transparent.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-via-dark-center-transparent-f0290cc448f9.png",
+      "file": "pcb-via-dark-center-top-24a6ded72f06.png",
       "test": "transparent mask colors do not add a dark center",
       "path": "tests/elements/pcb-via-dark-center-transparent.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-6d82845b0f3d.png",
+      "file": "pcb-plated-hole-collapsed-coverage-2a7026e166b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -965,13 +965,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-d153f8e3127f.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-db740787efe7.png",
+      "file": "pcb-plated-hole-collapsed-coverage-2a7026e166b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -983,79 +977,73 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-5b03f754e2b7.png",
+      "file": "pcb-plated-hole-collapsed-coverage-2a7026e166b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-57e144a7c5e2.png",
+      "file": "pcb-plated-hole-collapsed-coverage-2a7026e166b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-5b69054f0ade.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1dac9a0d3ccb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-e0b2851d0379.png",
+      "file": "pcb-plated-hole-collapsed-coverage-2a7026e166b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-6a5a387663bb.png",
+      "file": "pcb-plated-hole-collapsed-coverage-2a7026e166b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-fbdc88234874.png",
+      "file": "pcb-plated-hole-collapsed-coverage-2a7026e166b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-73699cac9338.png",
+      "file": "pcb-plated-hole-collapsed-coverage-2a7026e166b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-efdabb97304f.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1dac9a0d3ccb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-5ea903800808.png",
+      "file": "pcb-plated-hole-collapsed-coverage-2a7026e166b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-547c14756273.png",
+      "file": "pcb-plated-hole-collapsed-coverage-2a7026e166b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-8b41566340c3.png",
+      "file": "pcb-plated-hole-collapsed-coverage-2a7026e166b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-a353661f908f.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-d26f7555fe4d.png",
+      "file": "pcb-plated-hole-collapsed-coverage-2a7026e166b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1067,49 +1055,31 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-59499043a9cc.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0120820895fc.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-fe7abe975b8a.png",
+      "file": "pcb-plated-hole-collapsed-coverage-023a007f83aa.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-0dec023a340e.png",
+      "file": "pcb-plated-hole-collapsed-coverage-023a007f83aa.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-36349b56c12f.png",
+      "file": "pcb-plated-hole-collapsed-coverage-023a007f83aa.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-41660f577ac3.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-1ac59e3cb975.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-af295b591a3a.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-f100cf888ad3.png",
+      "file": "pcb-plated-hole-collapsed-coverage-023a007f83aa.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1121,103 +1091,55 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-6441b242f3a5.png",
+      "file": "pcb-plated-hole-collapsed-coverage-023a007f83aa.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-3462a0fcddf0.png",
+      "file": "pcb-plated-hole-collapsed-coverage-023a007f83aa.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-5fb0bdd9b030.png",
+      "file": "pcb-plated-hole-collapsed-coverage-023a007f83aa.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-2e9e94c36337.png",
+      "file": "pcb-plated-hole-collapsed-coverage-023a007f83aa.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-24e1b9f23899.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0120820895fc.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-e26d73596ac6.png",
+      "file": "pcb-plated-hole-collapsed-coverage-023a007f83aa.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-b276a790a8a2.png",
+      "file": "pcb-plated-hole-collapsed-coverage-023a007f83aa.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-c06884ca247b.png",
+      "file": "pcb-plated-hole-collapsed-coverage-023a007f83aa.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-723fea95facd.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-70ae1126ea5c.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-5acd20fe28f4.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-fad07cc0252f.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-e33472b0686a.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-d71f3e793658.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-f7329c3c65ee.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-a019403438ac.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-9b044600dab8.png",
+      "file": "pcb-plated-hole-collapsed-coverage-023a007f83aa.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1229,85 +1151,91 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-1890988043ce.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-f02d6fc1e1e0.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-885733ad9977.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-90a5fcd026c9.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-d4a0c4514aa0.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-99b309a9cafe.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-e8885a3adaf3.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-ee01ce31e1be.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-cefce1f05f92.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-8103990aea4e.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-89867b70ea3b.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-50c5a5d4c838.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-c2d7fe492a5e.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-f3df398df28c.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-0cf7621a0dc5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1319,25 +1247,97 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-45f5be27d8d6.png",
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-c84563d601da.png",
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-9e4147df2bf3.png",
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-09cafb9e2241.png",
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-354d5891a961.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-08dbea164396.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1355,19 +1355,19 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-1b6b7c282637.png",
+      "file": "pcb-plated-hole-collapsed-coverage-08dbea164396.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-c9fee1e487e1.png",
+      "file": "pcb-plated-hole-collapsed-coverage-08dbea164396.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-e0ccef1c84ae.png",
+      "file": "pcb-plated-hole-collapsed-coverage-08dbea164396.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1379,25 +1379,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-3c9e66ba0e25.png",
+      "file": "pcb-plated-hole-collapsed-coverage-08dbea164396.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-145ca00b64ae.png",
+      "file": "pcb-plated-hole-collapsed-coverage-08dbea164396.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-176526b6ecc9.png",
+      "file": "pcb-plated-hole-collapsed-coverage-08dbea164396.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-84a45022151d.png",
+      "file": "pcb-plated-hole-collapsed-coverage-08dbea164396.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1409,25 +1409,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-ca2130b60d6a.png",
+      "file": "pcb-plated-hole-collapsed-coverage-08dbea164396.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-c713e8d5b054.png",
+      "file": "pcb-plated-hole-collapsed-coverage-08dbea164396.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-b40835967b34.png",
+      "file": "pcb-plated-hole-collapsed-coverage-08dbea164396.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-7da2be91dd4d.png",
+      "file": "pcb-plated-hole-collapsed-coverage-08dbea164396.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1445,25 +1445,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-7d464f34d728.png",
+      "file": "pcb-plated-hole-collapsed-coverage-3a355b035c1a.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-ebc7decc4487.png",
+      "file": "pcb-plated-hole-collapsed-coverage-3a355b035c1a.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-c4ecbb4c458d.png",
+      "file": "pcb-plated-hole-collapsed-coverage-3a355b035c1a.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-a276026fca73.png",
+      "file": "pcb-plated-hole-collapsed-coverage-3a355b035c1a.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1475,25 +1475,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-65636d576c37.png",
+      "file": "pcb-plated-hole-collapsed-coverage-3a355b035c1a.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-4cf38fcea272.png",
+      "file": "pcb-plated-hole-collapsed-coverage-3a355b035c1a.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-e72800cb5b57.png",
+      "file": "pcb-plated-hole-collapsed-coverage-3a355b035c1a.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-83fbd5655fd7.png",
+      "file": "pcb-plated-hole-collapsed-coverage-3a355b035c1a.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1505,73 +1505,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-cb35ce9c60b9.png",
+      "file": "pcb-plated-hole-collapsed-coverage-3a355b035c1a.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-c8e50b54341a.png",
+      "file": "pcb-plated-hole-collapsed-coverage-3a355b035c1a.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-c24703d55bd8.png",
+      "file": "pcb-plated-hole-collapsed-coverage-3a355b035c1a.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-f62f6fd4ebcb.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-1a7bf065a9b9.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-5cf19b9dc3e2.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-972d81ab9dbe.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-51722cd20478.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-48535a42e319.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-1e072bea7aa4.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-dddd1ad431fa.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-ce74d1200877.png",
+      "file": "pcb-plated-hole-collapsed-coverage-3a355b035c1a.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1583,61 +1535,91 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-ef3f50bab922.png",
+      "file": "pcb-plated-hole-collapsed-coverage-5cf19b9dc3e2.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-ac15395d307a.png",
+      "file": "pcb-plated-hole-collapsed-coverage-017f08cf83b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-f93de8cab594.png",
+      "file": "pcb-plated-hole-collapsed-coverage-017f08cf83b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-4a5eaf355983.png",
+      "file": "pcb-plated-hole-collapsed-coverage-017f08cf83b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-8f6ce7be8b7d.png",
+      "file": "pcb-plated-hole-collapsed-coverage-017f08cf83b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-d48af6e481f0.png",
+      "file": "pcb-plated-hole-collapsed-coverage-5cf19b9dc3e2.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-41a9452e88cc.png",
+      "file": "pcb-plated-hole-collapsed-coverage-017f08cf83b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-bddc4733b7b2.png",
+      "file": "pcb-plated-hole-collapsed-coverage-017f08cf83b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-52669580a1bb.png",
+      "file": "pcb-plated-hole-collapsed-coverage-017f08cf83b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-b7a48b026d39.png",
+      "file": "pcb-plated-hole-collapsed-coverage-017f08cf83b0.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-5cf19b9dc3e2.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-017f08cf83b0.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-017f08cf83b0.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-017f08cf83b0.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-017f08cf83b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1649,97 +1631,91 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-92d151aeea2f.png",
+      "file": "pcb-plated-hole-collapsed-coverage-52669580a1bb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-1a01ada4acbd.png",
+      "file": "pcb-plated-hole-collapsed-coverage-12c5a9c82bd5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-cceb024d5305.png",
+      "file": "pcb-plated-hole-collapsed-coverage-12c5a9c82bd5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-eeb200c91ef1.png",
+      "file": "pcb-plated-hole-collapsed-coverage-12c5a9c82bd5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-8409daa78d26.png",
+      "file": "pcb-plated-hole-collapsed-coverage-12c5a9c82bd5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-bff20fccd79b.png",
+      "file": "pcb-plated-hole-collapsed-coverage-52669580a1bb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-70ea6b14bd1b.png",
+      "file": "pcb-plated-hole-collapsed-coverage-12c5a9c82bd5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-d9c08ddc09f1.png",
+      "file": "pcb-plated-hole-collapsed-coverage-12c5a9c82bd5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-68126229b72f.png",
+      "file": "pcb-plated-hole-collapsed-coverage-12c5a9c82bd5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-9197addadee8.png",
+      "file": "pcb-plated-hole-collapsed-coverage-12c5a9c82bd5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-8d4e463607a3.png",
+      "file": "pcb-plated-hole-collapsed-coverage-52669580a1bb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-219d162293b4.png",
+      "file": "pcb-plated-hole-collapsed-coverage-12c5a9c82bd5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-66b7269971df.png",
+      "file": "pcb-plated-hole-collapsed-coverage-12c5a9c82bd5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-19ef90f5a261.png",
+      "file": "pcb-plated-hole-collapsed-coverage-12c5a9c82bd5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-601f678f12a7.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-2d52ffd30ab2.png",
+      "file": "pcb-plated-hole-collapsed-coverage-12c5a9c82bd5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1751,157 +1727,91 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-cb61392be163.png",
+      "file": "pcb-plated-hole-collapsed-coverage-19ef90f5a261.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-f88208d62d99.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1d18ce2c2664.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-81edb494ef7f.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1d18ce2c2664.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-d97e5c7480ee.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1d18ce2c2664.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-448e37554bb5.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1d18ce2c2664.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-1d4ec4c127bd.png",
+      "file": "pcb-plated-hole-collapsed-coverage-19ef90f5a261.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-b766274b9178.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1d18ce2c2664.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-2e84ea5d7d47.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1d18ce2c2664.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-9e9615191e80.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1d18ce2c2664.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-98daaf20d229.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1d18ce2c2664.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-65915e5e824d.png",
+      "file": "pcb-plated-hole-collapsed-coverage-19ef90f5a261.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-3120a01e3619.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1d18ce2c2664.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-7b51241b52a8.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1d18ce2c2664.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-a4d3255a2645.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1d18ce2c2664.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-4a427363d382.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-80cf47968b5d.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-ac9b65ca6102.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-a7b4cd1bbd2e.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-8300b07cbe62.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-f3f653c242da.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-95de60e4a3b0.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-3b65ea52fad3.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-8c559eb6b55c.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-9330c620cabe.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-e554c32fdfbc.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-b42dfef91728.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1d18ce2c2664.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1913,19 +1823,91 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-15fdcfb57534.png",
+      "file": "pcb-plated-hole-collapsed-coverage-7b51241b52a8.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-26a2af3d50b0.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1f1bcb692dc9.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-6f608195821b.png",
+      "file": "pcb-plated-hole-collapsed-coverage-1f1bcb692dc9.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-1f1bcb692dc9.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-1f1bcb692dc9.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-7b51241b52a8.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-1f1bcb692dc9.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-1f1bcb692dc9.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-1f1bcb692dc9.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-1f1bcb692dc9.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-7b51241b52a8.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-1f1bcb692dc9.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-1f1bcb692dc9.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-1f1bcb692dc9.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-1f1bcb692dc9.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -1937,73 +1919,91 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-bccce81cab0d.png",
+      "file": "pcb-plated-hole-collapsed-coverage-26a2af3d50b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-f5807d1be072.png",
+      "file": "pcb-plated-hole-collapsed-coverage-158fd36064f5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-f0ca1ec1c864.png",
+      "file": "pcb-plated-hole-collapsed-coverage-158fd36064f5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-3a28102e103e.png",
+      "file": "pcb-plated-hole-collapsed-coverage-158fd36064f5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-4915e64970d3.png",
+      "file": "pcb-plated-hole-collapsed-coverage-158fd36064f5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-d05dcdccfcfd.png",
+      "file": "pcb-plated-hole-collapsed-coverage-26a2af3d50b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-9762f00f82bd.png",
+      "file": "pcb-plated-hole-collapsed-coverage-158fd36064f5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-bd64e24ebb73.png",
+      "file": "pcb-plated-hole-collapsed-coverage-158fd36064f5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-39d06901479e.png",
+      "file": "pcb-plated-hole-collapsed-coverage-158fd36064f5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-c5c404098877.png",
+      "file": "pcb-plated-hole-collapsed-coverage-158fd36064f5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-303de6a900eb.png",
+      "file": "pcb-plated-hole-collapsed-coverage-26a2af3d50b0.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-b528b6c2e6fa.png",
+      "file": "pcb-plated-hole-collapsed-coverage-158fd36064f5.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-158fd36064f5.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-158fd36064f5.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-158fd36064f5.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -2015,61 +2015,31 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-e126b3031136.png",
+      "file": "pcb-plated-hole-collapsed-coverage-112f13142b6e.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-a9f2dc087f8f.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0735191305fb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-7860fcf926a6.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0735191305fb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-2b3f489b857d.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0735191305fb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-87b9c979052f.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-27d0f8f2d8d7.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-618fb533390a.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-3c7387fb9417.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-54f57cc3cc36.png",
-      "test": "collapsed plated-hole openings render safely and obey coverage",
-      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-plated-hole-collapsed-coverage-565b1f1b3a11.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0735191305fb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -2081,25 +2051,55 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-bde097789873.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0735191305fb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-b974472b760f.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0735191305fb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-337810490a2f.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0735191305fb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-plated-hole-collapsed-coverage-5604683f1c66.png",
+      "file": "pcb-plated-hole-collapsed-coverage-0735191305fb.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-112f13142b6e.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-0735191305fb.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-0735191305fb.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-0735191305fb.png",
+      "test": "collapsed plated-hole openings render safely and obey coverage",
+      "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-plated-hole-collapsed-coverage-0735191305fb.png",
       "test": "collapsed plated-hole openings render safely and obey coverage",
       "path": "tests/elements/pcb-plated-hole-collapsed-coverage.test.ts",
       "status": "mismatch"
@@ -2189,103 +2189,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-fe955f541947.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-24190a26103a.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-ae880a7705b1.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-7dbda8e3931d.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-5d6f5ba3677b.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-aae5a78f1b46.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-b4750d4a7781.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-2ba5824d3248.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-b23de330d9f2.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-4e3e7e098e34.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-eb15f558e8d7.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-0636abf26d66.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
       "file": "pcb-hole-collapsed-soldermask-13573af0657b.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-5e87b097f8e6.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-1e71d5958163.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-2b9894e9ba37.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-f3c733da2a42.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -2297,109 +2201,133 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-5b187a5ecaca.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-2b098e5707af.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-38d4bcc50a2c.png",
+      "file": "pcb-hole-collapsed-soldermask-13573af0657b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-c75e9e9cfa31.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-8b6ddc99961b.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-d4ebba385c77.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-e7d3683774c4.png",
+      "file": "pcb-hole-collapsed-soldermask-13573af0657b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-30358fc47b31.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-69e7e6df713d.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-e8be865a8568.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-47fe1fa1d919.png",
+      "file": "pcb-hole-collapsed-soldermask-13573af0657b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-4af8a7a2948f.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-25e081397201.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-5a71533ce00a.png",
+      "file": "pcb-hole-collapsed-soldermask-13573af0657b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-fb188ff1fa79.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-3706cc2009df.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-32087bc71880.png",
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-13573af0657b.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-02c4303a4185.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -2411,67 +2339,139 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-bda3b35458eb.png",
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-9408135a768e.png",
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-77affa645d9e.png",
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-38ac8d66d649.png",
+      "file": "pcb-hole-collapsed-soldermask-254811a7696a.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-ac1ba5f26a98.png",
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-655dd5a31b2e.png",
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-8d899e1fe748.png",
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-5b1f2ba123f4.png",
+      "file": "pcb-hole-collapsed-soldermask-254811a7696a.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-4cc4c46c3677.png",
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-95affbb9668e.png",
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-421d5611182b.png",
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-254811a7696a.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-254811a7696a.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-254811a7696a.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-0586b04d7d80.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -2483,19 +2483,19 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-79cc0841eec8.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-61aaa2589a2f.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-3ba8ccdbb733.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -2513,109 +2513,109 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-5fc2644434c9.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-e789c7248e2e.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-d0b079484799.png",
+      "file": "pcb-hole-collapsed-soldermask-718e228fe657.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-58986b6be6a1.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-73645e904515.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-c55277c643cc.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-b96a2d0db826.png",
+      "file": "pcb-hole-collapsed-soldermask-718e228fe657.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-552601557893.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-66a479806261.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-21beb14e033e.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-9c585a53fa16.png",
+      "file": "pcb-hole-collapsed-soldermask-3e2b271ce2b5.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-69a548dbde40.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-527e9bc36950.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-6381794536ba.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-b7408d85057e.png",
+      "file": "pcb-hole-collapsed-soldermask-718e228fe657.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-2978028e6d58.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-8c2dfe68d285.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-e2c0cfc8c6a9.png",
+      "file": "pcb-hole-collapsed-soldermask-1cea79b251b3.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -2627,37 +2627,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-4bed36b7a436.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-4efde27fb69a.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-6c75f21ebbd9.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-94013a3bc6d5.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-4ff4c6d6d75c.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-5b1652b3ba47.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -2669,97 +2639,127 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-3ffac35aa85f.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-ca8b0b9d9e25.png",
+      "file": "pcb-hole-collapsed-soldermask-3eb64ab21482.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-47de0e506663.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-cb4bc410e00c.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-40e43c34aac0.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-78e036056b06.png",
+      "file": "pcb-hole-collapsed-soldermask-3eb64ab21482.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-8dee0fef4e0f.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-b47a106a6150.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-b730f6081637.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-58c999011c56.png",
+      "file": "pcb-hole-collapsed-soldermask-3eb64ab21482.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-a3f7763c5cc1.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-845f95c5e012.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-57811d27ed22.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-dfab1965dc45.png",
+      "file": "pcb-hole-collapsed-soldermask-3eb64ab21482.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-b0047790335b.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-b81d80dd33e9.png",
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-3eb64ab21482.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-06e3468ed60b.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -2771,61 +2771,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-8640a908c36e.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-610c2c2a3acf.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-1c495fee6345.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-3ef279421650.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-805dfde2dfd9.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-4a1505e6dbf8.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-9723695fe93f.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-f425d74be450.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-715c272d4e6e.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-bf5345205514.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -2837,25 +2783,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-432f6746d940.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-1a13d38cc66c.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-523a5663e15f.png",
-      "test": "collapsed negative-margin hole openings stay masked",
-      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-hole-collapsed-soldermask-617d7a86b6fe.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -2867,19 +2795,19 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-e0c7dd034bee.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-f5db09ea5453.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-0a9111ceeecd.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -2891,91 +2819,91 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-b082b320027c.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-7ddeafdf2138.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-4cea98eb2f08.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-ad2999dc7d96.png",
+      "file": "pcb-hole-collapsed-soldermask-163cd58215b9.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-8496e596d931.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-db762b09c29a.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-161a0208dc70.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-f79a6e1a7c29.png",
+      "file": "pcb-hole-collapsed-soldermask-38bd4fcb02c7.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-d0a4c7a1f3ff.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-c6234ebfdb0b.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-ac0f78fc12a8.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-ce479f307976.png",
+      "file": "pcb-hole-collapsed-soldermask-921cd821e238.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-a29b43bb17bb.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-6b8c14bed0c2.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-fe422409f590.png",
+      "file": "pcb-hole-collapsed-soldermask-05f2df1fc70e.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -2987,13 +2915,13 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-241b6f19eaa0.png",
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-2078fca12bf0.png",
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -3011,19 +2939,19 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-1dc64c1aef92.png",
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-5547dfadcb0b.png",
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-c0b41e3f3e9e.png",
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -3035,19 +2963,91 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-d9ae29e54145.png",
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-bc6bd2ba0e4f.png",
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-hole-collapsed-soldermask-bf29fd5a498c.png",
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-27036b4c63be.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-54d091ef1ffb.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-ca75e45d90e3.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
+      "test": "collapsed negative-margin hole openings stay masked",
+      "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-hole-collapsed-soldermask-14d4eea8b6cf.png",
       "test": "collapsed negative-margin hole openings stay masked",
       "path": "tests/elements/pcb-hole-collapsed-soldermask.test.ts",
       "status": "mismatch"
@@ -3065,163 +3065,163 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-88aa7af04700.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-55861b0bf190.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-374abd3f9603.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-6e3a114b1219.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-32434085b694.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-b315b0b49cf3.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-1a44deb9b0a2.png",
+      "file": "pcb-soldermask-coverage-flags-a3fb8dd75cd5.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-bb8f955441d1.png",
+      "file": "pcb-soldermask-coverage-flags-661c3f3ac663.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-bf292649ddef.png",
+      "file": "pcb-soldermask-coverage-flags-71932892982f.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-0c3628af8e84.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-681035df2fd5.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-c80073238b0f.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-263db79570e1.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-232d1d76bbed.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-64adb330ae38.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-4784186a8074.png",
+      "file": "pcb-soldermask-coverage-flags-2a61df3f9f6b.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-fad57adffd11.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-dd37c9fdd0ed.png",
+      "file": "pcb-soldermask-coverage-flags-0a8a0fb1a8b1.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-53dd20b4ed6e.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-dc38e9d6554b.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-8d7f145084c1.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-dbf2fe694343.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-48df5f4268d3.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-ec7ac894b766.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-787bcbee0c21.png",
+      "file": "pcb-soldermask-coverage-flags-3891531e28dc.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-994ded70939b.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-svg-behavior-11ac9a37265c.png",
+      "file": "pcb-soldermask-coverage-flags-7f588cfb9c29.png",
       "test": "soldermask flag and margin comparison against published circuit-to-svg",
       "path": "tests/elements/pcb-soldermask-svg-behavior.test.ts",
       "status": "mismatch"
@@ -3263,7 +3263,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-bc33650d2f96.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-49626ccca860.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
@@ -3275,37 +3275,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-dd3015e9b4f0.png",
-      "test": "overlapping positive openings preserve neighboring copper in either order",
-      "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-overlapping-positive-openings-5ab94d7a7ee0.png",
-      "test": "overlapping positive openings preserve neighboring copper in either order",
-      "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-overlapping-positive-openings-eb1d0226a195.png",
-      "test": "overlapping positive openings preserve neighboring copper in either order",
-      "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-overlapping-positive-openings-506fea576afc.png",
-      "test": "overlapping positive openings preserve neighboring copper in either order",
-      "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-overlapping-positive-openings-91f67321f1dc.png",
-      "test": "overlapping positive openings preserve neighboring copper in either order",
-      "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-overlapping-positive-openings-aeb0d4c32561.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-0f926b9cbcf7.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
@@ -3317,61 +3287,55 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-8cfe07ff99c6.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-506fea576afc.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-65a13bec8fb3.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-506fea576afc.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-855965d15669.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-49626ccca860.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-130e0ede4345.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-49626ccca860.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-7f1358dba1b8.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-0f926b9cbcf7.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-ac912c09a376.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-0f926b9cbcf7.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-4aa44b397c9a.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-506fea576afc.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-d19a8d55c1e4.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-506fea576afc.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-d9305da4cf21.png",
-      "test": "overlapping positive openings preserve neighboring copper in either order",
-      "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-overlapping-positive-openings-d347a71a0365.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-036b5dc46cbc.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
@@ -3389,13 +3353,49 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-8de3dc17ac88.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-0eb2512f515a.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-overlapping-positive-openings-67af17305b33.png",
+      "file": "pcb-soldermask-overlapping-positive-openings-2080e4587b8a.png",
+      "test": "overlapping positive openings preserve neighboring copper in either order",
+      "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-overlapping-positive-openings-2080e4587b8a.png",
+      "test": "overlapping positive openings preserve neighboring copper in either order",
+      "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-overlapping-positive-openings-036b5dc46cbc.png",
+      "test": "overlapping positive openings preserve neighboring copper in either order",
+      "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-overlapping-positive-openings-036b5dc46cbc.png",
+      "test": "overlapping positive openings preserve neighboring copper in either order",
+      "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-overlapping-positive-openings-0eb2512f515a.png",
+      "test": "overlapping positive openings preserve neighboring copper in either order",
+      "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-overlapping-positive-openings-0eb2512f515a.png",
+      "test": "overlapping positive openings preserve neighboring copper in either order",
+      "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-overlapping-positive-openings-2080e4587b8a.png",
       "test": "overlapping positive openings preserve neighboring copper in either order",
       "path": "tests/elements/pcb-soldermask-overlapping-positive-openings.test.ts",
       "status": "mismatch"
@@ -3467,13 +3467,13 @@
       "status": "pass"
     },
     {
-      "file": "pcb-fabrication-note-path-d64874f0e41d.png",
+      "file": "pcb-fabrication-note-path-5f6abd1a1aa0.png",
       "test": "filled fabrication paths preserve concavity and disable stroke",
       "path": "tests/elements/pcb-fabrication-note-path.test.ts",
       "status": "pass"
     },
     {
-      "file": "pcb-fabrication-note-path-2a89a9c0750e.png",
+      "file": "pcb-board-525cb8ff0837.png",
       "test": "filled fabrication paths preserve concavity and disable stroke",
       "path": "tests/elements/pcb-fabrication-note-path.test.ts",
       "status": "pass"
@@ -3491,7 +3491,7 @@
       "status": "pass"
     },
     {
-      "file": "pcb-fabrication-note-path-063d46560bd6.png",
+      "file": "pcb-board-525cb8ff0837.png",
       "test": "filled fabrication paths close their outline and zero-width strokes do not reuse canvas state",
       "path": "tests/elements/pcb-fabrication-note-path.test.ts",
       "status": "pass"
@@ -3503,19 +3503,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-fabrication-note-path-7546280b10cb.png",
-      "test": "fabrication joins, crossings, retraces and filled edges retain one alpha",
-      "path": "tests/elements/pcb-fabrication-note-path.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-fabrication-note-path-243d253b12c7.png",
-      "test": "fabrication joins, crossings, retraces and filled edges retain one alpha",
-      "path": "tests/elements/pcb-fabrication-note-path.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-fabrication-note-path-5f9dff0715e3.png",
+      "file": "pcb-fabrication-note-path-3759d6d9024a.png",
       "test": "fabrication joins, crossings, retraces and filled edges retain one alpha",
       "path": "tests/elements/pcb-fabrication-note-path.test.ts",
       "status": "mismatch"
@@ -3527,13 +3515,13 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-fabrication-note-path-9ecb57b68645.png",
+      "file": "pcb-fabrication-note-path-3759d6d9024a.png",
       "test": "fabrication joins, crossings, retraces and filled edges retain one alpha",
       "path": "tests/elements/pcb-fabrication-note-path.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-fabrication-note-path-791b6b41b751.png",
+      "file": "pcb-fabrication-note-path-13ce52271468.png",
       "test": "fabrication joins, crossings, retraces and filled edges retain one alpha",
       "path": "tests/elements/pcb-fabrication-note-path.test.ts",
       "status": "mismatch"
@@ -3545,7 +3533,19 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-fabrication-note-path-fe07cf202241.png",
+      "file": "pcb-fabrication-note-path-13ce52271468.png",
+      "test": "fabrication joins, crossings, retraces and filled edges retain one alpha",
+      "path": "tests/elements/pcb-fabrication-note-path.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-fabrication-note-path-3759d6d9024a.png",
+      "test": "fabrication joins, crossings, retraces and filled edges retain one alpha",
+      "path": "tests/elements/pcb-fabrication-note-path.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-fabrication-note-path-13ce52271468.png",
       "test": "fabrication joins, crossings, retraces and filled edges retain one alpha",
       "path": "tests/elements/pcb-fabrication-note-path.test.ts",
       "status": "mismatch"
@@ -3581,25 +3581,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-f809dc339b87.png",
-      "test": "pad and hole margin geometry matches SVG",
-      "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-shape-margins-9f5508c95034.png",
-      "test": "pad and hole margin geometry matches SVG",
-      "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-shape-margins-b730aecbe4f5.png",
-      "test": "pad and hole margin geometry matches SVG",
-      "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-shape-margins-28a4e8e50975.png",
+      "file": "pcb-soldermask-shape-margins-0f1e31b83e28.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3611,7 +3593,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-d69c452e8d7a.png",
+      "file": "pcb-soldermask-shape-margins-0f1e31b83e28.png",
+      "test": "pad and hole margin geometry matches SVG",
+      "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-shape-margins-0f1e31b83e28.png",
+      "test": "pad and hole margin geometry matches SVG",
+      "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-shape-margins-0f1e31b83e28.png",
+      "test": "pad and hole margin geometry matches SVG",
+      "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-shape-margins-0f1e31b83e28.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3629,13 +3629,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-9ae9089f0951.png",
-      "test": "pad and hole margin geometry matches SVG",
-      "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-shape-margins-e2dfd928e232.png",
+      "file": "pcb-soldermask-rounded-corners-38b90b7417ac.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3647,25 +3641,31 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-72a3ef34227c.png",
+      "file": "pcb-soldermask-shape-margins-168904494e18.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-ad7d1f53ae3d.png",
+      "file": "pcb-soldermask-shape-margins-168904494e18.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-4112120af3c1.png",
+      "file": "pcb-soldermask-shape-margins-168904494e18.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-a15f59693f08.png",
+      "file": "pcb-soldermask-shape-margins-168904494e18.png",
+      "test": "pad and hole margin geometry matches SVG",
+      "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-shape-margins-168904494e18.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3689,31 +3689,31 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-ab87164fda85.png",
+      "file": "pcb-soldermask-shape-margins-34ba7845ec76.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-a488250ba48f.png",
+      "file": "pcb-soldermask-shape-margins-34ba7845ec76.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-f972d859c4c6.png",
+      "file": "pcb-soldermask-shape-margins-34ba7845ec76.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-f347c518ab2b.png",
+      "file": "pcb-soldermask-shape-margins-34ba7845ec76.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-8e1d48a35572.png",
+      "file": "pcb-soldermask-shape-margins-34ba7845ec76.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3743,31 +3743,31 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-a926671b6083.png",
+      "file": "pcb-soldermask-shape-margins-2964fc2de3b1.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-3bf9a663be4a.png",
+      "file": "pcb-soldermask-shape-margins-2964fc2de3b1.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-568bca63ed2e.png",
+      "file": "pcb-soldermask-shape-margins-2964fc2de3b1.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-ff664b02bc12.png",
+      "file": "pcb-soldermask-shape-margins-2964fc2de3b1.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-a204ef9016c8.png",
+      "file": "pcb-soldermask-shape-margins-2964fc2de3b1.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3797,37 +3797,37 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-1bfdb34c7416.png",
+      "file": "pcb-soldermask-asymmetric-coverage-33cd7e3c3c0a.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-f7691438747a.png",
+      "file": "pcb-soldermask-asymmetric-coverage-33cd7e3c3c0a.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-162207038adc.png",
+      "file": "pcb-soldermask-asymmetric-coverage-33cd7e3c3c0a.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-71399354577a.png",
+      "file": "pcb-soldermask-asymmetric-coverage-33cd7e3c3c0a.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-36d43d51b9a5.png",
+      "file": "pcb-soldermask-asymmetric-coverage-33cd7e3c3c0a.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-be45f1096833.png",
+      "file": "pcb-soldermask-asymmetric-coverage-33cd7e3c3c0a.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3839,7 +3839,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-e75274bd2f66.png",
+      "file": "pcb-soldermask-asymmetric-coverage-908b20e0efe9.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3851,31 +3851,31 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-c747e1e8918c.png",
+      "file": "pcb-soldermask-shape-margins-26e77078b1fc.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-616dee5cc6b4.png",
+      "file": "pcb-soldermask-shape-margins-26e77078b1fc.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-c64b459f2e01.png",
+      "file": "pcb-soldermask-shape-margins-26e77078b1fc.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-a983d7383155.png",
+      "file": "pcb-soldermask-shape-margins-26e77078b1fc.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-fbc671102ae8.png",
+      "file": "pcb-soldermask-shape-margins-26e77078b1fc.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3893,7 +3893,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-79a148ab0367.png",
+      "file": "pcb-soldermask-shape-margins-26e77078b1fc.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3905,13 +3905,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-f5a606625cde.png",
-      "test": "pad and hole margin geometry matches SVG",
-      "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-shape-margins-874de16b9aae.png",
+      "file": "pcb-soldermask-shape-margins-3e08a2ebdd35.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3923,19 +3917,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-fa4d930ffdd2.png",
+      "file": "pcb-soldermask-shape-margins-3e08a2ebdd35.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-dedf3b0a7b99.png",
+      "file": "pcb-soldermask-shape-margins-3e08a2ebdd35.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-b708d6c6b575.png",
+      "file": "pcb-soldermask-shape-margins-3e08a2ebdd35.png",
+      "test": "pad and hole margin geometry matches SVG",
+      "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-shape-margins-3e08a2ebdd35.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3947,7 +3947,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-e0e5e1efd7ce.png",
+      "file": "pcb-soldermask-shape-margins-3e08a2ebdd35.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -3959,37 +3959,37 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-d0b8147cf99a.png",
+      "file": "pcb-soldermask-shape-margins-32d700ffd0e1.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-dbdf69eaa683.png",
+      "file": "pcb-soldermask-shape-margins-32d700ffd0e1.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-9f7a843c3024.png",
+      "file": "pcb-soldermask-shape-margins-32d700ffd0e1.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-5a7c13158c56.png",
+      "file": "pcb-soldermask-shape-margins-32d700ffd0e1.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-e447c1c2575a.png",
+      "file": "pcb-soldermask-shape-margins-32d700ffd0e1.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-74b09f16e195.png",
+      "file": "pcb-soldermask-shape-margins-32d700ffd0e1.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -4013,7 +4013,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-2832e305dda1.png",
+      "file": "pcb-soldermask-shape-margins-10be8105bbcf.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -4025,25 +4025,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-6a84adc8fc9f.png",
+      "file": "pcb-soldermask-shape-margins-10be8105bbcf.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-d46c51eb166c.png",
+      "file": "pcb-soldermask-shape-margins-10be8105bbcf.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-cee4fbbbef19.png",
+      "file": "pcb-soldermask-shape-margins-10be8105bbcf.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-ed4d883e8b90.png",
+      "file": "pcb-soldermask-shape-margins-10be8105bbcf.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -4055,7 +4055,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-c42699d334ff.png",
+      "file": "pcb-soldermask-shape-margins-10be8105bbcf.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -4067,37 +4067,37 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-91830014f32d.png",
+      "file": "pcb-soldermask-shape-margins-50c439bb7d0b.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-e192725b06b9.png",
+      "file": "pcb-soldermask-shape-margins-50c439bb7d0b.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-8cca29741fb5.png",
+      "file": "pcb-soldermask-shape-margins-50c439bb7d0b.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-d51d3b6389e4.png",
+      "file": "pcb-soldermask-shape-margins-50c439bb7d0b.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-5ed3a6791820.png",
+      "file": "pcb-soldermask-shape-margins-50c439bb7d0b.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-c89660fff486.png",
+      "file": "pcb-soldermask-shape-margins-50c439bb7d0b.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -4121,7 +4121,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-99ac24e294c1.png",
+      "file": "pcb-soldermask-shape-margins-47370615d65c.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -4133,25 +4133,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-ccbdb847fc52.png",
+      "file": "pcb-soldermask-shape-margins-47370615d65c.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-a39d9eabb479.png",
+      "file": "pcb-soldermask-shape-margins-47370615d65c.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-4877853c7095.png",
+      "file": "pcb-soldermask-shape-margins-47370615d65c.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-c35d1ec545b0.png",
+      "file": "pcb-soldermask-shape-margins-47370615d65c.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -4163,7 +4163,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-ea3c697b6032.png",
+      "file": "pcb-soldermask-shape-margins-47370615d65c.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -4175,37 +4175,37 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-988ff96bf804.png",
+      "file": "pcb-soldermask-shape-margins-0106526c41a9.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-4ffbd7ee9742.png",
+      "file": "pcb-soldermask-shape-margins-0106526c41a9.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-4a51652aeac9.png",
+      "file": "pcb-soldermask-shape-margins-0106526c41a9.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-cb03a9475815.png",
+      "file": "pcb-soldermask-shape-margins-0106526c41a9.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-6c4f67ee9c26.png",
+      "file": "pcb-soldermask-shape-margins-0106526c41a9.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-923fa52da402.png",
+      "file": "pcb-soldermask-shape-margins-0106526c41a9.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -4223,7 +4223,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-shape-margins-8516040d114b.png",
+      "file": "pcb-soldermask-rounded-corners-7c50525b37d0.png",
       "test": "pad and hole margin geometry matches SVG",
       "path": "tests/elements/pcb-soldermask-shape-margins.test.ts",
       "status": "mismatch"
@@ -4235,97 +4235,97 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-0e89fe22ee68.png",
+      "file": "pcb-soldermask-coverage-flags-a3fb8dd75cd5.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-cb71ed7e0d33.png",
+      "file": "pcb-soldermask-coverage-flags-2a61df3f9f6b.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-00cc81615e1d.png",
+      "file": "pcb-soldermask-coverage-flags-3891531e28dc.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-9b7fa1763e69.png",
+      "file": "pcb-soldermask-coverage-flags-661c3f3ac663.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-f29a255a22b0.png",
+      "file": "pcb-soldermask-coverage-flags-a3fb8dd75cd5.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-3b38b2e4e32c.png",
+      "file": "pcb-soldermask-coverage-flags-2a61df3f9f6b.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-607ecc15b7b6.png",
+      "file": "pcb-soldermask-coverage-flags-3891531e28dc.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-743692445ac0.png",
+      "file": "pcb-soldermask-coverage-flags-661c3f3ac663.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-ec2709085dc8.png",
+      "file": "pcb-soldermask-coverage-flags-32c44d70da0f.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-cf996ac1e753.png",
+      "file": "pcb-soldermask-coverage-flags-2a61df3f9f6b.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-d4af56693e05.png",
+      "file": "pcb-soldermask-coverage-flags-6b2e1ffcb5e9.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-70432e7cdcb0.png",
+      "file": "pcb-soldermask-coverage-flags-7551e38e328e.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-cee09e113f92.png",
+      "file": "pcb-soldermask-coverage-flags-32c44d70da0f.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-359e4bb3b66d.png",
+      "file": "pcb-soldermask-coverage-flags-2a61df3f9f6b.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-b1431b415986.png",
+      "file": "pcb-soldermask-coverage-flags-6b2e1ffcb5e9.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-palette-6f105d27bee3.png",
+      "file": "pcb-soldermask-coverage-flags-7551e38e328e.png",
       "test": "coverage and margins preserve Canvas colors and opaque board masks",
       "path": "tests/elements/pcb-soldermask-palette.test.ts",
       "status": "mismatch"
@@ -4367,19 +4367,19 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-positive-substrate-6bf307713852.png",
+      "file": "pcb-soldermask-coverage-flags-71932892982f.png",
       "test": "positive margins show substrate when board material is hidden",
       "path": "tests/elements/pcb-soldermask-positive-substrate.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-positive-substrate-7873c39c15b5.png",
+      "file": "pcb-soldermask-coverage-flags-0a8a0fb1a8b1.png",
       "test": "positive margins show substrate when board material is hidden",
       "path": "tests/elements/pcb-soldermask-positive-substrate.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-positive-substrate-015b90bef48d.png",
+      "file": "pcb-soldermask-coverage-flags-7f588cfb9c29.png",
       "test": "positive margins show substrate when board material is hidden",
       "path": "tests/elements/pcb-soldermask-positive-substrate.test.ts",
       "status": "mismatch"
@@ -4391,7 +4391,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-via-dark-center-top-2b18e7f7d8b2.png",
+      "file": "pcb-via-dark-center-color-overrides-b8bfb3ac12b6.png",
       "test": "top view darkens only tented via centers",
       "path": "tests/elements/pcb-via-dark-center-top.test.ts",
       "status": "mismatch"
@@ -7073,7 +7073,7 @@
       "reason": "This mixed-side layer selection cannot be expressed by circuit-to-svg's single layer option."
     },
     {
-      "file": "pcb-via-tenting-pad-opening-372625a2c2dd.png",
+      "file": "pcb-via-tenting-pad-opening-248e5f108c95.png",
       "test": "pad openings clip via tenting regardless of element order",
       "path": "tests/elements/pcb-via-tenting-pad-opening.test.ts",
       "status": "mismatch"
@@ -7349,7 +7349,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-f04ff2873ab5.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
@@ -7361,25 +7361,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-3d7275428248.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-71c88d7503bd.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-88ff22dbf8fb.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-569a8882ce19.png",
+      "file": "pcb-soldermask-coverage-flags-240d45eeb4b9.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
@@ -7403,49 +7403,49 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-43f7584f6959.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-d811927f7197.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-a812841b4030.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-8c8ae10d04d8.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-3a5e7a72a203.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-ab596480998f.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-b32ae525d025.png",
+      "file": "pcb-soldermask-coverage-flags-2a61df3f9f6b.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-6cf9b26ce869.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
@@ -7457,31 +7457,31 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-f92c8f2b2dc8.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-8a19cdfe9ceb.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-62647d467c0e.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-7e356b2a1e0f.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-52b34de49185.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
@@ -7499,7 +7499,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-6ccae6a4d23e.png",
+      "file": "pcb-soldermask-coverage-flags-457af816f685.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
@@ -7511,25 +7511,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-669f54e3819e.png",
-      "test": "pad and hole coverage flags and margins match SVG",
-      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-coverage-flags-fde450a8eed2.png",
-      "test": "pad and hole coverage flags and margins match SVG",
-      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-coverage-flags-79e9ec29f4de.png",
-      "test": "pad and hole coverage flags and margins match SVG",
-      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-coverage-flags-99958d9497b7.png",
+      "file": "pcb-soldermask-coverage-flags-4187c6b838a2.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
@@ -7541,7 +7523,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-c913978c9947.png",
+      "file": "pcb-soldermask-coverage-flags-4187c6b838a2.png",
+      "test": "pad and hole coverage flags and margins match SVG",
+      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-coverage-flags-4187c6b838a2.png",
+      "test": "pad and hole coverage flags and margins match SVG",
+      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-coverage-flags-4187c6b838a2.png",
+      "test": "pad and hole coverage flags and margins match SVG",
+      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-coverage-flags-4187c6b838a2.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
@@ -7565,7 +7565,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-b60aca73eccb.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
@@ -7577,25 +7577,25 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-9060d9618ce9.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-278e1f2893af.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-b722209ed8bf.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-23b2872538b1.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
@@ -7607,37 +7607,13 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-29ef44ce39ce.png",
+      "file": "pcb-soldermask-coverage-flags-239b009a2e96.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-31b7568a7dac.png",
-      "test": "pad and hole coverage flags and margins match SVG",
-      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-coverage-flags-c29e1dbedf7c.png",
-      "test": "pad and hole coverage flags and margins match SVG",
-      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-coverage-flags-2a22501f5799.png",
-      "test": "pad and hole coverage flags and margins match SVG",
-      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-coverage-flags-762d6571bf75.png",
-      "test": "pad and hole coverage flags and margins match SVG",
-      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
-      "status": "mismatch"
-    },
-    {
-      "file": "pcb-soldermask-coverage-flags-7c4eb83a51fd.png",
+      "file": "pcb-soldermask-coverage-flags-0a8a0fb1a8b1.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
@@ -7649,7 +7625,31 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-2168ffdc11b7.png",
+      "file": "pcb-soldermask-coverage-flags-08bef4cf609f.png",
+      "test": "pad and hole coverage flags and margins match SVG",
+      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-coverage-flags-08bef4cf609f.png",
+      "test": "pad and hole coverage flags and margins match SVG",
+      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-coverage-flags-08bef4cf609f.png",
+      "test": "pad and hole coverage flags and margins match SVG",
+      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-coverage-flags-08bef4cf609f.png",
+      "test": "pad and hole coverage flags and margins match SVG",
+      "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
+      "status": "mismatch"
+    },
+    {
+      "file": "pcb-soldermask-coverage-flags-08bef4cf609f.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
@@ -7661,7 +7661,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-coverage-flags-6f5751e16f89.png",
+      "file": "pcb-soldermask-coverage-flags-08bef4cf609f.png",
       "test": "pad and hole coverage flags and margins match SVG",
       "path": "tests/elements/pcb-soldermask-coverage-flags.test.ts",
       "status": "mismatch"
@@ -7679,7 +7679,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-soldermask-asymmetric-coverage-ba670ff7b1ac.png",
+      "file": "pcb-soldermask-asymmetric-coverage-33cd7e3c3c0a.png",
       "test": "asymmetric rectangular margins obey coverage and explicit zero overrides",
       "path": "tests/elements/pcb-soldermask-asymmetric-coverage.test.ts",
       "status": "mismatch"
@@ -7703,13 +7703,13 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-via-dark-center-color-overrides-f178ed2fae57.png",
+      "file": "pcb-via-dark-center-color-overrides-b8bfb3ac12b6.png",
       "test": "center shading uses per-side color overrides",
       "path": "tests/elements/pcb-via-dark-center-color-overrides.test.ts",
       "status": "mismatch"
     },
     {
-      "file": "pcb-via-dark-center-color-overrides-b9d1a72e5e29.png",
+      "file": "pcb-via-dark-center-bottom-abedaf765080.png",
       "test": "center shading uses per-side color overrides",
       "path": "tests/elements/pcb-via-dark-center-color-overrides.test.ts",
       "status": "mismatch"
@@ -7721,7 +7721,7 @@
       "status": "mismatch"
     },
     {
-      "file": "pcb-via-dark-center-color-overrides-62ec7f9742ab.png",
+      "file": "pcb-via-dark-center-bottom-abedaf765080.png",
       "test": "center shading uses per-side color overrides",
       "path": "tests/elements/pcb-via-dark-center-color-overrides.test.ts",
       "status": "mismatch"
