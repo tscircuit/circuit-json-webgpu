@@ -4,10 +4,7 @@ import { dirname, resolve } from "node:path"
 import { createRequire } from "node:module"
 
 const require = createRequire(import.meta.url)
-// Preserve the frozen audit fixtures while the renderer uses current Canvas helpers.
-const installed = dirname(
-  require.resolve("circuit-to-canvas-reference/package.json"),
-)
+const installed = dirname(require.resolve("circuit-to-canvas/package.json"))
 const target = fileURLToPath(
   new URL("../upstream/circuit-to-canvas/", import.meta.url),
 )

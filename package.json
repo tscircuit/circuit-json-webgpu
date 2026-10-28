@@ -68,7 +68,6 @@
     "schematic-symbols": "^0.0.202",
     "transformation-matrix": "^3.1.0",
     "circuit-to-canvas": "github:tscircuit/circuit-to-canvas#3d49fb15c95696b19e9b9cfbda021354cf8a37b1",
-    "circuit-to-canvas-reference": "github:tscircuit/circuit-to-canvas#fa8405c67634e287b79a1506eedde077ef6accb0",
     "@tscircuit/core": "0.0.2217",
     "@types/react": "19.1.12",
     "react": "19.1.0",
