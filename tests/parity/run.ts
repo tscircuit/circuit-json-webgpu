@@ -11,6 +11,7 @@ import { prepareComparison } from "./prepare.ts"
 import { comparisonSilkscreenColors } from "./palette"
 import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
 import { Resvg } from "@resvg/resvg-js"
+import manifest from "./upstream-manifest.json"
 const root = fileURLToPath(new URL("../../", import.meta.url))
 const dir = new URL("../actual/parity/", import.meta.url)
 const cases: CapturedCase[] = JSON.parse(
@@ -170,7 +171,7 @@ const report = {
   textRenderCalls: pureTextResults.length,
   textParityPassed: pureTextResults.filter((r) => r.pass).length,
   textParityFailed: pureTextResults.filter((r) => r.pass === false).length,
-  upstreamCommit: "fa8405c67634e287b79a1506eedde077ef6accb0",
+  upstreamCommit: manifest.commit,
   testFiles: new Set(tests.map((t) => t.path)).size,
   tests: tests.length,
   referencePassed: tests.filter((t) => t.status === "passed").length,

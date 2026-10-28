@@ -5,10 +5,14 @@ import { resolve } from "node:path"
 import { createRequire } from "node:module"
 import "./parity/prepare-upstream.ts"
 import manifest from "./parity/upstream-manifest.json"
+import packageJson from "../package.json"
 test("every upstream test, fixture, snapshot, and reference source matches the installed pinned dependency byte-for-byte", () => {
   expect(
     Object.keys(manifest.files).filter((p) => p.endsWith(".test.ts")),
-  ).toHaveLength(116)
+  ).toHaveLength(145)
+  expect(packageJson.devDependencies["circuit-to-canvas"]).toBe(
+    `github:tscircuit/circuit-to-canvas#${manifest.commit}`,
+  )
   for (const [path, hash] of Object.entries(manifest.files))
     expect(
       createHash("sha256")

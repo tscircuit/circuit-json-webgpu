@@ -11,25 +11,26 @@ const cases: any[] = []
 const tests: any[] = []
 let current: any = {}
 const nativeTest = bunTest.test
-const test = Object.assign(
+const captureTest =
+  (runner: typeof nativeTest, expectedFailure = false) =>
   (name: string, callback: (...args: any[]) => any, timeout?: number) => {
     const path = new Error().stack
       ?.match(
         /(?:file:\/\/)?([^\s()]*tests\/upstream\/circuit-to-canvas\/tests\/[^:]*\.test\.ts)/,
       )?.[1]
       ?.split("/tests/upstream/circuit-to-canvas/")[1]
-    return nativeTest(
+    return runner(
       name,
       async () => {
         const start = cases.length
         current = { currentTestName: name, testPath: path }
-        let status = "passed",
-          error
+        let status = expectedFailure ? "failed" : "passed",
+          error = expectedFailure ? "Expected test to fail" : undefined
         try {
           await callback()
         } catch (e) {
-          status = "failed"
-          error = String(e)
+          status = expectedFailure ? "passed" : "failed"
+          error = expectedFailure ? undefined : String(e)
           throw e
         } finally {
           tests.push({
@@ -43,9 +44,10 @@ const test = Object.assign(
       },
       timeout,
     )
-  },
-  nativeTest,
-)
+  }
+const test = Object.assign(captureTest(nativeTest), nativeTest, {
+  failing: captureTest(nativeTest.failing, true),
+})
 test.each = ((rows: any[]) =>
   (name: string, callback: (...args: any[]) => any) => {
     for (const row of rows)

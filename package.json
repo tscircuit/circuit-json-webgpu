@@ -71,8 +71,7 @@
     "@tscircuit/core": "0.0.2217",
     "@types/react": "19.1.12",
     "react": "19.1.0",
-    "tscircuit": "0.0.3031",
-    "@tscircuit/circuit-json-util-reference": "npm:@tscircuit/circuit-json-util@0.0.99"
+    "tscircuit": "0.0.3031"
   },
   "overrides": {
     "sharp": "^0.34.3"
