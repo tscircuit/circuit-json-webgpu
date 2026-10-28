@@ -22,6 +22,7 @@ export const DEFAULT_LAYER_COLORS: Record<string, Color> = {
   bottom_silkscreen: rgb(242, 237, 161),
   soldermask_top: rgb(12, 55, 33),
   soldermask_bottom: rgb(12, 55, 33),
+  soldermask_over_copper: rgb(18, 82, 50),
   top_fabrication: [1, 1, 1, 0.5],
   bottom_fabrication: [1, 1, 1, 0.5],
   top_notes: rgb(89, 148, 220),
