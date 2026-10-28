@@ -1,5 +1,5 @@
 import { snapshotKey } from "./snapshot-key"
-import { featureSnapshot } from "./snapshot"
+import { featureSnapshot, renderReferenceSvg } from "./snapshot"
 import type { CapturedCase, ReferenceTest, ComparisonResult } from "./types"
 import { readFile, writeFile, mkdir } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
@@ -10,7 +10,6 @@ import { compare } from "./compare.ts"
 import { prepareComparison } from "./prepare.ts"
 import { comparisonSilkscreenColors } from "./palette"
 import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
-import { renderReferenceSvg } from "./render-reference-svg"
 import manifest from "./upstream-manifest.json"
 const root = fileURLToPath(new URL("../../", import.meta.url))
 const dir = new URL("../actual/parity/", import.meta.url)

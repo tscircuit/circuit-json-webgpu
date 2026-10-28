@@ -1,10 +1,73 @@
-import { access, mkdir, readFile, writeFile } from "node:fs/promises"
+import { mkdir, readFile, writeFile } from "node:fs/promises"
+import { createHash } from "node:crypto"
+import { existsSync, mkdirSync, writeFileSync } from "node:fs"
+import { fileURLToPath } from "node:url"
 import { PNG } from "pngjs"
 import { Resvg } from "@resvg/resvg-js"
 import { compare } from "./compare"
-import snapshotAliases from "./snapshot-aliases.json"
+import type coverage from "../snapshots/features/coverage.json"
+// New and updated baselines are bundled; unchanged PNGs remain in place.
+// The archive is copied with the harness for the base audit.
+const bundled = await new Bun.Archive(
+  await readFile(new URL("./snapshot-baselines.tar.gz", import.meta.url)),
+).files()
+export const snapshotAliases: Record<string, string> = JSON.parse(
+  await bundled.get("aliases.json")!.text(),
+)
+export const snapshotCoverage: typeof coverage = JSON.parse(
+  await bundled.get("coverage.json")!.text(),
+)
+const originalHashes: Record<string, string> = JSON.parse(
+  await bundled.get("original-hashes.json")!.text(),
+)
+const baselineDir = new URL("../snapshots/features/", import.meta.url)
 
-const aliases: Record<string, string> = snapshotAliases
+function baselinePath(key: string) {
+  const linux = new URL(`linux/${key}.png`, baselineDir)
+  if (process.platform === "linux" && existsSync(linux)) return linux
+  return new URL(`${key}.png`, baselineDir)
+}
+
+export async function readFeatureBaseline(key: string) {
+  const own = baselinePath(key)
+  const name = own.href.slice(baselineDir.href.length)
+  const local = existsSync(own) ? await readFile(own) : undefined
+  // A local snapshot update takes precedence. Only the unchanged old PNG is
+  // replaced by its bundled revision, so edits are never silently ignored.
+  if (
+    local &&
+    createHash("sha256").update(local).digest("hex") !== originalHashes[name]
+  )
+    return local
+  const override = bundled.get(name)
+  if (override) return Buffer.from(await override.arrayBuffer())
+  const target = snapshotAliases[key] ?? key
+  const file = bundled.get(`${target}.png`)
+  if (file) return Buffer.from(await file.arrayBuffer())
+  return readFile(new URL(`${target}.png`, baselineDir))
+}
+
+/** Resvg does not load CSS @font-face URLs; use the SVG's own bundled font. */
+export function renderReferenceSvg(svg: string) {
+  const font = svg.match(/data:font\/ttf;base64,([^'"\s)]+)/)?.[1]
+  if (!font) throw new Error("SVG reference is missing its embedded font")
+  const hash = createHash("sha256").update(font).digest("hex")
+  const directory = new URL("../actual/parity/fonts/", import.meta.url)
+  const path = fileURLToPath(new URL(`${hash}.ttf`, directory))
+  if (!existsSync(path)) {
+    mkdirSync(directory, { recursive: true })
+    writeFileSync(path, Buffer.from(font, "base64"))
+  }
+  return new Resvg(svg, {
+    font: {
+      loadSystemFonts: false,
+      fontFiles: [path],
+      defaultFontFamily: "TscircuitAlphabet",
+    },
+  })
+    .render()
+    .asPng()
+}
 
 /** PNG baseline contains labeled, equally sized SVG-left / rendered-GPU-right panels. */
 export async function featureSnapshot(
@@ -29,41 +92,19 @@ export async function featureSnapshot(
   PNG.bitblt(svg, pair, 0, 0, svg.width, svg.height, 0, headerHeight)
   PNG.bitblt(gpu, pair, 0, 0, gpu.width, gpu.height, svg.width, headerHeight)
   const buffer = PNG.sync.write(pair)
-  const baselineDir = new URL("../snapshots/features/", import.meta.url)
   await mkdir(baselineDir, { recursive: true })
   await writeFile(
     new URL(`../actual/parity/${id}.pair.png`, import.meta.url),
     buffer,
   )
-  let baseline = new URL(`${key}.png`, baselineDir)
-  if (process.platform === "linux") {
-    const linux = new URL(`linux/${key}.png`, baselineDir)
-    if (
-      await access(linux).then(
-        () => true,
-        () => false,
-      )
-    )
-      baseline = linux
-  }
   if (process.env.UPDATE_SNAPSHOTS) {
     // Give this case its own file when updating so a changed render cannot
     // overwrite the baseline used by other cases with identical old output.
-    await writeFile(baseline, buffer)
+    await writeFile(baselinePath(key), buffer)
     return { pass: true, updated: true }
   }
   try {
-    // Prefer a case's own baseline (including Linux overrides). Only fall back
-    // to a shared image when its byte-identical duplicate was removed.
-    if (
-      aliases[key] &&
-      !(await access(baseline).then(
-        () => true,
-        () => false,
-      ))
-    )
-      baseline = new URL(`${aliases[key]}.png`, baselineDir)
-    const expected = PNG.sync.read(await readFile(baseline))
+    const expected = PNG.sync.read(await readFeatureBaseline(key))
     if (expected.width !== pair.width || expected.height !== pair.height)
       return { pass: false, error: "Snapshot dimensions changed" }
     // Labels are fixed; only compare rendered panels to avoid OS font differences.
