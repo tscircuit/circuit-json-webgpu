@@ -10,7 +10,7 @@ import { compare } from "./compare.ts"
 import { prepareComparison } from "./prepare.ts"
 import { comparisonSilkscreenColors } from "./palette"
 import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
-import { Resvg } from "@resvg/resvg-js"
+import { renderReferenceSvg } from "./render-reference-svg"
 import manifest from "./upstream-manifest.json"
 const root = fileURLToPath(new URL("../../", import.meta.url))
 const dir = new URL("../actual/parity/", import.meta.url)
@@ -83,7 +83,7 @@ try {
         },
       )
       await writeFile(new URL(`${c.id}.svg.svg`, dir), svg)
-      const svgPng = new Resvg(svg).render().asPng()
+      const svgPng = renderReferenceSvg(svg)
       await writeFile(new URL(`${c.id}.svg.png`, dir), svgPng)
       const result = await page.evaluate(
         (scene) => window.parity.render(scene),
