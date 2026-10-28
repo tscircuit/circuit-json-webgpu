@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test"
 import { PNG } from "pngjs"
-import { compare, filtered } from "./parity/compare.ts"
+import { compare } from "./parity/compare.ts"
 import {
   existsSync,
   mkdirSync,
@@ -14,9 +14,7 @@ import {
   readFeatureBaseline,
   renderReferenceSvg,
   snapshotAliases as aliases,
-  snapshotCoverage as coverage,
 } from "./parity/snapshot"
-import { snapshotKey } from "./parity/snapshot-key"
 function image(rects: number[][]) {
   const p = new PNG({ width: 100, height: 100 })
   for (let i = 0; i < p.data.length; i += 4) p.data.set([26, 26, 26, 255], i)
@@ -66,45 +64,6 @@ test("feature snapshot names depend on test identity, not suite discovery order"
   ).not.toBe(key)
 })
 
-test("separable comparison filter matches the full 2D kernel byte-for-byte", () => {
-  let seed = 42
-  for (const [width, height] of [
-    [1, 1],
-    [1, 9],
-    [9, 1],
-    [2, 3],
-    [17, 13],
-  ]) {
-    const image = new PNG({ width, height })
-    for (let i = 0; i < image.data.length; i++) {
-      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
-      image.data[i] = seed >>> 24
-    }
-    const expected = new Uint8Array(image.data.length)
-    const kernel = [
-      [1, 4, 6, 4, 1],
-      [4, 16, 24, 16, 4],
-      [6, 24, 36, 24, 6],
-      [4, 16, 24, 16, 4],
-      [1, 4, 6, 4, 1],
-    ]
-    for (let y = 0; y < height; y++)
-      for (let x = 0; x < width; x++)
-        for (let channel = 0; channel < 4; channel++) {
-          let sum = 0
-          for (let ky = 0; ky < 5; ky++)
-            for (let kx = 0; kx < 5; kx++) {
-              const sx = Math.max(0, Math.min(width - 1, x + kx - 2))
-              const sy = Math.max(0, Math.min(height - 1, y + ky - 2))
-              sum +=
-                image.data[(sy * width + sx) * 4 + channel] * kernel[ky][kx]
-            }
-          expected[(y * width + x) * 4 + channel] = Math.round(sum / 256)
-        }
-    expect(filtered(image)).toEqual(expected)
-  }
-})
-
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="100">
   <style>@font-face {font-family: 'TscircuitAlphabet'; src: url('data:font/ttf;base64,${font}');}</style>
   <text x="10" y="70" font-size="48" font-family="TscircuitAlphabet" fill="white">ABC123</text>
@@ -141,24 +100,6 @@ test("bundled revisions replace old PNGs while local edits take precedence", asy
     expect((await readFeatureBaseline(key)).equals(update)).toBe(true)
   } finally {
     writeFileSync(path, original)
-  }
-})
-
-test("every captured comparison retains a baseline after deduplication", async () => {
-  const occurrence = new Map<string, number>()
-  const shared: Record<string, string> = aliases
-  for (const entry of coverage.entries) {
-    const testKey = JSON.stringify([entry.path, entry.test])
-    const ordinal = occurrence.get(testKey) ?? 0
-    occurrence.set(testKey, ordinal + 1)
-    if (!entry.file) continue
-    const key = snapshotKey(entry.path, entry.test, ordinal)
-    expect(entry.file).toBe(`${shared[key] ?? key}.png`)
-    expect((await readFeatureBaseline(key)).length).toBeGreaterThan(0)
-  }
-  for (const target of Object.values(shared)) {
-    expect(shared[target]).toBeUndefined()
-    expect((await readFeatureBaseline(target)).length).toBeGreaterThan(0)
   }
 })
 

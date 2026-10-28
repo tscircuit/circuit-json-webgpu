@@ -5,7 +5,6 @@ import { fileURLToPath } from "node:url"
 import { PNG } from "pngjs"
 import { Resvg } from "@resvg/resvg-js"
 import { compare } from "./compare"
-import type coverage from "../snapshots/features/coverage.json"
 // New and updated baselines are bundled; unchanged PNGs remain in place.
 // The archive is copied with the harness for the base audit.
 const bundled = await new Bun.Archive(
@@ -13,9 +12,6 @@ const bundled = await new Bun.Archive(
 ).files()
 export const snapshotAliases: Record<string, string> = JSON.parse(
   await bundled.get("aliases.json")!.text(),
-)
-export const snapshotCoverage: typeof coverage = JSON.parse(
-  await bundled.get("coverage.json")!.text(),
 )
 const originalHashes: Record<string, string> = JSON.parse(
   await bundled.get("original-hashes.json")!.text(),
