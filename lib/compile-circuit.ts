@@ -129,6 +129,7 @@ export function compileCircuitJson(
   options: CompileOptions = {},
 ): CompiledScene {
   const builders = new Map<string, { paint: MeshBuilder; erase: MeshBuilder }>()
+  const maskTraces = new Map<string, MeshBuilder>()
   const diagnostics: Diagnostic[] = [],
     elementIds = elements.map(getElementId)
   const useAdaptiveViaTessellation = options.renderViasInHighDetail === false
@@ -154,6 +155,20 @@ export function compileCircuitJson(
     mesh.element = index
     mesh.category = category
     return mesh
+  }
+  const getTraceMeshes = (layer: string, index: number) => {
+    const meshes = [get(layer, index)]
+    const side = normalizeLayer(layer)
+    if (board && (side === "top" || side === "bottom")) {
+      if (!maskTraces.has(side)) maskTraces.set(side, new MeshBuilder())
+      const maskTrace = maskTraces.get(side)!
+      maskTrace.element = index
+      maskTrace.color =
+        options.layerColors?.soldermask_over_copper ??
+        DEFAULT_LAYER_COLORS.soldermask_over_copper
+      meshes.push(maskTrace)
+    }
+    return meshes
   }
   const openings: { rings: Point[][]; index: number; layers: string[] }[] = []
   const keepouts: { rings: Point[][]; index: number; layers: string[] }[] = []
@@ -222,12 +237,14 @@ export function compileCircuitJson(
           const polygon = getWireTaperPolygon(point)
           if (!polygon.length)
             throw new Error("Invalid teardrop geometry or interpolation mode")
-          get(point.layer, index).polygon([polygon])
+          for (const mesh of getTraceMeshes(point.layer, index))
+            mesh.polygon([polygon])
         }
         for (const point of route) {
           if (point.route_type !== "through_pad") continue
           for (const layer of new Set([point.start_layer, point.end_layer]))
-            get(layer, index).line(point.start, point.end, point.width)
+            for (const mesh of getTraceMeshes(layer, index))
+              mesh.line(point.start, point.end, point.width)
         }
         for (let i = 1; i < route.length; i++) {
           let a = route[i - 1],
@@ -255,19 +272,22 @@ export function compileCircuitJson(
             a.layer === b.layer &&
             !(a.is_inside_copper_pour && b.is_inside_copper_pour)
           )
-            get(a.layer, index).line(a, b, a.width)
+            for (const mesh of getTraceMeshes(a.layer, index))
+              mesh.line(a, b, a.width)
           else if (
             a.route_type === "wire" &&
             b.route_type === "via" &&
             [b.from_layer, b.to_layer].includes(a.layer)
           )
-            get(a.layer, index).line(a, b, a.width)
+            for (const mesh of getTraceMeshes(a.layer, index))
+              mesh.line(a, b, a.width)
           else if (
             a.route_type === "via" &&
             b.route_type === "wire" &&
             [a.from_layer, a.to_layer].includes(b.layer)
           )
-            get(b.layer, index).line(a, b, b.width)
+            for (const mesh of getTraceMeshes(b.layer, index))
+              mesh.line(a, b, b.width)
         }
       } else if (type === "pcb_copper_pour") {
         get(e.layer, index, false, 1).polygon(shape(e))
@@ -390,6 +410,10 @@ export function compileCircuitJson(
       })
     }
   }
+  // Draw covered copper after the board mask, regardless of input order.
+  // The existing mask erase pass still removes pad, via and cutout openings.
+  for (const [side, traceMesh] of maskTraces)
+    get(`soldermask_${side}`, 0).append(traceMesh)
   // Keep annotations visible regardless of the input order of copper pours.
   for (const { rings, index, layers } of keepouts) {
     try {

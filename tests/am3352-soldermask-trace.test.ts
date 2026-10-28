@@ -2,7 +2,7 @@ import { expect, test } from "bun:test"
 import { compileCircuitJson } from "../lib"
 import { createAm3352DdrOdtCircuit } from "./fixtures/am3352-ddr-odt"
 
-test("AM3352 DDR_ODT trace is hidden beneath the WebGPU solder mask", async () => {
+test("AM3352 DDR_ODT trace remains visible beneath the WebGPU solder mask", async () => {
   const elements = await createAm3352DdrOdtCircuit()
   const traceIndex = elements.findIndex(
     (element) => element.type === "pcb_trace",
@@ -30,8 +30,7 @@ test("AM3352 DDR_ODT trace is hidden beneath the WebGPU solder mask", async () =
       (_, index) => vertices[index * 8 + 6],
     )
   expect(elementIndices(copper.paint.vertices)).toContain(traceIndex)
-  // Known defect: mask paint has no geometry representing the covered trace.
-  expect(elementIndices(mask.paint.vertices)).not.toContain(traceIndex)
+  expect(elementIndices(mask.paint.vertices)).toContain(traceIndex)
   for (const [index, element] of elements.entries()) {
     if (element.type === "pcb_smtpad" || element.type === "pcb_via")
       expect(elementIndices(mask.erase.vertices)).toContain(index)

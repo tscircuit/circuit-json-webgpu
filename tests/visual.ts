@@ -15,6 +15,7 @@ import { prepareComparison } from "./parity/prepare"
 import { compose, scale, translate } from "transformation-matrix"
 import type { CircuitJson } from "../lib"
 import pcbBendFixture from "./fixtures/pcb-bend.circuit.json"
+import { checkAm3352SoldermaskPixels } from "./am3352-soldermask-visual"
 
 const root = fileURLToPath(new URL("../", import.meta.url))
 const server = await createServer({
@@ -49,6 +50,7 @@ try {
   const siteUrl = server.resolvedUrls!.local[0]
   await page.goto(siteUrl)
   await page.waitForFunction(() => window.gpuTest, null, { timeout: 30000 })
+  await checkAm3352SoldermaskPixels(page)
   const visibility = await page.evaluate(() =>
     window.gpuTest.checkBoardVisibility(),
   )

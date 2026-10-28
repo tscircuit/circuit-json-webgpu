@@ -41,6 +41,11 @@ export class MeshBuilder {
     const points = capsule(a, b, width)
     this.polygon([points])
   }
+  append(mesh: MeshBuilder) {
+    const base = this.vertices.length / 8
+    for (const vertex of mesh.vertices) this.vertices.push(vertex)
+    for (const index of mesh.indices) this.indices.push(base + index)
+  }
   path(points: Point[], width: number, closed = false) {
     for (let i = 1; i < points.length; i++)
       this.line(points[i - 1], points[i], width)
