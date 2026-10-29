@@ -27,11 +27,15 @@ jobs:
           svg_schema_version=$(bun -p 'require("../node_modules/circuit-json/package.json").version')
           bun add --dev --no-save "circuit-to-svg@$svg_reference_version" "circuit-json@$svg_schema_version"
       - run: bunx playwright install --with-deps chromium
+      - name: Use the same audit harness and upstream fixtures for both renderers
+        run: cp -R tests/parity/. .parity-base/tests/parity/
       # The strict audit has known failures on main. Run both revisions on the
       # same runner; the required comparison below rejects every new regression.
       - name: Audit base revision
         run: xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:parity
         working-directory: .parity-base
+        env:
+          PARITY_UPSTREAM_DIR: ${{ github.workspace }}/node_modules/circuit-to-canvas
         continue-on-error: true
       - name: Audit proposed revision
         run: xvfb-run -a env WEBGPU_SOFTWARE=1 bun run test:parity

@@ -47,7 +47,7 @@ console.log(
 const tests: ReferenceTest[] = JSON.parse(
   readFileSync(resolve(actual, "tests.json"), "utf8"),
 )
-if (tests.length !== 164 || new Set(tests.map((t) => t.path)).size !== 116)
+if (tests.length !== 211 || new Set(tests.map((t) => t.path)).size !== 145)
   throw Error("Incomplete upstream test execution")
 const result = spawnSync("bun", ["tests/parity/run.ts"], {
   cwd: root,

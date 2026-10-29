@@ -1,5 +1,5 @@
 import { snapshotKey } from "./snapshot-key"
-import { featureSnapshot } from "./snapshot"
+import { featureSnapshot, renderReferenceSvg } from "./snapshot"
 import type { CapturedCase, ReferenceTest, ComparisonResult } from "./types"
 import { readFile, writeFile, mkdir } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
@@ -10,7 +10,7 @@ import { compare } from "./compare.ts"
 import { prepareComparison } from "./prepare.ts"
 import { comparisonSilkscreenColors } from "./palette"
 import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
-import { Resvg } from "@resvg/resvg-js"
+import manifest from "./upstream-manifest.json"
 const root = fileURLToPath(new URL("../../", import.meta.url))
 const dir = new URL("../actual/parity/", import.meta.url)
 const cases: CapturedCase[] = JSON.parse(
@@ -82,7 +82,7 @@ try {
         },
       )
       await writeFile(new URL(`${c.id}.svg.svg`, dir), svg)
-      const svgPng = new Resvg(svg).render().asPng()
+      const svgPng = renderReferenceSvg(svg)
       await writeFile(new URL(`${c.id}.svg.png`, dir), svgPng)
       const result = await page.evaluate(
         (scene) => window.parity.render(scene),
@@ -170,7 +170,7 @@ const report = {
   textRenderCalls: pureTextResults.length,
   textParityPassed: pureTextResults.filter((r) => r.pass).length,
   textParityFailed: pureTextResults.filter((r) => r.pass === false).length,
-  upstreamCommit: "fa8405c67634e287b79a1506eedde077ef6accb0",
+  upstreamCommit: manifest.commit,
   testFiles: new Set(tests.map((t) => t.path)).size,
   tests: tests.length,
   referencePassed: tests.filter((t) => t.status === "passed").length,
