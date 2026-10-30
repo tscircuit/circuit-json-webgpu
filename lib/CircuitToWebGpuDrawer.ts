@@ -262,7 +262,7 @@ export class CircuitToWebGpuDrawer {
     }))
     // Share retained geometry; only the per-layer compositing targets are separate.
     this.xRayLayers = this.layers
-      .filter((layer) => this.isCopper(layer.name) || layer.name === "drill")
+      .filter((layer) => this.isCopper(layer.name) || this.isDrill(layer.name))
       .map((layer) => ({
         ...layer,
         opacity: this.device.createBuffer({
@@ -369,11 +369,7 @@ export class CircuitToWebGpuDrawer {
       filter = o.layers ? new Set(o.layers.map(normalizeLayer)) : undefined
     const visible = this.layers
       .filter((l) => {
-        if (
-          filter &&
-          !filter.has(l.name.replace(/_silkscreen_text$/, "_silkscreen"))
-        )
-          return false
+        if (filter && !this.matchesLayerFilter(l.name, filter)) return false
         if (xRayActive && !this.isCopper(l.name)) return false
         if (l.name === "board" && !o.showBoardMaterial) return false
         if (
@@ -397,7 +393,9 @@ export class CircuitToWebGpuDrawer {
       )
     const selectedLayers = xRayActive
       ? this.xRayLayers
-          .filter((layer) => !filter || filter.has(layer.name))
+          .filter(
+            (layer) => !filter || this.matchesLayerFilter(layer.name, filter),
+          )
           .sort(
             (a, b) =>
               this.xRayOrder(a.name, selected) -
@@ -445,8 +443,8 @@ export class CircuitToWebGpuDrawer {
         pass.drawIndexed(mesh.count)
       }
       pass.end()
-      const text = layer.name === "drill" && !xRay ? drillText : []
-      if (layer.name === "drill")
+      const text = this.isDrill(layer.name) && !xRay ? drillText : []
+      if (this.isDrill(layer.name))
         layer.composite = this.createComposite(layer, text)
       this.device.queue.writeBuffer(
         layer.opacity,
@@ -494,7 +492,33 @@ export class CircuitToWebGpuDrawer {
   private isCopper(layer: string) {
     return /^(top|bottom|inner\d+)$/.test(layer)
   }
+  private isDrill(layer: string) {
+    return layer === "drill" || layer.startsWith("drill:")
+  }
+  private matchesLayerFilter(layer: string, filter: Set<string>) {
+    if (!this.isDrill(layer))
+      return filter.has(layer.replace(/_silkscreen_text$/, "_silkscreen"))
+    if (!filter.has("drill")) return false
+    // A single-side render must not expose drills belonging only to other
+    // copper layers, even when hiddenLayerOpacity is 1 (e.g. SVG comparisons).
+    return (
+      layer === "drill" ||
+      ![...filter].some((name) => this.isCopper(name)) ||
+      layer
+        .split(":")[1]
+        .split(",")
+        .some((name) => filter.has(name))
+    )
+  }
   private opacity(layer: string, selected: string, hidden: number) {
+    if (layer.startsWith("drill:")) {
+      const [, span, tented] = layer.split(":")
+      if (this.options.showSolderMask && tented?.split(",").includes(selected))
+        return 0
+      return span.split(",").includes(selected)
+        ? 1
+        : Math.max(0, Math.min(1, hidden))
+    }
     return ["board", "drill", "edge_cuts"].includes(layer) ||
       layer === selected ||
       layer.startsWith(`${selected}_`) ||
@@ -503,7 +527,7 @@ export class CircuitToWebGpuDrawer {
       : Math.max(0, Math.min(1, hidden))
   }
   private xRayOrder(layer: string, selected: string) {
-    if (layer === "drill") return 200
+    if (this.isDrill(layer)) return 200
     if (layer === selected) return 100
     if (layer === "bottom") return 0
     if (layer.startsWith("inner")) return 20 - Number(layer.slice(5))
@@ -511,7 +535,7 @@ export class CircuitToWebGpuDrawer {
   }
   private order(layer: string, selected: string) {
     if (layer === "board") return -100
-    if (layer === "drill") return 200
+    if (this.isDrill(layer)) return 200
     if (layer === "edge_cuts") return 150
     const base =
       layer === selected

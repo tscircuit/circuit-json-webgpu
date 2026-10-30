@@ -148,7 +148,9 @@ export function compileCircuitJson(
     if (!builders.has(name))
       builders.set(name, { paint: new MeshBuilder(), erase: new MeshBuilder() })
     const mesh = builders.get(name)![erase ? "erase" : "paint"]
-    const colorLayer = name.replace(/_silkscreen_text$/, "_silkscreen")
+    const colorLayer = name.startsWith("drill:")
+      ? "drill"
+      : name.replace(/_silkscreen_text$/, "_silkscreen")
     mesh.color = options.layerColors?.[colorLayer] ??
       DEFAULT_LAYER_COLORS[colorLayer] ?? [0.75, 0.75, 0.75, 1]
     mesh.element = index
@@ -405,10 +407,22 @@ export function compileCircuitJson(
   for (const { rings, index, layers } of openings) {
     for (const layer of layers) get(layer, index, true).polygon(rings)
     const isThrough = layers.includes("top") && layers.includes("bottom")
-    if (isThrough) {
-      get("board", index, true).polygon(rings)
-      get("drill", index).polygon(rings)
-    }
+    if (isThrough) get("board", index, true).polygon(rings)
+    // Partial-depth drills follow their copper span's visibility rather than
+    // disappearing entirely or showing through unrelated opaque layers.
+    const element = elements[index] as Element
+    const tented = ["top", "bottom"].filter(
+      (side) =>
+        layers.includes(side) &&
+        (element[`tented_on_${side}`] ??
+          element.is_tented ??
+          element.is_covered_with_solder_mask ??
+          false),
+    )
+    const drill = isThrough
+      ? "drill"
+      : `drill:${[...layers].sort().join(",")}:${tented.join(",")}`
+    get(drill, index).polygon(rings)
     for (const side of ["top", "bottom"])
       if (layers.includes(side))
         get(`soldermask_${side}`, index, true).polygon(rings)
@@ -416,7 +430,11 @@ export function compileCircuitJson(
   for (const { rings, index } of cutouts) {
     get("drill", index).polygon(rings)
     for (const name of builders.keys())
-      if (name !== "edge_cuts" && name !== "drill")
+      if (
+        name !== "edge_cuts" &&
+        name !== "drill" &&
+        !name.startsWith("drill:")
+      )
         get(name, index, true).polygon(rings)
   }
   const layers = [...builders].map(([name, mesh]) => ({

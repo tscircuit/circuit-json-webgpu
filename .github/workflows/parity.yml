@@ -27,6 +27,14 @@ jobs:
           svg_schema_version=$(bun -p 'require("../node_modules/circuit-json/package.json").version')
           bun add --dev --no-save "circuit-to-svg@$svg_reference_version" "circuit-json@$svg_schema_version"
       - run: bunx playwright install --with-deps chromium
+      # Normalize only the SVG reference rasterization; the base renderer stays unchanged.
+      - name: Use the same SVG font fallback in both audits
+        run: |
+          bun -e '
+            const path = ".parity-base/tests/parity/run.ts"
+            const source = await Bun.file(path).text()
+            await Bun.write(path, source.replace("new Resvg(svg)", `new Resvg(svg, { font: { defaultFontFamily: "DejaVu Sans" } })`))
+          '
       # The strict audit has known failures on main. Run both revisions on the
       # same runner; the required comparison below rejects every new regression.
       - name: Audit base revision
