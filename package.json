@@ -20,7 +20,7 @@
     "build": "tsup lib/index.ts --format esm --dts --clean",
     "typecheck": "tsc --noEmit",
     "test": "bun test ./tests --path-ignore-patterns '**/{upstream,actual}/**'",
-    "test:visual": "bun tests/visual.ts",
+    "test:visual": "bun tests/visual.ts && bun test ./tests/board-note-css-colors.browser.ts",
     "snapshots:update": "UPDATE_SNAPSHOTS=1 bun tests/visual.ts",
     "dev": "vite --host 127.0.0.1",
     "format": "biome format lib site scripts tests tsup.config.ts --write",
