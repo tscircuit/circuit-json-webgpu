@@ -12,7 +12,9 @@ test("the via-tenting board compiles its white annotation legends", () => {
   expect(notes.paint.indices.length).toBeGreaterThan(0)
   const whiteNoteIndices = new Set<CircuitElementIndex>(
     circuitJson.flatMap((element, index) =>
-      element.type === "pcb_note_text" && element.color === "white" ? [index] : [],
+      element.type === "pcb_note_text" && element.color === "white"
+        ? [index]
+        : [],
     ),
   )
   let whiteVertices = 0
