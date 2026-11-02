@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test"
-import { readFile, writeFile } from "node:fs/promises"
+import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import { PNG } from "pngjs"
 import pixelmatch from "pixelmatch"
@@ -55,17 +55,29 @@ test("the via-tenting board retains its named-color legends", async () => {
       "./snapshots/board-via-tenting-css-colors.png",
       import.meta.url,
     )
+    const actualDirectory = new URL("./actual/", import.meta.url)
+    await mkdir(actualDirectory, { recursive: true })
+    await writeFile(
+      new URL("board-via-tenting-css-colors.png", actualDirectory),
+      actual,
+    )
     if (process.env.UPDATE_SNAPSHOTS) await writeFile(snapshot, actual)
     const expected = PNG.sync.read(await readFile(snapshot))
     const rendered = PNG.sync.read(actual)
+    const diff = new PNG({ width: expected.width, height: expected.height })
     const changed = pixelmatch(
       expected.data,
       rendered.data,
-      undefined,
+      diff.data,
       expected.width,
       expected.height,
       { threshold: 0.1 },
     )
+    if (changed)
+      await writeFile(
+        new URL("board-via-tenting-css-colors.diff.png", actualDirectory),
+        PNG.sync.write(diff),
+      )
     expect(changed).toBeLessThanOrEqual(
       expected.width * expected.height * 0.002,
     )
