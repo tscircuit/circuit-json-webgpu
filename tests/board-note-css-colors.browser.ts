@@ -51,10 +51,11 @@ test("the via-tenting board retains its named-color legends", async () => {
       ),
       "base64",
     )
-    const snapshot = new URL(
-      "./snapshots/board-via-tenting-css-colors.png",
-      import.meta.url,
-    )
+    // Match visual.ts: SwiftShader has different MSAA sample positions.
+    const snapshotName = process.env.WEBGPU_SOFTWARE
+      ? "board-via-tenting-css-colors.swiftshader.png"
+      : "board-via-tenting-css-colors.png"
+    const snapshot = new URL(`./snapshots/${snapshotName}`, import.meta.url)
     const actualDirectory = new URL("./actual/", import.meta.url)
     await mkdir(actualDirectory, { recursive: true })
     await writeFile(
