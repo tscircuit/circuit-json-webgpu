@@ -46,9 +46,9 @@ test("the via-tenting board retains its named-color legends", async () => {
       },
     )
     const actual = Buffer.from(
-      await page
-        .locator("canvas")
-        .evaluate((canvas) => canvas.toDataURL().split(",")[1]),
+      await page.evaluate(
+        () => document.querySelector("canvas")!.toDataURL().split(",")[1],
+      ),
       "base64",
     )
     const snapshot = new URL(
