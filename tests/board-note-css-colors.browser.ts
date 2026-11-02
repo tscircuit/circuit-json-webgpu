@@ -45,7 +45,12 @@ test("the via-tenting board retains its named-color legends", async () => {
         boardToPxTransform: compose(translate(450, 200), scale(3.6, -3.6)),
       },
     )
-    const actual = await page.locator("canvas").screenshot()
+    const actual = Buffer.from(
+      await page
+        .locator("canvas")
+        .evaluate((canvas) => canvas.toDataURL().split(",")[1]),
+      "base64",
+    )
     const snapshot = new URL(
       "./snapshots/board-via-tenting-css-colors.png",
       import.meta.url,
