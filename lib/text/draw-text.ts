@@ -3,17 +3,38 @@ import { MeshBuilder, rotate } from "../geometry"
 import type { Point } from "../types"
 import { getAlphabetLayout } from "circuit-to-canvas/lib/drawer/shapes/text/getAlphabetLayout"
 import { getTextGeometry } from "circuit-to-canvas/lib/drawer/shapes/text/getTextStartPosition"
+import { textMetrics } from "@tscircuit/alphabet"
 
-/** Layout matches circuit-to-canvas; only the final primitive sink is GPU triangles. */
+// The alphabet's TTF builder scales outlines by ASCENDER / UNITS_PER_EM.
+const alphabetAscenderRatio = 940 / 1000
+
+/** Use Canvas glyph outlines, with SVG font anchors for PCB note overlays. */
 export function drawText(
   mesh: MeshBuilder,
   e: Record<string, any>,
   yAxis: "up" | "down" = "up",
 ) {
-  const text = String(e.text ?? "")
+  const text = String(e.text ?? "").replace(/\\n/g, "\n")
   if (!text) return
   const c = e.anchor_position ?? e.center ?? { x: e.x ?? 0, y: e.y ?? 0 }
   const fontSize = e.font_size ?? 1
+  if (e.type === "pcb_note_text" && text.includes("\n")) {
+    // SVG notes anchor the first line and advance each tspan by one em.
+    for (const [index, line] of text.split("\n").entries())
+      drawText(
+        mesh,
+        {
+          ...e,
+          text: line,
+          anchor_position: {
+            x: c.x,
+            y: c.y + (yAxis === "up" ? -1 : 1) * index * fontSize,
+          },
+        },
+        yAxis,
+      )
+    return
+  }
   const layout = getAlphabetLayout(text, fontSize)
   const geometry = getTextGeometry(
     e.anchor_alignment ?? "center",
@@ -25,18 +46,40 @@ export function drawText(
   const mirrored = isFabrication
     ? false
     : isNote
-      ? (e.is_mirrored_from_top_view ?? e.layer === "bottom")
+      ? (e.is_mirrored_from_top_view ?? false)
       : e.type === "pcb_silkscreen_text"
         ? e.layer === "bottom"
         : (e.is_mirrored ?? e.layer === "bottom")
   const rotation = isNote || isFabrication ? 0 : (e.ccw_rotation ?? 0)
   const sign = yAxis === "up" ? -1 : 1
-  const transform = (p: Point) =>
-    rotate(
-      { x: c.x + (mirrored ? -p.x : p.x), y: c.y + sign * p.y },
+  const alignment = e.anchor_alignment ?? "center"
+  const ascender = alphabetAscenderRatio
+  const descender = ascender - textMetrics.lineHeightRatio
+  const noteAnchorX = alignment.endsWith("_left")
+    ? 0
+    : alignment.endsWith("_right")
+      ? -layout.width
+      : -layout.width / 2
+  const noteBaseline = alignment.startsWith("top_")
+    ? ascender
+    : alignment.startsWith("bottom_")
+      ? descender
+      : (ascender + descender) / 2
+  const transform = (p: Point) => {
+    // SVG uses font advances/baselines, not the visible ink bounds used by Canvas.
+    const x = isNote
+      ? p.x - geometry.startOffset.x - layout.strokeWidth / 2 + noteAnchorX
+      : p.x
+    const y = isNote
+      ? (p.y - geometry.startOffset.y - fontSize) * ascender +
+        noteBaseline * fontSize
+      : p.y
+    return rotate(
+      { x: c.x + (mirrored ? -x : x), y: c.y + sign * y },
       c,
       -sign * rotation,
     )
+  }
   if (e.is_knockout && !isNote && !isFabrication) {
     const b = geometry.bounds
     if (!b) return
