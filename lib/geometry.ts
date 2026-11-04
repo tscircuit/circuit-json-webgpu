@@ -1,31 +1,23 @@
-import earcut from "earcut"
 import polygonClipping, { type Polygon } from "polygon-clipping"
 import type { Color, Mesh, Point } from "./types"
 import { getCircleSegmentCount } from "./get-circle-segment-count"
+import { PackedMeshArray } from "./packed-mesh-array"
+import { triangulatePolygon } from "./triangulate-polygon"
 
 /** Tessellation is camera-independent and runs only when circuit data changes. */
 export class MeshBuilder {
-  vertices: number[] = []
-  indices: number[] = []
+  private vertices = new PackedMeshArray(Float32Array)
+  private indices = new PackedMeshArray(Uint32Array)
   constructor(
     public color: Color = [1, 1, 1, 1],
     public element = 0,
     public category = 0,
   ) {}
   polygon(rings: Point[][]) {
-    if (!rings[0] || rings[0].length < 3) return
-    const points: number[] = [],
-      holes: number[] = []
-    for (const [i, ring] of rings.entries()) {
-      if (i) holes.push(points.length / 2)
-      for (const p of ring) {
-        if (!Number.isFinite(p.x) || !Number.isFinite(p.y))
-          throw new Error("Non-finite polygon vertex")
-        points.push(p.x, p.y)
-      }
-    }
-    const triangles = earcut(points, holes, 2),
-      base = this.vertices.length / 8
+    const triangulation = triangulatePolygon(rings)
+    if (!triangulation) return
+    const { points, triangles } = triangulation
+    const base = this.vertices.length / 8
     for (let i = 0; i < points.length; i += 2)
       this.vertices.push(
         points[i],
@@ -80,8 +72,8 @@ export class MeshBuilder {
   }
   build(): Mesh {
     return {
-      vertices: new Float32Array(this.vertices),
-      indices: new Uint32Array(this.indices),
+      vertices: this.vertices.toTypedArray(),
+      indices: this.indices.toTypedArray(),
     }
   }
 }

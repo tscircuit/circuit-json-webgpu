@@ -437,11 +437,12 @@ export function compileCircuitJson(
       )
         get(name, index, true).polygon(rings)
   }
-  const layers = [...builders].map(([name, mesh]) => ({
-    name,
-    paint: mesh.paint.build(),
-    erase: mesh.erase.build(),
-  }))
+  const layers: CompiledScene["layers"] = []
+  for (const [name, mesh] of builders) {
+    layers.push({ name, paint: mesh.paint.build(), erase: mesh.erase.build() })
+    // Release this layer's chunks before packing the next layer.
+    builders.delete(name)
+  }
   return {
     layers,
     elementIds,

@@ -683,12 +683,14 @@ test("keepout fill and stripes preserve holes in concave polygons", () => {
     ],
     rectangle({ x: 2, y: 2 }, 2, 2),
   ])
+  const { vertices, indices } = mesh.build()
   let fillArea = 0,
     stripeArea = 0
-  for (let i = 0; i < mesh.indices.length; i += 3) {
-    const triangle = mesh.indices
-      .slice(i, i + 3)
-      .map((j) => ({ x: mesh.vertices[j * 8], y: mesh.vertices[j * 8 + 1] }))
+  for (let i = 0; i < indices.length; i += 3) {
+    const triangle = Array.from(indices.subarray(i, i + 3), (index) => ({
+      x: vertices[index * 8],
+      y: vertices[index * 8 + 1],
+    }))
     const center = {
       x: triangle.reduce((s, p) => s + p.x, 0) / 3,
       y: triangle.reduce((s, p) => s + p.y, 0) / 3,
@@ -700,7 +702,7 @@ test("keepout fill and stripes preserve holes in concave polygons", () => {
     const [a, b, c] = triangle
     const area =
       Math.abs((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) / 2
-    if (mesh.vertices[mesh.indices[i] * 8 + 5] === 0.2) fillArea += area
+    if (vertices[indices[i] * 8 + 5] === Math.fround(0.2)) fillArea += area
     else stripeArea += area
   }
   expect(fillArea).toBeCloseTo(44)
