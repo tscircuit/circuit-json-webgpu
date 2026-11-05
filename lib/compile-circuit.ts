@@ -1,3 +1,5 @@
+import { buildTracePolygon } from "@tscircuit/circuit-json-util"
+import { getInterpolatedWireRuns } from "./get-interpolated-wire-runs"
 import {
   getWireTaperPolygon,
   getWireTaperSegments,
@@ -207,18 +209,10 @@ export function compileCircuitJson(
         })
       } else if (input.type === "pcb_trace") {
         const route = input.route
-        if (
-          input.route_thickness_mode === "interpolated" &&
-          route.some(
-            (p, i) =>
-              p.route_type === "wire" &&
-              !hasWireTaper(p) &&
-              route[i + 1]?.route_type === "wire",
-          )
-        )
-          throw new Error(
-            "Interpolated/through-pad traces are not supported yet",
-          )
+        const interpolated = input.route_thickness_mode === "interpolated"
+        if (interpolated)
+          for (const run of getInterpolatedWireRuns(route))
+            get(run[0].layer, index).polygon([buildTracePolygon(run)])
         for (const point of getWireTaperSegments(route)) {
           if (point.is_inside_copper_pour) continue
           const polygon = getWireTaperPolygon(point)
@@ -235,6 +229,12 @@ export function compileCircuitJson(
           let a = route[i - 1],
             b = route[i]
           if (hasWireTaper(a)) continue
+          if (
+            interpolated &&
+            a.route_type === "wire" &&
+            b.route_type === "wire"
+          )
+            continue // Contiguous wire runs were drawn as polygons above.
           if (a.route_type === "through_pad")
             a = {
               route_type: "wire",
