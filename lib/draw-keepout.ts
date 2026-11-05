@@ -1,4 +1,5 @@
-import { MeshBuilder } from "./geometry"
+import type { MeshBuilder } from "./geometry"
+import { triangulatePolygon } from "./triangulate-polygon"
 import type { Color, Point } from "./types"
 
 /** Clip a triangle to one side of a diagonal stripe in board coordinates. */
@@ -22,6 +23,8 @@ function clip(points: Point[], offset: number, above: boolean): Point[] {
 
 /** Retained, clipped hatching: 1 mm spacing and 0.15 mm line width. */
 export function drawKeepout(mesh: MeshBuilder, rings: Point[][]) {
+  const triangulation = triangulatePolygon(rings)
+  if (!triangulation) return
   const copperColor = mesh.color
   // A lighter copper color keeps the marking legible over both copper and voids.
   const color: Color = [
@@ -34,14 +37,13 @@ export function drawKeepout(mesh: MeshBuilder, rings: Point[][]) {
   mesh.polygon(rings)
   mesh.color = color
 
-  // Triangulate first so clipping also handles concave outlines and holes.
-  const surface = new MeshBuilder()
-  surface.polygon(rings)
+  // Clip in board coordinates before rounding to the GPU vertex format.
+  const { points, triangles } = triangulation
   const halfWidth = (0.15 * Math.SQRT2) / 2
-  for (let i = 0; i < surface.indices.length; i += 3) {
-    const triangle = surface.indices.slice(i, i + 3).map((index) => ({
-      x: surface.vertices[index * 8],
-      y: surface.vertices[index * 8 + 1],
+  for (let i = 0; i < triangles.length; i += 3) {
+    const triangle = triangles.slice(i, i + 3).map((index) => ({
+      x: points[index * 2],
+      y: points[index * 2 + 1],
     }))
     const offsets = triangle.map((p) => p.x + p.y)
     const start = Math.ceil(Math.min(...offsets) - halfWidth)
