@@ -4,6 +4,8 @@ import { getCircleSegmentCount } from "./get-circle-segment-count"
 import { PackedMeshArray } from "./packed-mesh-array"
 import { triangulatePolygon } from "./triangulate-polygon"
 
+const VERTEX_STRIDE = 8
+
 /** Tessellation is camera-independent and runs only when circuit data changes. */
 export class MeshBuilder {
   private vertices = new PackedMeshArray(Float32Array)
@@ -17,16 +19,35 @@ export class MeshBuilder {
     const triangulation = triangulatePolygon(rings)
     if (!triangulation) return
     const { points, triangles } = triangulation
-    const base = this.vertices.length / 8
-    for (let i = 0; i < points.length; i += 2)
-      this.vertices.push(
-        points[i],
-        points[i + 1],
-        ...this.color,
-        this.element,
-        this.category,
-      )
-    for (const index of triangles) this.indices.push(base + index)
+    const base = this.vertices.length / VERTEX_STRIDE
+    const [red, green, blue, alpha] = this.color
+    const { element, category } = this
+    this.vertices.append(
+      (points.length / 2) * VERTEX_STRIDE,
+      ({ chunk, chunkOffset, sourceOffset, length }) => {
+        let pointIndex = (sourceOffset / VERTEX_STRIDE) * 2
+        const end = chunkOffset + length
+        for (let offset = chunkOffset; offset < end; offset += VERTEX_STRIDE) {
+          chunk[offset] = points[pointIndex]
+          chunk[offset + 1] = points[pointIndex + 1]
+          chunk[offset + 2] = red
+          chunk[offset + 3] = green
+          chunk[offset + 4] = blue
+          chunk[offset + 5] = alpha
+          chunk[offset + 6] = element
+          chunk[offset + 7] = category
+          pointIndex += 2
+        }
+      },
+    )
+    this.indices.append(
+      triangles.length,
+      ({ chunk, chunkOffset, sourceOffset, length }) => {
+        for (let index = 0; index < length; index++) {
+          chunk[chunkOffset + index] = base + triangles[sourceOffset + index]
+        }
+      },
+    )
   }
   line(a: Point, b: Point, width: number) {
     if (!(width > 0)) return
