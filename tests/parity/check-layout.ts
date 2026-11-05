@@ -53,16 +53,21 @@ try {
     )
   }
   await page.setViewportSize({ width: 1200, height: 900 })
-  const section = page.locator("#case-0028")
+  const section = page.locator("section").filter({
+    has: page.getByRole("heading", {
+      name: / · draw multiline copper text with left alignment$/,
+    }),
+  })
+  const images = section.locator(".pair img")
+  assert.equal(
+    await images.count(),
+    2,
+    "The copper text comparison needs two images",
+  )
   await section.scrollIntoViewIfNeeded()
-  await section
-    .locator("img")
-    .first()
-    .evaluate((img) => (img as HTMLImageElement).decode())
-  await section
-    .locator(".pair img")
-    .nth(1)
-    .evaluate((img) => (img as HTMLImageElement).decode())
+  for (const image of await images.all()) {
+    await image.evaluate((img) => (img as HTMLImageElement).decode())
+  }
   await section.screenshot({ path: "tests/actual/parity/layout-text.png" })
 } finally {
   await browser.close()
