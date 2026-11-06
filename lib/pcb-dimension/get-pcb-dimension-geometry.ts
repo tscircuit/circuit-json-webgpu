@@ -164,7 +164,8 @@ function getRotatedTextClearance({
 }): number {
   if (
     textCcwRotationDegrees === undefined ||
-    !Number.isFinite(textCcwRotationDegrees)
+    !Number.isFinite(textCcwRotationDegrees) ||
+    Math.abs(textCcwRotationDegrees % 180) <= Number.EPSILON
   ) {
     return 0
   }
