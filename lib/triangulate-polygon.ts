@@ -1,7 +1,12 @@
 import earcut from "earcut"
 import type { Point } from "./types"
 
-export function triangulatePolygon(rings: Point[][]) {
+export type PolygonTriangulation = {
+  points: ArrayLike<number>
+  triangles: ArrayLike<number>
+}
+
+export function flattenPolygon(rings: Point[][]) {
   if (!rings[0] || rings[0].length < 3) return
   const points: number[] = []
   const holes: number[] = []
@@ -14,5 +19,14 @@ export function triangulatePolygon(rings: Point[][]) {
       points.push(point.x, point.y)
     }
   }
-  return { points, triangles: earcut(points, holes, 2) }
+  return { points, holes }
+}
+
+export function triangulatePolygon(rings: Point[][]) {
+  const polygon = flattenPolygon(rings)
+  if (!polygon) return
+  return {
+    points: polygon.points,
+    triangles: earcut(polygon.points, polygon.holes, 2),
+  }
 }

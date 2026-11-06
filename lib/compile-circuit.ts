@@ -7,6 +7,7 @@ import { drawKeepout } from "./draw-keepout"
 import { drawPcbDimension } from "./pcb-dimension/draw-pcb-dimension"
 import { drawText } from "./text/draw-text"
 import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
+import type { CopperPourTriangulations } from "./copper-pour-triangulations"
 import {
   adaptiveCircle,
   ellipse,
@@ -128,6 +129,18 @@ export function compileCircuitJson(
   elements: CircuitJson,
   options: CompileOptions = {},
 ): CompiledScene {
+  return compileCircuitJsonWithCopperPourCache({ elements, options })
+}
+
+export function compileCircuitJsonWithCopperPourCache({
+  elements,
+  options,
+  copperPourTriangulations,
+}: {
+  elements: CircuitJson
+  options: CompileOptions
+  copperPourTriangulations?: CopperPourTriangulations
+}): CompiledScene {
   const builders = new Map<string, { paint: MeshBuilder; erase: MeshBuilder }>()
   const diagnostics: Diagnostic[] = [],
     elementIds = elements.map(getElementId)
@@ -272,7 +285,10 @@ export function compileCircuitJson(
             get(b.layer, index).line(a, b, b.width)
         }
       } else if (type === "pcb_copper_pour") {
-        get(e.layer, index, false, 1).polygon(shape(e))
+        get(e.layer, index, false, 1).polygon(
+          shape(e),
+          copperPourTriangulations?.triangulate,
+        )
       } else if (type === "pcb_copper_text") {
         drawText(get(e.layer, index), e, options.textYAxis)
       } else if (
