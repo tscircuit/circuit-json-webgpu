@@ -10,6 +10,7 @@ const MAX_CACHED_BYTES = 24 * 1024 * 1024
 
 type CopperPourGeometryKey = string
 type CachedTriangulation = {
+  key: CopperPourGeometryKey
   points: Float64Array
   holes: Uint32Array
   triangles: Uint32Array
@@ -28,10 +29,11 @@ function haveSameCoordinates(
 
 /** Reuse expensive index lists while keeping only one compiled GPU scene. */
 export class CopperPourTriangulations {
-  private readonly entries = new Map<
+  private readonly entriesByKey = new Map<
     CopperPourGeometryKey,
-    CachedTriangulation
+    Set<CachedTriangulation>
   >()
+  private readonly entriesByRecency = new Set<CachedTriangulation>()
   private cachedBytes = 0
 
   constructor(private readonly maxCachedBytes = MAX_CACHED_BYTES) {}
@@ -47,17 +49,18 @@ export class CopperPourTriangulations {
     // This key narrows the lookup. Matching also requires every vertex and
     // hole offset, since variants can repour a region with the same outline.
     const key = `${points.length}:${holes.length}:${points[0]}:${points[1]}:${points.at(-2)}:${points.at(-1)}`
-    const cached = this.entries.get(key)
-    if (cached) {
-      this.entries.delete(key)
-      if (
-        haveSameCoordinates(points, cached.points) &&
-        haveSameCoordinates(holes, cached.holes)
-      ) {
-        this.entries.set(key, cached)
-        return cached
+    const candidates = this.entriesByKey.get(key)
+    if (candidates) {
+      for (const cached of candidates) {
+        if (
+          haveSameCoordinates(points, cached.points) &&
+          haveSameCoordinates(holes, cached.holes)
+        ) {
+          this.entriesByRecency.delete(cached)
+          this.entriesByRecency.add(cached)
+          return cached
+        }
       }
-      this.cachedBytes -= cached.byteLength
     }
 
     const triangles = earcut(points, holes, 2)
@@ -66,19 +69,30 @@ export class CopperPourTriangulations {
       (holes.length + triangles.length) * Uint32Array.BYTES_PER_ELEMENT
     if (byteLength > this.maxCachedBytes) return { points, triangles }
 
-    for (const [oldestKey, oldest] of this.entries) {
+    for (const oldest of this.entriesByRecency) {
       if (this.cachedBytes + byteLength <= this.maxCachedBytes) break
-      this.entries.delete(oldestKey)
-      this.cachedBytes -= oldest.byteLength
+      this.evict(oldest)
     }
     const triangulation = {
+      key,
       points: Float64Array.from(points),
       holes: Uint32Array.from(holes),
       triangles: Uint32Array.from(triangles),
       byteLength,
     }
-    this.entries.set(key, triangulation)
+    const bucket = this.entriesByKey.get(key) ?? new Set<CachedTriangulation>()
+    bucket.add(triangulation)
+    this.entriesByKey.set(key, bucket)
+    this.entriesByRecency.add(triangulation)
     this.cachedBytes += byteLength
     return triangulation
+  }
+
+  private evict(triangulation: CachedTriangulation) {
+    this.entriesByRecency.delete(triangulation)
+    const bucket = this.entriesByKey.get(triangulation.key)
+    bucket?.delete(triangulation)
+    if (bucket?.size === 0) this.entriesByKey.delete(triangulation.key)
+    this.cachedBytes -= triangulation.byteLength
   }
 }

@@ -19,21 +19,14 @@ function createCopperPour(): Point[][] {
   ]
 }
 
-test("reuses a previous copper pour only when its complete geometry matches", () => {
+test("reuses distinct copper pours that share a lookup key", () => {
   const triangulations = new CopperPourTriangulations()
   const fullPour = createCopperPour()
-  const minimalPour = structuredClone(fullPour)
-  minimalPour[1][3].x = 2
-
-  const fullTriangulation = triangulations.triangulate(fullPour)
-  triangulations.triangulate(minimalPour)
-  expect(triangulations.triangulate(structuredClone(fullPour))).toBe(
-    fullTriangulation,
-  )
-
-  // This change leaves the lookup key the same but changes the clearance.
   const changedPour = structuredClone(fullPour)
+  // This change leaves the lookup key the same but changes the clearance.
   changedPour[1][1].x = -2
+
+  const fullTriangulation = triangulations.triangulate(fullPour)!
   const changedTriangulation = triangulations.triangulate(changedPour)!
   const uncachedTriangulation = triangulatePolygon(changedPour)!
   expect(changedTriangulation).not.toBe(fullTriangulation)
@@ -43,10 +36,22 @@ test("reuses a previous copper pour only when its complete geometry matches", ()
   expect(Array.from(changedTriangulation.triangles)).toEqual(
     uncachedTriangulation.triangles,
   )
+  expect(triangulations.triangulate(structuredClone(fullPour))).toBe(
+    fullTriangulation,
+  )
+  expect(triangulations.triangulate(structuredClone(changedPour))).toBe(
+    changedTriangulation,
+  )
 
-  const limitedTriangulations = new CopperPourTriangulations(80_000)
-  const oldest = limitedTriangulations.triangulate(fullPour)
-  const newest = limitedTriangulations.triangulate(minimalPour)
-  expect(limitedTriangulations.triangulate(minimalPour)).toBe(newest)
-  expect(limitedTriangulations.triangulate(fullPour)).not.toBe(oldest)
+  const limitedTriangulations = new CopperPourTriangulations(160_000)
+  const cachedFull = limitedTriangulations.triangulate(fullPour)
+  const cachedChanged = limitedTriangulations.triangulate(changedPour)
+  const thirdPour = structuredClone(fullPour)
+  thirdPour[1][1].x = -3
+
+  expect(limitedTriangulations.triangulate(fullPour)).toBe(cachedFull)
+  const cachedThird = limitedTriangulations.triangulate(thirdPour)
+  expect(limitedTriangulations.triangulate(fullPour)).toBe(cachedFull)
+  expect(limitedTriangulations.triangulate(thirdPour)).toBe(cachedThird)
+  expect(limitedTriangulations.triangulate(changedPour)).not.toBe(cachedChanged)
 })
