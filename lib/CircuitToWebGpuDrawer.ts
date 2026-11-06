@@ -1,4 +1,5 @@
-import { compileCircuitJson } from "./compile-circuit"
+import { compileCircuitJsonWithCopperPourCache } from "./compile-circuit"
+import { CopperPourTriangulations } from "./copper-pour-triangulations"
 import { normalizeLayer } from "./colors"
 import { compositeShader, geometryShader } from "./shaders"
 import type {
@@ -40,7 +41,11 @@ export class CircuitToWebGpuDrawer {
     vertexBytes: 0,
   }
   private circuit?: CircuitJson
-  private scene?: CompiledScene
+  private scene?: {
+    diagnostics: CompiledScene["diagnostics"]
+    elementCount: number
+  }
+  private copperPourTriangulations?: CopperPourTriangulations
   private layers: Layer[] = []
   private xRayLayers: Layer[] = []
   private xRayUniform: GPUBuffer
@@ -201,8 +206,13 @@ export class CircuitToWebGpuDrawer {
   setCircuitJson(circuitJson: CircuitJson) {
     this.assertLive()
     if (this.circuit === circuitJson) return
-    const start = performance.now(),
-      scene = compileCircuitJson(circuitJson, this.config)
+    const start = performance.now()
+    this.copperPourTriangulations ??= new CopperPourTriangulations()
+    const scene = compileCircuitJsonWithCopperPourCache({
+      elements: circuitJson,
+      options: this.config,
+      copperPourTriangulations: this.copperPourTriangulations,
+    })
     this.releaseLayers()
     this.highlights.destroy()
     this.highlights = this.device.createBuffer({
@@ -270,7 +280,10 @@ export class CircuitToWebGpuDrawer {
           usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         }),
       }))
-    this.scene = scene
+    this.scene = {
+      diagnostics: scene.diagnostics,
+      elementCount: scene.elementIds.length,
+    }
     this.circuit = circuitJson
     this.size = ""
     this.stats.geometryUploads++
@@ -351,9 +364,7 @@ export class CircuitToWebGpuDrawer {
     const ids = xRayActive ? [] : (o.highlightedElementIds ?? []),
       key = JSON.stringify([ids, xRayIds])
     if (key !== this.highlightKey) {
-      const mask = new Uint32Array(
-        Math.max(1, this.scene?.elementIds.length ?? 0),
-      )
+      const mask = new Uint32Array(Math.max(1, this.scene?.elementCount ?? 0))
       for (const id of ids) {
         const i = this.highlightIndices.get(id)
         if (i !== undefined) mask[i] = 1
@@ -633,5 +644,6 @@ export class CircuitToWebGpuDrawer {
       .then(destroyDevice, destroyDevice)
     this.circuit = undefined
     this.scene = undefined
+    this.copperPourTriangulations = undefined
   }
 }

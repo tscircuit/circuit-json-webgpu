@@ -2,7 +2,10 @@ import polygonClipping, { type Polygon } from "polygon-clipping"
 import type { Color, Mesh, Point } from "./types"
 import { getCircleSegmentCount } from "./get-circle-segment-count"
 import { PackedMeshArray } from "./packed-mesh-array"
-import { triangulatePolygon } from "./triangulate-polygon"
+import {
+  type PolygonTriangulation,
+  triangulatePolygon,
+} from "./triangulate-polygon"
 
 const VERTEX_STRIDE = 8
 
@@ -15,8 +18,13 @@ export class MeshBuilder {
     public element = 0,
     public category = 0,
   ) {}
-  polygon(rings: Point[][]) {
-    const triangulation = triangulatePolygon(rings)
+  polygon(
+    rings: Point[][],
+    triangulate: (
+      rings: Point[][],
+    ) => PolygonTriangulation | undefined = triangulatePolygon,
+  ) {
+    const triangulation = triangulate(rings)
     if (!triangulation) return
     const { points, triangles } = triangulation
     const base = this.vertices.length / VERTEX_STRIDE
