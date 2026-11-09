@@ -176,6 +176,8 @@ export function compileCircuitJsonWithCopperPourCache({
   for (const [index, input] of elements.entries()) {
     const e = input as Element,
       type: string = e.type
+    // Error/warning metadata can share annotation prefixes (e.g. courtyard).
+    if (/_(error|warning)$/.test(type)) continue
     try {
       if (type === "pcb_board" || type === "pcb_panel") {
         const rings = shape(e)
@@ -395,8 +397,7 @@ export function compileCircuitJsonWithCopperPourCache({
           // Mechanical flex elements are not drawn in circuit-to-canvas's 2D view.
           "pcb_bend",
           "pcb_stiffener",
-        ].includes(type) &&
-        !/_(error|warning)$/.test(type)
+        ].includes(type)
       ) {
         throw new Error("Unsupported PCB element")
       }
