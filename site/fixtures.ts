@@ -356,6 +356,52 @@ export const keepouts = [
 ] as CircuitJson
 
 export const fixtures: Record<string, Fixture> = {
+  "note-path-hex-color": {
+    elements: [
+      {
+        type: "pcb_note_line",
+        pcb_note_line_id: "red-line-control",
+        layer: "top",
+        x1: -8,
+        y1: 5,
+        x2: 8,
+        y2: 5,
+        stroke_width: 0.4,
+        color: "#ff0000",
+      },
+      {
+        type: "pcb_note_path",
+        pcb_note_path_id: "red-path",
+        layer: "top",
+        route: [
+          { x: -8, y: -4 },
+          { x: 0, y: -8 },
+          { x: 8, y: -4 },
+        ],
+        stroke_width: 0.4,
+        color: "#ff0000",
+      },
+      ...[
+        { id: "title", text: "BOTH NOTES REQUEST #ff0000", y: 11 },
+        { id: "control", text: "CONTROL: NOTE LINE", y: 8 },
+        { id: "path", text: "BUG: NOTE PATH", y: 0 },
+      ].map(({ id, text, y }) => ({
+        type: "pcb_note_text" as const,
+        pcb_note_text_id: id,
+        layer: "top" as const,
+        text,
+        font: "tscircuit2024" as const,
+        font_size: 1,
+        anchor_alignment: "center" as const,
+        anchor_position: { x: 0, y },
+      })),
+    ],
+    options: {
+      showPcbNotes: true,
+      hiddenLayerOpacity: 0,
+      transform: { a: 20, b: 0, c: 0, d: -20, e: 400, f: 300 },
+    },
+  },
   "silkscreen-text-over-holes": {
     elements: [
       {
