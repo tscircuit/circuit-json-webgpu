@@ -212,8 +212,6 @@ export class CircuitToWebGpuDrawer {
       elements: circuitJson,
       options: this.config,
       copperPourTriangulations: this.copperPourTriangulations,
-      // Keep both geometries so changing pour visibility only updates a uniform.
-      retainPourCoveredTraces: true,
     })
     this.releaseLayers()
     this.highlights.destroy()
