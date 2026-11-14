@@ -13,6 +13,7 @@ import { featureSnapshot } from "./parity/snapshot"
 let server: ViteDevServer
 let browser: Browser
 let reference: PNG
+let pourReference: PNG
 let xRayReference: PNG
 let shown: PNG
 let hidden: PNG
@@ -22,6 +23,9 @@ let missingPour: PNG
 let differentLayerPour: PNG
 const snapshot = "classic-f1-j6-pour-hidden"
 const { elements, viewport, groundSpans } = classicF1J6Ground
+const originalCircuit = [...elements] as Parameters<
+  typeof convertCircuitJsonToPcbSvg
+>[0]
 const traceIds = groundSpans.map(({ id }) => id)
 const scale = 20
 const width = (viewport.maxX - viewport.minX) * scale
@@ -78,10 +82,12 @@ beforeAll(async () => {
     svgOptions,
   )
   reference = PNG.sync.read(await renderSvg(svg))
-  const inspectionSvg = convertCircuitJsonToPcbSvg(
-    [...elements] as Parameters<typeof convertCircuitJsonToPcbSvg>[0],
-    { ...svgOptions, xRayElementIds: traceIds },
-  )
+  const pourSvg = convertCircuitJsonToPcbSvg(originalCircuit, svgOptions)
+  pourReference = PNG.sync.read(await renderSvg(pourSvg))
+  const inspectionSvg = convertCircuitJsonToPcbSvg(originalCircuit, {
+    ...svgOptions,
+    xRayElementIds: traceIds,
+  })
   xRayReference = PNG.sync.read(await renderSvg(inspectionSvg))
   server = await createServer({
     root: fileURLToPath(new URL("../", import.meta.url)),
@@ -193,7 +199,9 @@ test("Classic F1 matches the SVG and WebGPU comparison snapshot", async () => {
   expect(groundPixels(reference)).toEqual(
     groundSpans.map(() => [200, 52, 52, 255]),
   )
-  expect(groundPixels(shown)).toEqual(groundSpans.map(() => [100, 26, 26, 255]))
+  const pourPixels = groundPixels(pourReference)
+  expect(pourPixels).toEqual(groundSpans.map(() => [100, 26, 26, 255]))
+  expect(groundPixels(shown)).toEqual(pourPixels)
 })
 
 test("Classic F1 ground traces match the SVG reference with pours hidden", () => {
