@@ -10,11 +10,9 @@ import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
 import type { CopperPourTriangulations } from "./copper-pour-triangulations"
 import {
   adaptiveCircle,
-  COPPER_POUR_CATEGORY,
   ellipse,
   expandBrepRing,
   MeshBuilder,
-  POUR_COVERED_TRACE_CATEGORY,
   rectangle,
   rotate,
 } from "./geometry"
@@ -138,12 +136,10 @@ export function compileCircuitJsonWithCopperPourCache({
   elements,
   options,
   copperPourTriangulations,
-  retainPourCoveredTraces = false,
 }: {
   elements: CircuitJson
   options: CompileOptions
   copperPourTriangulations?: CopperPourTriangulations
-  retainPourCoveredTraces?: boolean
 }): CompiledScene {
   const builders = new Map<string, { paint: MeshBuilder; erase: MeshBuilder }>()
   const diagnostics: Diagnostic[] = [],
@@ -173,10 +169,6 @@ export function compileCircuitJsonWithCopperPourCache({
     mesh.element = index
     mesh.category = category
     return mesh
-  }
-  const getTrace = (layer: string, index: number, covered = false) => {
-    if (covered && !retainPourCoveredTraces) return
-    return get(layer, index, false, covered ? POUR_COVERED_TRACE_CATEGORY : 0)
   }
   const openings: { rings: Point[][]; index: number; layers: string[] }[] = []
   const keepouts: { rings: Point[][]; index: number; layers: string[] }[] = []
@@ -243,12 +235,11 @@ export function compileCircuitJsonWithCopperPourCache({
             "Interpolated/through-pad traces are not supported yet",
           )
         for (const point of getWireTaperSegments(route)) {
-          const mesh = getTrace(point.layer, index, point.is_inside_copper_pour)
-          if (!mesh) continue
+          if (point.is_inside_copper_pour) continue
           const polygon = getWireTaperPolygon(point)
           if (!polygon.length)
             throw new Error("Invalid teardrop geometry or interpolation mode")
-          mesh.polygon([polygon])
+          get(point.layer, index).polygon([polygon])
         }
         for (const point of route) {
           if (point.route_type !== "through_pad") continue
@@ -278,13 +269,10 @@ export function compileCircuitJsonWithCopperPourCache({
           if (
             a.route_type === "wire" &&
             b.route_type === "wire" &&
-            a.layer === b.layer
+            a.layer === b.layer &&
+            !(a.is_inside_copper_pour && b.is_inside_copper_pour)
           )
-            getTrace(
-              a.layer,
-              index,
-              a.is_inside_copper_pour && b.is_inside_copper_pour,
-            )?.line(a, b, a.width)
+            get(a.layer, index).line(a, b, a.width)
           else if (
             a.route_type === "wire" &&
             b.route_type === "via" &&
@@ -299,7 +287,7 @@ export function compileCircuitJsonWithCopperPourCache({
             get(b.layer, index).line(a, b, b.width)
         }
       } else if (type === "pcb_copper_pour") {
-        get(e.layer, index, false, COPPER_POUR_CATEGORY).polygon(
+        get(e.layer, index, false, 1).polygon(
           shape(e),
           copperPourTriangulations?.triangulate,
         )

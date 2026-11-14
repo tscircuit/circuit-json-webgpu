@@ -478,36 +478,8 @@ try {
       "Traces must stay opaque",
     )
   }
-  for (const x of [32, 47]) {
-    for (const name of ["half", "shown"]) {
-      assert.deepEqual(
-        pixel(pours.frames[name], x, 90),
-        pixel(pours.frames[name], x, 80),
-        "The visible pour covers both the wire and taper",
-      )
-    }
-    for (const name of ["hidden", "zero", "xrayTrace"]) {
-      assert.deepEqual(
-        pixel(pours.frames[name], x, 90),
-        [200, 52, 52, 255],
-        "The covered wire and taper are visible without the pour or in X-Ray",
-      )
-    }
-  }
   assert.equal(pourAlpha("xray", 50), 255, "Selected X-Ray copper stays opaque")
   assert.equal(pours.geometryUploads, 1, "Opacity changes must reuse geometry")
-  const { classicF1 } = pours
-  assert.deepEqual(classicF1.diagnostics, [])
-  assert.equal(classicF1.visibilityUploads, 0)
-  const j6TracePixel = (mode: string) => pixel(classicF1.frames[mode], 100, 100)
-  for (const mode of ["hidden", "zero", "xray"])
-    assert.deepEqual(j6TracePixel(mode), [200, 52, 52, 255])
-  assert.equal(
-    j6TracePixel("shown")[3],
-    128,
-    "The pour uses its normal opacity",
-  )
-  assert.equal(classicF1.frames.shown, classicF1.frames.restored)
   const xray = await page.evaluate(() => window.gpuTest.checkXRay())
   const layerColors = {
     top: [200, 52, 52, 255],
