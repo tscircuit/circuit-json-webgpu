@@ -5,13 +5,12 @@ import type {
   Point,
 } from "circuit-json"
 
-type PourCoverage = Pick<
-  PcbTraceRoutePointWire,
-  "is_inside_copper_pour" | "copper_pour_id"
->
-
-export function getCoveringPourId(start: PourCoverage, end: PourCoverage) {
+export function getCoveringPourId(
+  start: PcbTraceRoutePointWire,
+  end: PcbTraceRoutePoint,
+) {
   if (
+    end.route_type !== "through_pad" &&
     start.is_inside_copper_pour &&
     end.is_inside_copper_pour &&
     start.copper_pour_id === end.copper_pour_id
@@ -49,13 +48,13 @@ export function hasWireTaper(point: unknown): point is TaperedWirePoint {
 
 /** A taper belongs only to the outgoing segment of its wire point. */
 export function getWireTaperSegments(
-  route: readonly unknown[],
+  route: readonly PcbTraceRoutePoint[],
 ): WireTaperSegment[] {
   const result: WireTaperSegment[] = []
   for (let i = 0; i < route.length - 1; i++) {
     const point = route[i]
     if (!hasWireTaper(point)) continue
-    const next = route[i + 1] as (PcbTraceRoutePoint & PourCoverage) | undefined
+    const next = route[i + 1]
     if (!next) continue
     const end =
       next.route_type === "through_pad" ? next.start : { x: next.x, y: next.y }

@@ -157,24 +157,6 @@ test("equal-width quadratic reduces to a rectangle", () => {
   ])
 })
 
-test("removed smoothstep profile produces no copper", () => {
-  expect(
-    getWireTaperSegments([
-      {
-        route_type: "wire",
-        x: 0,
-        y: 0,
-        width: 3,
-        start_width: 3,
-        end_width: 0.5,
-        width_interpolation_mode: "smoothstep",
-        layer: "top",
-      },
-      { route_type: "wire", x: 6, y: 0, width: 0.5, layer: "top" },
-    ]),
-  ).toEqual([])
-})
-
 const wireTaper = {
   route_type: "wire",
   x: 0,
@@ -192,6 +174,16 @@ const endpoint = {
   width: 0.2,
   layer: "top",
 } as const
+test("removed smoothstep profile produces no copper", () => {
+  expect(
+    getWireTaperSegments([
+      // @ts-expect-error Exercise an obsolete interpolation mode in raw input.
+      { ...wireTaper, width_interpolation_mode: "smoothstep" },
+      endpoint,
+    ]),
+  ).toEqual([])
+})
+
 test("taper belongs to the outgoing wire segment only", () => {
   const route = [
     { ...endpoint, x: -1, width: 0.6 },
@@ -205,8 +197,17 @@ test("taper belongs to the outgoing wire segment only", () => {
   expect(segments[0]!.end).toEqual({ x: 1, y: 0 })
 })
 test("tapers terminate at a via or through-pad on the correct layer", () => {
+  const coverage = { is_inside_copper_pour: true, copper_pour_id: "pour" }
+  const start = { ...wireTaper, ...coverage }
   for (const end of [
-    { route_type: "via", x: 1, y: 0, from_layer: "top", to_layer: "bottom" },
+    {
+      ...coverage,
+      route_type: "via",
+      x: 1,
+      y: 0,
+      from_layer: "top",
+      to_layer: "bottom",
+    },
     {
       route_type: "through_pad",
       start: { x: 1, y: 0 },
@@ -215,11 +216,15 @@ test("tapers terminate at a via or through-pad on the correct layer", () => {
       end_layer: "bottom",
       width: 0.2,
     },
-  ]) {
-    expect(getWireTaperSegments([wireTaper, end])).toHaveLength(1)
-    expect(
-      getWireTaperSegments([{ ...wireTaper, layer: "bottom" }, end]),
-    ).toEqual([])
+  ] as const) {
+    const segments = getWireTaperSegments([start, end])
+    expect(segments).toHaveLength(1)
+    expect(segments[0].coveringPourId).toBe(
+      end.route_type === "via" ? coverage.copper_pour_id : undefined,
+    )
+    expect(getWireTaperSegments([{ ...start, layer: "bottom" }, end])).toEqual(
+      [],
+    )
   }
 })
 test("malformed or terminal tapers never become constant-width fallbacks", () => {
