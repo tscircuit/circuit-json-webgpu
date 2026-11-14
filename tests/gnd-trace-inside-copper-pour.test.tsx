@@ -68,11 +68,10 @@ test("GND trace geometry is retained alongside its copper pour", async () => {
   ]
   const scene = compileCircuitJson(circuitJson)
   expect(scene.diagnostics).toEqual([])
-  const top = scene.layers.find((layer) => layer.name === "top")!
-  const categories = new Set<number>()
-  for (const index of top.paint.indices) {
-    categories.add(top.paint.vertices[index * 8 + 7])
-  }
+  const { vertices, indices } = scene.layers.find(
+    (layer) => layer.name === "top",
+  )!.paint
+  const categories = new Set(Array.from(indices, (i) => vertices[i * 8 + 7]))
   expect(categories).toEqual(
     new Set([COPPER_POUR_CATEGORY, POUR_COVERED_TRACE_CATEGORY]),
   )

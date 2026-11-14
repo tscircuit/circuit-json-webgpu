@@ -25,8 +25,7 @@ struct VertexOut {
   let copperPourOpacity = camera.viewport.z;
   let isCopperPour = in.category == ${COPPER_POUR_CATEGORY}u;
   if (isCopperPour && copperPourOpacity == 0) { discard; }
-  let isXRayPass = camera.viewport.w == 1;
-  if (isXRayPass) {
+  if (camera.viewport.w == 1) {
     if (in.selected == 0u) { discard; }
     return vec4f(in.color.rgb, 1);
   }

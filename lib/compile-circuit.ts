@@ -1,4 +1,5 @@
 import {
+  getCoveringPourId,
   getWireTaperPolygon,
   getWireTaperSegments,
   hasWireTaper,
@@ -174,9 +175,8 @@ export function compileCircuitJsonWithCopperPourCache({
   }
   const pourLayerById = new Map<string, string>()
   for (const element of elements) {
-    if (element.type === "pcb_copper_pour") {
+    if (element.type === "pcb_copper_pour")
       pourLayerById.set(element.pcb_copper_pour_id, element.layer)
-    }
   }
   const getTrace = (layer: string, index: number, coveringPourId?: string) => {
     // Tag coverage once so the shader can show the trace when its pour is hidden.
@@ -255,11 +255,7 @@ export function compileCircuitJsonWithCopperPourCache({
           const polygon = getWireTaperPolygon(point)
           if (!polygon.length)
             throw new Error("Invalid teardrop geometry or interpolation mode")
-          getTrace(
-            point.layer,
-            index,
-            point.is_inside_copper_pour ? point.copper_pour_id : undefined,
-          ).polygon([polygon])
+          getTrace(point.layer, index, point.coveringPourId).polygon([polygon])
         }
         for (const point of route) {
           if (point.route_type !== "through_pad") continue
@@ -291,15 +287,11 @@ export function compileCircuitJsonWithCopperPourCache({
             b.route_type === "wire" &&
             a.layer === b.layer
           )
-            getTrace(
-              a.layer,
-              index,
-              a.is_inside_copper_pour &&
-                b.is_inside_copper_pour &&
-                a.copper_pour_id === b.copper_pour_id
-                ? a.copper_pour_id
-                : undefined,
-            ).line(a, b, a.width)
+            getTrace(a.layer, index, getCoveringPourId(a, b)).line(
+              a,
+              b,
+              a.width,
+            )
           else if (
             a.route_type === "wire" &&
             b.route_type === "via" &&

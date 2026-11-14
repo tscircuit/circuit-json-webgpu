@@ -1,4 +1,23 @@
-import type { PcbTraceRoutePointWire, Point, LayerRef } from "circuit-json"
+import type {
+  LayerRef,
+  PcbTraceRoutePoint,
+  PcbTraceRoutePointWire,
+  Point,
+} from "circuit-json"
+
+type PourCoverage = Pick<
+  PcbTraceRoutePointWire,
+  "is_inside_copper_pour" | "copper_pour_id"
+>
+
+export function getCoveringPourId(start: PourCoverage, end: PourCoverage) {
+  if (
+    start.is_inside_copper_pour &&
+    end.is_inside_copper_pour &&
+    start.copper_pour_id === end.copper_pour_id
+  )
+    return start.copper_pour_id
+}
 
 // Wire extension awaiting the next circuit-json release; ordinary wires remain compatible.
 export type TaperedWirePoint = PcbTraceRoutePointWire & {
@@ -13,8 +32,7 @@ export interface WireTaperSegment {
   end_width: number
   width_interpolation_mode: "linear" | "quadratic"
   layer: LayerRef
-  is_inside_copper_pour?: boolean
-  copper_pour_id?: string
+  coveringPourId?: string
 }
 
 /** Presence check also catches malformed partial tapers, preventing a fallback stroke. */
@@ -37,24 +55,10 @@ export function getWireTaperSegments(
   for (let i = 0; i < route.length - 1; i++) {
     const point = route[i]
     if (!hasWireTaper(point)) continue
-    const next = route[i + 1] as
-      | {
-          route_type?: string
-          x?: number
-          y?: number
-          layer?: LayerRef
-          from_layer?: LayerRef
-          start_layer?: LayerRef
-          is_inside_copper_pour?: boolean
-          copper_pour_id?: string
-          start?: Point
-        }
-      | undefined
+    const next = route[i + 1] as (PcbTraceRoutePoint & PourCoverage) | undefined
     if (!next) continue
     const end =
-      next.route_type === "through_pad"
-        ? next.start
-        : { x: next.x!, y: next.y! }
+      next.route_type === "through_pad" ? next.start : { x: next.x, y: next.y }
     const layer =
       next.route_type === "via"
         ? next.from_layer
@@ -70,13 +74,7 @@ export function getWireTaperSegments(
       end_width: point.end_width,
       width_interpolation_mode: point.width_interpolation_mode,
       layer: point.layer,
-      is_inside_copper_pour: Boolean(
-        point.is_inside_copper_pour && next.is_inside_copper_pour,
-      ),
-      copper_pour_id:
-        point.copper_pour_id === next.copper_pour_id
-          ? point.copper_pour_id
-          : undefined,
+      coveringPourId: getCoveringPourId(point, next),
     }
     if (isValidWireTaperSegment(segment)) result.push(segment)
   }
