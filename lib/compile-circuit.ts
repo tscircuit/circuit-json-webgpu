@@ -174,9 +174,28 @@ export function compileCircuitJsonWithCopperPourCache({
     mesh.category = category
     return mesh
   }
-  const getTrace = (layer: string, index: number, covered = false) => {
+  const pourLayerById = new Map<string, string>()
+  if (retainPourCoveredTraces) {
+    for (const element of elements) {
+      if (element.type === "pcb_copper_pour") {
+        pourLayerById.set(element.pcb_copper_pour_id, element.layer)
+      }
+    }
+  }
+  const getTrace = (
+    layer: string,
+    index: number,
+    covered = false,
+    pourId?: string,
+  ) => {
     if (covered && !retainPourCoveredTraces) return
-    return get(layer, index, false, covered ? POUR_COVERED_TRACE_CATEGORY : 0)
+    // Coverage describes the original board. A filtered scene might omit
+    // the pour, so suppress the trace only when its same-layer pour is present.
+    const category =
+      covered && pourId !== undefined && pourLayerById.get(pourId) === layer
+        ? POUR_COVERED_TRACE_CATEGORY
+        : 0
+    return get(layer, index, false, category)
   }
   const openings: { rings: Point[][]; index: number; layers: string[] }[] = []
   const keepouts: { rings: Point[][]; index: number; layers: string[] }[] = []
@@ -243,7 +262,12 @@ export function compileCircuitJsonWithCopperPourCache({
             "Interpolated/through-pad traces are not supported yet",
           )
         for (const point of getWireTaperSegments(route)) {
-          const mesh = getTrace(point.layer, index, point.is_inside_copper_pour)
+          const mesh = getTrace(
+            point.layer,
+            index,
+            point.is_inside_copper_pour,
+            point.copper_pour_id,
+          )
           if (!mesh) continue
           const polygon = getWireTaperPolygon(point)
           if (!polygon.length)
@@ -284,6 +308,9 @@ export function compileCircuitJsonWithCopperPourCache({
               a.layer,
               index,
               a.is_inside_copper_pour && b.is_inside_copper_pour,
+              a.copper_pour_id === b.copper_pour_id
+                ? a.copper_pour_id
+                : undefined,
             )?.line(a, b, a.width)
           else if (
             a.route_type === "wire" &&

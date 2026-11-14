@@ -13,12 +13,16 @@ import { featureSnapshot } from "./parity/snapshot"
 let server: ViteDevServer
 let browser: Browser
 let reference: PNG
+let xRayReference: PNG
 let shown: PNG
 let hidden: PNG
 let zeroOpacity: PNG
 let xRay: PNG
+let missingPour: PNG
+let differentLayerPour: PNG
 const snapshot = "classic-f1-j6-pour-hidden"
 const { elements, viewport, groundSpans } = classicF1J6Ground
+const traceIds = groundSpans.map(({ id }) => id)
 const scale = 20
 const width = (viewport.maxX - viewport.minX) * scale
 const height = (viewport.maxY - viewport.minY) * scale
@@ -30,6 +34,25 @@ const transform = {
   e: -viewport.minX * scale,
   f: viewport.maxY * scale,
 }
+const svgOptions = {
+  width,
+  height,
+  viewport,
+  layer: "top",
+  backgroundColor: "#000000",
+  colorOverrides: {
+    boardOutline: "#d0d2cd",
+    substrate: "#000000",
+    copper: { top: "#c83434" },
+    drill: "#ff26e2",
+    silkscreen: { top: "#f2eda1" },
+  },
+  drawPaddingOutsideBoard: true,
+  includeVersion: false,
+  shouldDrawErrors: false,
+  shouldDrawRatsNest: false,
+  showSolderMask: false,
+} satisfies NonNullable<Parameters<typeof convertCircuitJsonToPcbSvg>[1]>
 
 beforeAll(async () => {
   // The pinned SVG renderer has no pour visibility toggle. Filter the fills
@@ -41,42 +64,25 @@ beforeAll(async () => {
       return [
         {
           ...element,
-          route: element.route.map((point) =>
-            point.route_type === "wire"
-              ? {
-                  ...point,
-                  is_inside_copper_pour: false,
-                  copper_pour_id: undefined,
-                }
-              : point,
-          ),
+          route: element.route.map((point) => {
+            if (point.route_type === "through_pad") return point
+            const { is_inside_copper_pour, copper_pour_id, ...geometry } = point
+            return geometry
+          }),
         },
       ]
     },
   )
   const svg = convertCircuitJsonToPcbSvg(
     tracesWithoutPours as Parameters<typeof convertCircuitJsonToPcbSvg>[0],
-    {
-      width,
-      height,
-      viewport,
-      layer: "top",
-      backgroundColor: "#000000",
-      colorOverrides: {
-        boardOutline: "#d0d2cd",
-        substrate: "#000000",
-        copper: { top: "#c83434" },
-        drill: "#ff26e2",
-        silkscreen: { top: "#f2eda1" },
-      },
-      drawPaddingOutsideBoard: true,
-      includeVersion: false,
-      shouldDrawErrors: false,
-      shouldDrawRatsNest: false,
-      showSolderMask: false,
-    },
+    svgOptions,
   )
   reference = PNG.sync.read(await renderSvg(svg))
+  const inspectionSvg = convertCircuitJsonToPcbSvg(
+    [...elements] as Parameters<typeof convertCircuitJsonToPcbSvg>[0],
+    { ...svgOptions, xRayElementIds: traceIds },
+  )
+  xRayReference = PNG.sync.read(await renderSvg(inspectionSvg))
   server = await createServer({
     root: fileURLToPath(new URL("../", import.meta.url)),
     server: { host: "127.0.0.1", port: 0, hmr: false },
@@ -111,14 +117,38 @@ beforeAll(async () => {
       drawer.render({ copperPourOpacity: 0.5, xRayElementIds: traceIds })
       const xRay = await capture()
       drawer.render({ xRayElementIds: [] })
+      const restored = await capture()
+      const visibilityUploads = drawer.stats.geometryUploads - initialUploads
+      const diagnostics = [...drawer.diagnostics]
+
+      // Model a subset view that kept the trace records but left out the pour
+      // they refer to, or moved that pour to a different copper layer.
+      const missingPour = elements.filter(
+        (element) => element.type !== "pcb_copper_pour",
+      )
+      const differentLayerPour = elements.map((element) =>
+        element.type === "pcb_copper_pour"
+          ? { ...element, layer: "bottom" as const }
+          : element,
+      )
+      drawer.setCircuitJson(missingPour)
+      drawer.render()
+      const withoutPour = await capture()
+      diagnostics.push(...drawer.diagnostics)
+      drawer.setCircuitJson(differentLayerPour)
+      drawer.render()
+      const withoutSameLayerPour = await capture()
+      diagnostics.push(...drawer.diagnostics)
       return {
         shown,
         hidden,
         zeroOpacity,
         xRay,
-        restored: await capture(),
-        diagnostics: drawer.diagnostics,
-        visibilityUploads: drawer.stats.geometryUploads - initialUploads,
+        restored,
+        diagnostics,
+        visibilityUploads,
+        withoutPour,
+        withoutSameLayerPour,
       }
     },
     {
@@ -126,7 +156,7 @@ beforeAll(async () => {
       transform,
       width,
       height,
-      traceIds: groundSpans.map(({ id }) => id),
+      traceIds,
     },
   )
   expect(frames.diagnostics).toEqual([])
@@ -136,6 +166,10 @@ beforeAll(async () => {
   hidden = PNG.sync.read(Buffer.from(frames.hidden, "base64"))
   zeroOpacity = PNG.sync.read(Buffer.from(frames.zeroOpacity, "base64"))
   xRay = PNG.sync.read(Buffer.from(frames.xRay, "base64"))
+  missingPour = PNG.sync.read(Buffer.from(frames.withoutPour, "base64"))
+  differentLayerPour = PNG.sync.read(
+    Buffer.from(frames.withoutSameLayerPour, "base64"),
+  )
 }, 60_000)
 
 afterAll(async () => {
@@ -163,7 +197,17 @@ test("Classic F1 matches the SVG and WebGPU comparison snapshot", async () => {
 })
 
 test("Classic F1 ground traces match the SVG reference with pours hidden", () => {
-  for (const image of [hidden, zeroOpacity, xRay]) {
-    expect(groundPixels(image)).toEqual(groundPixels(reference))
-  }
+  expect(groundPixels(hidden)).toEqual(groundPixels(reference))
+  expect(groundPixels(zeroOpacity)).toEqual(groundPixels(reference))
+})
+
+test("Classic F1 ground traces match the native SVG X-Ray view", () => {
+  const referencePixels = groundPixels(xRayReference)
+  expect(referencePixels).toEqual(groundPixels(reference))
+  expect(groundPixels(xRay)).toEqual(referencePixels)
+})
+
+test("a missing or off-layer copper pour leaves its traces visible", () => {
+  expect(groundPixels(missingPour)).toEqual(groundPixels(reference))
+  expect(groundPixels(differentLayerPour)).toEqual(groundPixels(reference))
 })

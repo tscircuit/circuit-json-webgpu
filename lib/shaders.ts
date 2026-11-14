@@ -22,13 +22,16 @@ struct VertexOut {
   return out;
 }
 @fragment fn fragmentMain(in: VertexOut) -> @location(0) vec4f {
-  if (in.category == ${COPPER_POUR_CATEGORY}u && camera.viewport.z == 0) { discard; }
-  if (camera.viewport.w == 1) {
+  let copperPourOpacity = camera.viewport.z;
+  let isCopperPour = in.category == ${COPPER_POUR_CATEGORY}u;
+  if (isCopperPour && copperPourOpacity == 0) { discard; }
+  let isXRayPass = camera.viewport.w == 1;
+  if (isXRayPass) {
     if (in.selected == 0u) { discard; }
     return vec4f(in.color.rgb, 1);
   }
-  if (in.category == ${POUR_COVERED_TRACE_CATEGORY}u && camera.viewport.z > 0) { discard; }
-  let alpha = in.color.a * select(1.0, camera.viewport.z, in.category == ${COPPER_POUR_CATEGORY}u);
+  if (in.category == ${POUR_COVERED_TRACE_CATEGORY}u && copperPourOpacity > 0) { discard; }
+  let alpha = in.color.a * select(1.0, copperPourOpacity, isCopperPour);
   return vec4f(in.color.rgb * alpha, alpha);
 }
 `

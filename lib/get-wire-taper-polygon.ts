@@ -14,6 +14,7 @@ export interface WireTaperSegment {
   width_interpolation_mode: "linear" | "quadratic"
   layer: LayerRef
   is_inside_copper_pour?: boolean
+  copper_pour_id?: string
 }
 
 /** Presence check also catches malformed partial tapers, preventing a fallback stroke. */
@@ -45,6 +46,7 @@ export function getWireTaperSegments(
           from_layer?: LayerRef
           start_layer?: LayerRef
           is_inside_copper_pour?: boolean
+          copper_pour_id?: string
           start?: Point
         }
       | undefined
@@ -71,6 +73,10 @@ export function getWireTaperSegments(
       is_inside_copper_pour: Boolean(
         point.is_inside_copper_pour && next.is_inside_copper_pour,
       ),
+      copper_pour_id:
+        point.copper_pour_id === next.copper_pour_id
+          ? point.copper_pour_id
+          : undefined,
     }
     if (isValidWireTaperSegment(segment)) result.push(segment)
   }
