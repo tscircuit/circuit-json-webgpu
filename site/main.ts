@@ -1,4 +1,5 @@
 import { checkCopperPourOpacity } from "./check-copper-pour-opacity"
+import { checkAm3352Soldermask } from "./check-am3352-soldermask"
 import { xRayFixtures } from "./x-ray-fixture"
 import { checkXRay } from "./check-x-ray"
 import {
@@ -89,6 +90,8 @@ Object.assign(window, {
     checkBoardVisibility,
     checkXRay,
     checkCopperPourOpacity,
+    checkAm3352Soldermask: (elements: CircuitJson) =>
+      checkAm3352Soldermask({ drawer, canvas, elements }),
     renderLarge,
     renderDenseVias,
     drawer,
@@ -109,6 +112,9 @@ declare global {
       checkBoardVisibility: typeof checkBoardVisibility
       checkXRay: typeof checkXRay
       checkCopperPourOpacity: typeof checkCopperPourOpacity
+      checkAm3352Soldermask: (
+        elements: CircuitJson,
+      ) => ReturnType<typeof checkAm3352Soldermask>
       renderFixture: typeof renderFixture
       renderLarge: typeof renderLarge
       renderDenseVias: typeof renderDenseVias
