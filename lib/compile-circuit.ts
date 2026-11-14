@@ -126,7 +126,7 @@ function shape(e: Element, hole = false): Point[][] {
   }
   throw new Error(`Unsupported shape: ${kind}`)
 }
-/** Pure, DOM-free compiler. Exposes unsupported geometry rather than silently hiding it. */
+/** Compiles retained geometry and reports unsupported elements without a DOM. */
 export function compileCircuitJson(
   elements: CircuitJson,
   options: CompileOptions = {},
@@ -138,12 +138,10 @@ export function compileCircuitJsonWithCopperPourCache({
   elements,
   options,
   copperPourTriangulations,
-  retainPourCoveredTraces = false,
 }: {
   elements: CircuitJson
   options: CompileOptions
   copperPourTriangulations?: CopperPourTriangulations
-  retainPourCoveredTraces?: boolean
 }): CompiledScene {
   const builders = new Map<string, { paint: MeshBuilder; erase: MeshBuilder }>()
   const diagnostics: Diagnostic[] = [],
@@ -175,24 +173,16 @@ export function compileCircuitJsonWithCopperPourCache({
     return mesh
   }
   const pourLayerById = new Map<string, string>()
-  if (retainPourCoveredTraces) {
-    for (const element of elements) {
-      if (element.type === "pcb_copper_pour") {
-        pourLayerById.set(element.pcb_copper_pour_id, element.layer)
-      }
+  for (const element of elements) {
+    if (element.type === "pcb_copper_pour") {
+      pourLayerById.set(element.pcb_copper_pour_id, element.layer)
     }
   }
-  const getTrace = (
-    layer: string,
-    index: number,
-    covered = false,
-    pourId?: string,
-  ) => {
-    if (covered && !retainPourCoveredTraces) return
-    // Coverage describes the original board. A filtered scene might omit
-    // the pour, so suppress the trace only when its same-layer pour is present.
+  const getTrace = (layer: string, index: number, coveringPourId?: string) => {
+    // Tag coverage once so the shader can show the trace when its pour is hidden.
     const category =
-      covered && pourId !== undefined && pourLayerById.get(pourId) === layer
+      coveringPourId !== undefined &&
+      pourLayerById.get(coveringPourId) === layer
         ? POUR_COVERED_TRACE_CATEGORY
         : 0
     return get(layer, index, false, category)
@@ -262,17 +252,14 @@ export function compileCircuitJsonWithCopperPourCache({
             "Interpolated/through-pad traces are not supported yet",
           )
         for (const point of getWireTaperSegments(route)) {
-          const mesh = getTrace(
-            point.layer,
-            index,
-            point.is_inside_copper_pour,
-            point.copper_pour_id,
-          )
-          if (!mesh) continue
           const polygon = getWireTaperPolygon(point)
           if (!polygon.length)
             throw new Error("Invalid teardrop geometry or interpolation mode")
-          mesh.polygon([polygon])
+          getTrace(
+            point.layer,
+            index,
+            point.is_inside_copper_pour ? point.copper_pour_id : undefined,
+          ).polygon([polygon])
         }
         for (const point of route) {
           if (point.route_type !== "through_pad") continue
@@ -307,11 +294,12 @@ export function compileCircuitJsonWithCopperPourCache({
             getTrace(
               a.layer,
               index,
-              a.is_inside_copper_pour && b.is_inside_copper_pour,
-              a.copper_pour_id === b.copper_pour_id
+              a.is_inside_copper_pour &&
+                b.is_inside_copper_pour &&
+                a.copper_pour_id === b.copper_pour_id
                 ? a.copper_pour_id
                 : undefined,
-            )?.line(a, b, a.width)
+            ).line(a, b, a.width)
           else if (
             a.route_type === "wire" &&
             b.route_type === "via" &&

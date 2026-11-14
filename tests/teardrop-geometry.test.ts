@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test"
+import { POUR_COVERED_TRACE_CATEGORY } from "../lib/geometry"
 import {
   getWireTaperPolygon,
   getWireTaperSegments,
@@ -247,19 +248,39 @@ test("taper is inside a pour only when both endpoints are inside", () => {
   ).toBe(true)
 })
 
-test("a taper fully inside a copper pour emits no separate copper", () => {
-  const scene = compileCircuitJson([
-    {
-      type: "pcb_trace",
-      pcb_trace_id: "covered-taper",
-      route: [
-        { ...wireTaper, is_inside_copper_pour: true },
-        { ...endpoint, is_inside_copper_pour: true },
-      ],
-    },
-  ])
-  expect(scene.diagnostics).toEqual([])
-  expect(scene.triangleCount).toBe(0)
+test("a taper retains its geometry and is tagged only with its pour present", () => {
+  const route = [
+    { ...wireTaper, is_inside_copper_pour: true, copper_pour_id: "pour" },
+    { ...endpoint, is_inside_copper_pour: true, copper_pour_id: "pour" },
+  ]
+  const trace = {
+    type: "pcb_trace",
+    pcb_trace_id: "covered-taper",
+    route,
+  } as const
+  const pour = {
+    type: "pcb_copper_pour",
+    pcb_copper_pour_id: "pour",
+    shape: "rect",
+    layer: "top",
+    center: { x: 0.5, y: 0 },
+    width: 2,
+    height: 2,
+    covered_with_solder_mask: true,
+  } as const
+  for (const [elements, category] of [
+    [[trace, pour], POUR_COVERED_TRACE_CATEGORY],
+    [[trace], 0],
+  ] as const) {
+    const scene = compileCircuitJson(elements)
+    expect(scene.diagnostics).toEqual([])
+    const { vertices, indices } = scene.layers[0].paint
+    const categories = new Set<number>()
+    for (const index of indices) {
+      if (vertices[index * 8 + 6] === 0) categories.add(vertices[index * 8 + 7])
+    }
+    expect(categories).toEqual(new Set([category]))
+  }
 })
 
 test("a taper with only one endpoint inside a copper pour remains visible", () => {

@@ -38,7 +38,12 @@ export type RenderOptions = {
 }
 export type Diagnostic = { elementId: string; type: string; message: string }
 export type Mesh = { vertices: Float32Array; indices: Uint32Array }
-export type CompiledLayer = { name: string; paint: Mesh; erase: Mesh }
+export type CompiledLayer = {
+  name: string
+  /** Includes covered trace geometry. The drawer applies visibility at render time. */
+  paint: Mesh
+  erase: Mesh
+}
 export type CompiledScene = {
   layers: CompiledLayer[]
   elementIds: string[]

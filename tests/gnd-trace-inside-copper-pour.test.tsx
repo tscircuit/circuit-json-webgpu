@@ -1,7 +1,11 @@
 import { expect, test } from "bun:test"
 import { compileCircuitJson, type CircuitJson } from "../lib"
+import {
+  COPPER_POUR_CATEGORY,
+  POUR_COVERED_TRACE_CATEGORY,
+} from "../lib/geometry"
 
-test("GND trace inside its copper pour adds no separate copper", async () => {
+test("GND trace geometry is retained alongside its copper pour", async () => {
   const circuitJson: CircuitJson = [
     {
       type: "pcb_board",
@@ -64,9 +68,13 @@ test("GND trace inside its copper pour adds no separate copper", async () => {
   ]
   const scene = compileCircuitJson(circuitJson)
   expect(scene.diagnostics).toEqual([])
-  expect(scene.triangleCount).toBe(
-    compileCircuitJson(circuitJson.filter((e) => e.type !== "pcb_trace"))
-      .triangleCount,
+  const top = scene.layers.find((layer) => layer.name === "top")!
+  const categories = new Set<number>()
+  for (const index of top.paint.indices) {
+    categories.add(top.paint.vertices[index * 8 + 7])
+  }
+  expect(categories).toEqual(
+    new Set([COPPER_POUR_CATEGORY, POUR_COVERED_TRACE_CATEGORY]),
   )
   await Bun.write(
     new URL(
