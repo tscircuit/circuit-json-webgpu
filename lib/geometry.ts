@@ -8,6 +8,8 @@ import {
 } from "./triangulate-polygon"
 
 const VERTEX_STRIDE = 8
+export const COPPER_POUR_CATEGORY = 1
+export const POUR_COVERED_TRACE_CATEGORY = 2
 
 /** Tessellation is camera-independent and runs only when circuit data changes. */
 export class MeshBuilder {
