@@ -1,52 +1,15 @@
 import type { CircuitJson } from "../../lib"
+import circuit from "./classic-f1-j6.circuit.json"
 
-// Classic F1 v6.0.7, LCD connector J6. Keep the published geometry of
-// pcb_smtpad_177 and pcb_trace_external_163. The rectangle is a crop entirely
-// inside the top-layer GND polygon pcb_copper_pour_38.
-const traceId = "pcb_trace_external_163"
-const pourId = "pcb_copper_pour_38"
-const groundWire = {
-  route_type: "wire",
-  x: -19.475,
-  width: 0.15,
-  layer: "top",
-  is_inside_copper_pour: true,
-  copper_pour_id: pourId,
-} as const
-
+// The left side of the published Classic F1 v6.0.7 board, from the FRAM to
+// the regulator. The fixture keeps the routed records and crops the GND pour
+// to this viewport. The sampled segment is the ground run below the J6 tab.
 export const classicF1J6Ground = {
-  traceId,
-  elements: [
-    {
-      type: "pcb_copper_pour",
-      pcb_copper_pour_id: pourId,
-      source_net_id: "source_net_12",
-      layer: "top",
-      shape: "rect",
-      center: { x: -19.475, y: -14.4 },
-      width: 0.17,
-      height: 15.6,
-      covered_with_solder_mask: true,
-    },
-    {
-      type: "pcb_smtpad",
-      pcb_smtpad_id: "pcb_smtpad_177",
-      pcb_component_id: "pcb_component_38",
-      shape: "rect",
-      layer: "top",
-      x: -19.4749846,
-      y: -6.800092,
-      width: 1.999996,
-      height: 1.499997,
-    },
-    {
-      type: "pcb_trace",
-      pcb_trace_id: traceId,
-      source_trace_id: "source_trace_24",
-      route: [
-        { ...groundWire, y: -6.8001 },
-        { ...groundWire, y: -22.0033 },
-      ],
-    },
-  ] satisfies CircuitJson,
+  elements: circuit as CircuitJson,
+  groundSpans: [
+    { id: "pcb_trace_external_163", midpoint: { x: -19.475, y: -14.4017 } },
+    { id: "pcb_trace_external_141", midpoint: { x: -21.5344, y: 13.53855 } },
+    { id: "pcb_trace_external_166", midpoint: { x: -17.6825, y: 28.77 } },
+  ],
+  viewport: { minX: -36, minY: -32, maxX: -10, maxY: 32 },
 }
