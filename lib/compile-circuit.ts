@@ -1,4 +1,5 @@
 import {
+  getCoveringPourId,
   getWireTaperPolygon,
   getWireTaperSegments,
   hasWireTaper,
@@ -10,9 +11,11 @@ import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
 import type { CopperPourTriangulations } from "./copper-pour-triangulations"
 import {
   adaptiveCircle,
+  COPPER_POUR_CATEGORY,
   ellipse,
   expandBrepRing,
   MeshBuilder,
+  POUR_COVERED_TRACE_CATEGORY,
   rectangle,
   rotate,
 } from "./geometry"
@@ -124,7 +127,7 @@ function shape(e: Element, hole = false): Point[][] {
   }
   throw new Error(`Unsupported shape: ${kind}`)
 }
-/** Pure, DOM-free compiler. Exposes unsupported geometry rather than silently hiding it. */
+/** Compiles retained geometry and reports unsupported elements without a DOM. */
 export function compileCircuitJson(
   elements: CircuitJson,
   options: CompileOptions = {},
@@ -169,6 +172,20 @@ export function compileCircuitJsonWithCopperPourCache({
     mesh.element = index
     mesh.category = category
     return mesh
+  }
+  const pourLayerById = new Map<string, string>()
+  for (const element of elements) {
+    if (element.type === "pcb_copper_pour")
+      pourLayerById.set(element.pcb_copper_pour_id, element.layer)
+  }
+  const getTrace = (layer: string, index: number, coveringPourId?: string) => {
+    // Tag coverage once so the shader can show the trace when its pour is hidden.
+    const category =
+      coveringPourId !== undefined &&
+      pourLayerById.get(coveringPourId) === layer
+        ? POUR_COVERED_TRACE_CATEGORY
+        : 0
+    return get(layer, index, false, category)
   }
   const openings: { rings: Point[][]; index: number; layers: string[] }[] = []
   const keepouts: { rings: Point[][]; index: number; layers: string[] }[] = []
@@ -235,11 +252,10 @@ export function compileCircuitJsonWithCopperPourCache({
             "Interpolated/through-pad traces are not supported yet",
           )
         for (const point of getWireTaperSegments(route)) {
-          if (point.is_inside_copper_pour) continue
           const polygon = getWireTaperPolygon(point)
           if (!polygon.length)
             throw new Error("Invalid teardrop geometry or interpolation mode")
-          get(point.layer, index).polygon([polygon])
+          getTrace(point.layer, index, point.coveringPourId).polygon([polygon])
         }
         for (const point of route) {
           if (point.route_type !== "through_pad") continue
@@ -269,10 +285,13 @@ export function compileCircuitJsonWithCopperPourCache({
           if (
             a.route_type === "wire" &&
             b.route_type === "wire" &&
-            a.layer === b.layer &&
-            !(a.is_inside_copper_pour && b.is_inside_copper_pour)
+            a.layer === b.layer
           )
-            get(a.layer, index).line(a, b, a.width)
+            getTrace(a.layer, index, getCoveringPourId(a, b)).line(
+              a,
+              b,
+              a.width,
+            )
           else if (
             a.route_type === "wire" &&
             b.route_type === "via" &&
@@ -287,7 +306,7 @@ export function compileCircuitJsonWithCopperPourCache({
             get(b.layer, index).line(a, b, b.width)
         }
       } else if (type === "pcb_copper_pour") {
-        get(e.layer, index, false, 1).polygon(
+        get(e.layer, index, false, COPPER_POUR_CATEGORY).polygon(
           shape(e),
           copperPourTriangulations?.triangulate,
         )

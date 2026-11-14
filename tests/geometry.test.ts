@@ -8,6 +8,7 @@ import {
   ellipse,
   expandBrepRing,
   MeshBuilder,
+  POUR_COVERED_TRACE_CATEGORY,
   rectangle,
 } from "../lib/geometry"
 import { fixtures, silkscreenGraphics } from "../site/fixtures"
@@ -131,7 +132,7 @@ test("a same-layer through-pad span is drawn once", () => {
   expect(area(scene.layers[0].paint)).toBeCloseTo(0.924, 3)
 })
 
-test("covered wire segments are hidden while pour entry and exit remain visible", () => {
+test("only the fully covered wire segment is tagged for pour visibility", () => {
   const wire: PcbTraceRoutePointWire = {
     route_type: "wire",
     x: 0,
@@ -139,23 +140,47 @@ test("covered wire segments are hidden while pour entry and exit remain visible"
     width: 0.5,
     layer: "top",
   }
-  const scene = compileCircuitJson([
+  const circuit = [
     {
       type: "pcb_trace",
       pcb_trace_id: "partially-covered",
       route: [
-        { ...wire, x: -6, is_inside_copper_pour: false },
-        { ...wire, x: -2, is_inside_copper_pour: true },
-        { ...wire, x: 2, is_inside_copper_pour: true },
-        { ...wire, x: 6, is_inside_copper_pour: false },
+        { ...wire, x: -6 },
+        { ...wire, x: -2, is_inside_copper_pour: true, copper_pour_id: "pour" },
+        { ...wire, x: 2, is_inside_copper_pour: true, copper_pour_id: "pour" },
+        { ...wire, x: 6 },
       ],
     },
-  ])
+    {
+      type: "pcb_copper_pour",
+      pcb_copper_pour_id: "pour",
+      shape: "rect",
+      layer: "top",
+      center: { x: 0, y: 0 },
+      width: 6,
+      height: 2,
+      covered_with_solder_mask: true,
+    },
+  ] satisfies CircuitJson
+  const scene = compileCircuitJson(circuit)
   expect(scene.diagnostics).toEqual([])
-  const mesh = scene.layers[0].paint
-  expect(meshCovers({ mesh, point: { x: 0, y: 0 } })).toBe(false)
-  expect(meshCovers({ mesh, point: { x: -4, y: 0 } })).toBe(true)
-  expect(meshCovers({ mesh, point: { x: 4, y: 0 } })).toBe(true)
+  const { vertices, indices } = scene.layers[0].paint
+  const traceIndex = scene.elementIds.indexOf("partially-covered")
+  const trace = {
+    vertices,
+    indices: indices.filter((i) => vertices[i * 8 + 6] === traceIndex),
+  }
+  const covered = {
+    vertices,
+    indices: trace.indices.filter(
+      (i) => vertices[i * 8 + 7] === POUR_COVERED_TRACE_CATEGORY,
+    ),
+  }
+  for (const x of [-4, 0, 4]) {
+    const point = { x, y: 0 }
+    expect(meshCovers({ mesh: trace, point })).toBe(true)
+    expect(meshCovers({ mesh: covered, point })).toBe(x === 0)
+  }
 })
 
 test("rectangular soldermask openings erase only the selected mask layer", () => {

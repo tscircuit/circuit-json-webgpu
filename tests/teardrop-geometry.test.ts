@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test"
+import { POUR_COVERED_TRACE_CATEGORY } from "../lib/geometry"
 import {
   getWireTaperPolygon,
   getWireTaperSegments,
@@ -156,24 +157,6 @@ test("equal-width quadratic reduces to a rectangle", () => {
   ])
 })
 
-test("removed smoothstep profile produces no copper", () => {
-  expect(
-    getWireTaperSegments([
-      {
-        route_type: "wire",
-        x: 0,
-        y: 0,
-        width: 3,
-        start_width: 3,
-        end_width: 0.5,
-        width_interpolation_mode: "smoothstep",
-        layer: "top",
-      },
-      { route_type: "wire", x: 6, y: 0, width: 0.5, layer: "top" },
-    ]),
-  ).toEqual([])
-})
-
 const wireTaper = {
   route_type: "wire",
   x: 0,
@@ -191,6 +174,16 @@ const endpoint = {
   width: 0.2,
   layer: "top",
 } as const
+test("removed smoothstep profile produces no copper", () => {
+  expect(
+    getWireTaperSegments([
+      // @ts-expect-error Exercise an obsolete interpolation mode in raw input.
+      { ...wireTaper, width_interpolation_mode: "smoothstep" },
+      endpoint,
+    ]),
+  ).toEqual([])
+})
+
 test("taper belongs to the outgoing wire segment only", () => {
   const route = [
     { ...endpoint, x: -1, width: 0.6 },
@@ -204,8 +197,17 @@ test("taper belongs to the outgoing wire segment only", () => {
   expect(segments[0]!.end).toEqual({ x: 1, y: 0 })
 })
 test("tapers terminate at a via or through-pad on the correct layer", () => {
+  const coverage = { is_inside_copper_pour: true, copper_pour_id: "pour" }
+  const start = { ...wireTaper, ...coverage }
   for (const end of [
-    { route_type: "via", x: 1, y: 0, from_layer: "top", to_layer: "bottom" },
+    {
+      ...coverage,
+      route_type: "via",
+      x: 1,
+      y: 0,
+      from_layer: "top",
+      to_layer: "bottom",
+    },
     {
       route_type: "through_pad",
       start: { x: 1, y: 0 },
@@ -214,11 +216,15 @@ test("tapers terminate at a via or through-pad on the correct layer", () => {
       end_layer: "bottom",
       width: 0.2,
     },
-  ]) {
-    expect(getWireTaperSegments([wireTaper, end])).toHaveLength(1)
-    expect(
-      getWireTaperSegments([{ ...wireTaper, layer: "bottom" }, end]),
-    ).toEqual([])
+  ] as const) {
+    const segments = getWireTaperSegments([start, end])
+    expect(segments).toHaveLength(1)
+    expect(segments[0].coveringPourId).toBe(
+      end.route_type === "via" ? coverage.copper_pour_id : undefined,
+    )
+    expect(getWireTaperSegments([{ ...start, layer: "bottom" }, end])).toEqual(
+      [],
+    )
   }
 })
 test("malformed or terminal tapers never become constant-width fallbacks", () => {
@@ -234,42 +240,37 @@ test("malformed or terminal tapers never become constant-width fallbacks", () =>
   expect(getWireTaperSegments([wireTaper, { ...endpoint, x: 0 }])).toEqual([])
 })
 
-test("taper is inside a pour only when both endpoints are inside", () => {
-  const start = { ...wireTaper, is_inside_copper_pour: true }
-  expect(
-    getWireTaperSegments([start, endpoint])[0]?.is_inside_copper_pour,
-  ).toBe(false)
-  expect(
-    getWireTaperSegments([
-      start,
-      { ...endpoint, is_inside_copper_pour: true },
-    ])[0]?.is_inside_copper_pour,
-  ).toBe(true)
-})
-
-test("a taper fully inside a copper pour emits no separate copper", () => {
-  const scene = compileCircuitJson([
-    {
-      type: "pcb_trace",
-      pcb_trace_id: "covered-taper",
-      route: [
-        { ...wireTaper, is_inside_copper_pour: true },
-        { ...endpoint, is_inside_copper_pour: true },
-      ],
-    },
-  ])
-  expect(scene.diagnostics).toEqual([])
-  expect(scene.triangleCount).toBe(0)
-})
-
-test("a taper with only one endpoint inside a copper pour remains visible", () => {
-  const scene = compileCircuitJson([
-    {
-      type: "pcb_trace",
-      pcb_trace_id: "partially-covered-taper",
-      route: [{ ...wireTaper, is_inside_copper_pour: true }, endpoint],
-    },
-  ])
-  expect(scene.diagnostics).toEqual([])
-  expect(scene.triangleCount).toBeGreaterThan(0)
+test("a taper keeps its geometry and is tagged when both endpoints share a present pour", () => {
+  const coverage = { is_inside_copper_pour: true, copper_pour_id: "pour" }
+  const start = { ...wireTaper, ...coverage }
+  const end = { ...endpoint, ...coverage }
+  const pour = {
+    type: "pcb_copper_pour",
+    pcb_copper_pour_id: "pour",
+    shape: "rect",
+    layer: "top",
+    center: { x: 0.5, y: 0 },
+    width: 2,
+    height: 2,
+    covered_with_solder_mask: true,
+  } as const
+  for (const [finish, pours, category] of [
+    [end, [pour], POUR_COVERED_TRACE_CATEGORY],
+    [end, [], 0],
+    [{ ...end, is_inside_copper_pour: false }, [pour], 0],
+    [{ ...end, copper_pour_id: "other" }, [pour], 0],
+  ] as const) {
+    const scene = compileCircuitJson([
+      { type: "pcb_trace", pcb_trace_id: "taper", route: [start, finish] },
+      ...pours,
+    ])
+    expect(scene.diagnostics).toEqual([])
+    const { vertices, indices } = scene.layers[0].paint
+    const traceIndices = indices.filter(
+      (index) => vertices[index * 8 + 6] === 0,
+    )
+    expect(
+      new Set(Array.from(traceIndices, (i) => vertices[i * 8 + 7])),
+    ).toEqual(new Set([category]))
+  }
 })
