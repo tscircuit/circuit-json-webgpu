@@ -15,6 +15,8 @@ let browser: Browser
 let reference: PNG
 let shown: PNG
 let hidden: PNG
+let zeroOpacity: PNG
+let xRay: PNG
 const snapshot = "classic-f1-j6-pour-hidden"
 const { elements, viewport, groundSpans } = classicF1J6Ground
 const scale = 20
@@ -86,7 +88,7 @@ beforeAll(async () => {
   await page.goto(server.resolvedUrls!.local[0])
   await page.waitForFunction(() => window.gpuTest)
   const frames = await page.evaluate(
-    async ({ elements, transform, width, height }) => {
+    async ({ elements, transform, width, height, traceIds }) => {
       const canvas = document.querySelector("canvas")!
       canvas.width = width
       canvas.height = height
@@ -104,19 +106,36 @@ beforeAll(async () => {
       const shown = await capture()
       drawer.render({ showCopperPours: false })
       const hidden = await capture()
+      drawer.render({ showCopperPours: true, copperPourOpacity: 0 })
+      const zeroOpacity = await capture()
+      drawer.render({ copperPourOpacity: 0.5, xRayElementIds: traceIds })
+      const xRay = await capture()
+      drawer.render({ xRayElementIds: [] })
       return {
         shown,
         hidden,
+        zeroOpacity,
+        xRay,
+        restored: await capture(),
         diagnostics: drawer.diagnostics,
         visibilityUploads: drawer.stats.geometryUploads - initialUploads,
       }
     },
-    { elements, transform, width, height },
+    {
+      elements,
+      transform,
+      width,
+      height,
+      traceIds: groundSpans.map(({ id }) => id),
+    },
   )
   expect(frames.diagnostics).toEqual([])
   expect(frames.visibilityUploads).toBe(0)
+  expect(frames.restored).toEqual(frames.shown)
   shown = PNG.sync.read(Buffer.from(frames.shown, "base64"))
   hidden = PNG.sync.read(Buffer.from(frames.hidden, "base64"))
+  zeroOpacity = PNG.sync.read(Buffer.from(frames.zeroOpacity, "base64"))
+  xRay = PNG.sync.read(Buffer.from(frames.xRay, "base64"))
 }, 60_000)
 
 afterAll(async () => {
@@ -143,9 +162,8 @@ test("Classic F1 matches the SVG and WebGPU comparison snapshot", async () => {
   expect(groundPixels(shown)).toEqual(groundSpans.map(() => [100, 26, 26, 255]))
 })
 
-test.failing(
-  "Classic F1 ground traces match the SVG reference with pours hidden",
-  () => {
-    expect(groundPixels(hidden)).toEqual(groundPixels(reference))
-  },
-)
+test("Classic F1 ground traces match the SVG reference with pours hidden", () => {
+  for (const image of [hidden, zeroOpacity, xRay]) {
+    expect(groundPixels(image)).toEqual(groundPixels(reference))
+  }
+})
