@@ -2,7 +2,7 @@ import { expect, test } from "bun:test"
 import { compileCircuitJson } from "../lib"
 import { mirroredSilkscreenText } from "./fixtures/silkscreen-mirroring"
 
-test.failing("top silkscreen honors explicit mirroring", () => {
+test("top silkscreen honors explicit mirroring", () => {
   const normal = compileCircuitJson([
     { ...mirroredSilkscreenText, is_mirrored: false },
   ])

@@ -48,7 +48,7 @@ export function drawText(
     : isNote
       ? (e.is_mirrored_from_top_view ?? false)
       : e.type === "pcb_silkscreen_text"
-        ? e.layer === "bottom"
+        ? e.layer === "bottom" || e.is_mirrored === true
         : (e.is_mirrored ?? e.layer === "bottom")
   const rotation = isNote || isFabrication ? 0 : (e.ccw_rotation ?? 0)
   const sign = yAxis === "up" ? -1 : 1
