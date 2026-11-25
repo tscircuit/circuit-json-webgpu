@@ -1,6 +1,5 @@
 import {
   getPhaseSkewStrokes,
-  PHASE_SKEW_WIDTH_FACTOR,
   type PhaseSkewLayer,
   type PhaseSkewStroke,
 } from "./get-phase-skew-strokes"
@@ -9,13 +8,15 @@ import {
   phaseSkewStrokeShader,
 } from "./phase-skew-stroke-shader"
 
+/** Overlay strokes are drawn 10% wider than the copper, as KiCad does (diff_phase_skew_tool.cpp), so the colour fully covers the trace edges. */
+const OVERLAY_WIDTH_FACTOR = 1.1
 const FLOAT_BYTES = Float32Array.BYTES_PER_ELEMENT
-const FLOATS_PER_STROKE = 18
+const FLOATS_PER_STROKE = 16
 const START_COLOR_OFFSET = 4 * FLOAT_BYTES
 const END_COLOR_OFFSET = 8 * FLOAT_BYTES
 const WIDTH_OFFSET = 12 * FLOAT_BYTES
-const JOINS_OFFSET = 13 * FLOAT_BYTES
-const HIGHLIGHT_INDEX_OFFSET = 17 * FLOAT_BYTES
+const CAPS_OFFSET = 13 * FLOAT_BYTES
+const HIGHLIGHT_INDEX_OFFSET = 15 * FLOAT_BYTES
 const UNINDEXED_TRACE = -1
 
 type HighlightIndices = ReadonlyMap<PhaseSkewStroke["pcb_trace_id"], number>
@@ -51,12 +52,12 @@ export class PhaseSkewLayerRenderer {
     this.clear()
     if (byLayer.size > 0)
       this.strokePipeline ??= createStrokePipeline(this.options)
-    for (const [layer, strokes] of byLayer) {
+    for (const [layer, { joints, segments }] of byLayer) {
       this.layerBuffers.set(
         layer,
         uploadStrokes({
           device: this.options.device,
-          strokes,
+          strokes: joints.concat(segments),
           highlightIndices,
         }),
       )
@@ -102,8 +103,14 @@ function uploadStrokes({
 }): LayerBuffer {
   const attributes = new Float32Array(strokes.length * FLOATS_PER_STROKE)
   for (const [index, stroke] of strokes.entries()) {
-    const { segment, startColor, endColor, startJoin, endJoin, pcb_trace_id } =
-      stroke
+    const {
+      segment,
+      startColor,
+      endColor,
+      roundStart,
+      roundEnd,
+      pcb_trace_id,
+    } = stroke
     let highlightIndex = highlightIndices.get(pcb_trace_id)
     if (highlightIndex === undefined) highlightIndex = UNINDEXED_TRACE
     attributes.set(
@@ -114,11 +121,9 @@ function uploadStrokes({
         segment.end.y,
         ...startColor,
         ...endColor,
-        segment.width * PHASE_SKEW_WIDTH_FACTOR,
-        startJoin.x,
-        startJoin.y,
-        endJoin.x,
-        endJoin.y,
+        segment.width * OVERLAY_WIDTH_FACTOR,
+        Number(roundStart),
+        Number(roundEnd),
         highlightIndex,
       ],
       index * FLOATS_PER_STROKE,
@@ -160,7 +165,7 @@ function createStrokePipeline({
               format: "float32x4",
             },
             { shaderLocation: 3, offset: WIDTH_OFFSET, format: "float32" },
-            { shaderLocation: 4, offset: JOINS_OFFSET, format: "float32x4" },
+            { shaderLocation: 4, offset: CAPS_OFFSET, format: "float32x2" },
             {
               shaderLocation: 5,
               offset: HIGHLIGHT_INDEX_OFFSET,

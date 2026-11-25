@@ -1,30 +1,27 @@
 import type {
   PcbDifferentialPairPhaseSkewSegment,
   PcbDifferentialPairPhaseSkewTrace,
-  Point,
 } from "circuit-json"
 import { normalizeLayer, parseColor } from "./colors"
 import type { CircuitJson, Color, RenderOptions } from "./types"
 
 export type PhaseSkewLayer = ReturnType<typeof normalizeLayer>
 
-/** KiCad draws the overlay 10% wider to cover the copper edges. */
-export const PHASE_SKEW_WIDTH_FACTOR = 1.1
-const MIN_JOIN_LENGTH_MM = 1e-6
-const MIN_JOIN_DENOMINATOR = 1e-6
-const ROUND_CAP: Point = { x: 0, y: 0 }
+const JOINT_TOLERANCE_MM = 1e-6
 
 /** A PCB segment and the two colors that the stroke interpolates between. */
 export type PhaseSkewStroke = Pick<
   PcbDifferentialPairPhaseSkewTrace,
   "pcb_trace_id"
 > & {
-  segment: PcbDifferentialPairPhaseSkewSegment
+  segment: Pick<PcbDifferentialPairPhaseSkewSegment, "start" | "end" | "width">
   startColor: Color
   endColor: Color
-  startJoin: Point
-  endJoin: Point
+  roundStart: boolean
+  roundEnd: boolean
 }
+
+type LayerStrokes = { joints: PhaseSkewStroke[]; segments: PhaseSkewStroke[] }
 
 type PhaseSkewPalette = Record<
   keyof NonNullable<RenderOptions["phaseSkewColors"]>,
@@ -44,8 +41,8 @@ export function getPhaseSkewStrokes({
 }: {
   circuitJson: CircuitJson
   colors: RenderOptions["phaseSkewColors"]
-}): Map<PhaseSkewLayer, PhaseSkewStroke[]> {
-  const byLayer = new Map<PhaseSkewLayer, PhaseSkewStroke[]>()
+}): Map<PhaseSkewLayer, LayerStrokes> {
+  const byLayer = new Map<PhaseSkewLayer, LayerStrokes>()
   const palette: PhaseSkewPalette = {
     positive: parseColor(colors?.positive || "blue"),
     negative: parseColor(colors?.negative || "red"),
@@ -67,7 +64,7 @@ function addTraceStrokes({
 }: {
   trace: PcbDifferentialPairPhaseSkewTrace
   palette: PhaseSkewPalette
-  byLayer: Map<PhaseSkewLayer, PhaseSkewStroke[]>
+  byLayer: Map<PhaseSkewLayer, LayerStrokes>
 }): void {
   let positivePeakMm = 0
   let negativePeakMm = 0
@@ -85,24 +82,47 @@ function addTraceStrokes({
     )
   }
   const scale = { positivePeakMm, negativePeakMm, palette }
-  let startJoin = ROUND_CAP
+  let roundStart = true
   for (const [index, segment] of trace.segments.entries()) {
     const layer = normalizeLayer(segment.layer)
     const outgoing = trace.segments.at(index + 1)
-    const endJoin =
-      outgoing === undefined
-        ? ROUND_CAP
-        : getSharedCut({ incoming: segment, outgoing })
+    const joinsOutgoing =
+      outgoing !== undefined &&
+      layer === normalizeLayer(outgoing.layer) &&
+      Math.hypot(
+        segment.end.x - outgoing.start.x,
+        segment.end.y - outgoing.start.y,
+      ) <= JOINT_TOLERANCE_MM
+
     let strokes = byLayer.get(layer)
     if (strokes === undefined) {
-      strokes = []
+      strokes = { joints: [], segments: [] }
       byLayer.set(layer, strokes)
     }
-    strokes.push({
+    const pcb_trace_id = trace.pcb_trace_id
+    if (joinsOutgoing) {
+      const jointColor = getEndpointColor({
+        lengthDifferenceMm: outgoing.start_length_difference_mm,
+        scale,
+      })
+      strokes.joints.push({
+        segment: {
+          start: outgoing.start,
+          end: outgoing.start,
+          width: Math.max(segment.width, outgoing.width),
+        },
+        pcb_trace_id,
+        startColor: jointColor,
+        endColor: jointColor,
+        roundStart: true,
+        roundEnd: true,
+      })
+    }
+    strokes.segments.push({
       segment,
-      startJoin,
-      endJoin,
-      pcb_trace_id: trace.pcb_trace_id,
+      roundStart,
+      roundEnd: !joinsOutgoing,
+      pcb_trace_id,
       startColor: getEndpointColor({
         lengthDifferenceMm: segment.start_length_difference_mm,
         scale,
@@ -112,48 +132,8 @@ function addTraceStrokes({
         scale,
       }),
     })
-    startJoin = endJoin
+    roundStart = !joinsOutgoing
   }
-}
-
-/** Share the miter cut between consecutive strokes on the same layer. */
-function getSharedCut({
-  incoming,
-  outgoing,
-}: {
-  incoming: PcbDifferentialPairPhaseSkewSegment
-  outgoing: PcbDifferentialPairPhaseSkewSegment
-}): Point {
-  if (
-    normalizeLayer(incoming.layer) !== normalizeLayer(outgoing.layer) ||
-    incoming.end.x !== outgoing.start.x ||
-    incoming.end.y !== outgoing.start.y
-  ) {
-    return ROUND_CAP
-  }
-  const ax = incoming.end.x - incoming.start.x
-  const ay = incoming.end.y - incoming.start.y
-  const bx = outgoing.end.x - outgoing.start.x
-  const by = outgoing.end.y - outgoing.start.y
-  const incomingLengthMm = Math.hypot(ax, ay)
-  const outgoingLengthMm = Math.hypot(bx, by)
-  if (Math.min(incomingLengthMm, outgoingLengthMm) <= MIN_JOIN_LENGTH_MM)
-    return ROUND_CAP
-
-  const x = -ay / incomingLengthMm - by / outgoingLengthMm
-  const y = ax / incomingLengthMm + bx / outgoingLengthMm
-  const denominator =
-    1 + (ax * bx + ay * by) / (incomingLengthMm * outgoingLengthMm)
-  if (denominator <= MIN_JOIN_DENOMINATOR) return ROUND_CAP
-
-  // Keep neighboring cuts from crossing on very short segments or sharp turns.
-  const along = Math.abs((x * ax + y * ay) / incomingLengthMm)
-  const widthMm =
-    Math.max(incoming.width, outgoing.width) * PHASE_SKEW_WIDTH_FACTOR
-  const maxScale =
-    Math.min(incomingLengthMm, outgoingLengthMm) / (along * widthMm)
-  const scale = Math.min(1 / denominator, maxScale)
-  return { x: x * scale, y: y * scale }
 }
 
 /** Interpolate from zero to the full color of the endpoint's sign. */

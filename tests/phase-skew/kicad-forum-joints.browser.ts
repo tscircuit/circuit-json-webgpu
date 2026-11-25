@@ -56,13 +56,16 @@ test("the KiCad forum overlay at trace joints and during hover", async () => {
     { length: crossing.x - rampStart + 1 },
     (_, index) => {
       const x = rampStart + index
-      return forumPixel({ frame: rest, x, y: crossing.y + crossing.x - x })[0]
+      return forumPixel({ frame: rest, x, y: crossing.y + crossing.x - x })
     },
   )
-  expect(ramp.at(-1)).toBe(255)
-  expect(
-    Math.max(...ramp.slice(1).map((red, i) => Math.abs(red - ramp[i]))),
-  ).toBeLessThanOrEqual(2)
+  expect(ramp.at(-1)).toEqual([255, 255, 255])
+  const acrossJoint = forumPixel({ frame: rest, x: 774, y: 447 })
+  for (const [index, pixel] of [...ramp.slice(1), acrossJoint].entries()) {
+    for (const [channel, intensity] of pixel.entries()) {
+      expect(Math.abs(intensity - ramp[index][channel])).toBeLessThanOrEqual(2)
+    }
+  }
   expect(forumPixel({ frame: hovered, ...crossing })).toEqual([255, 78, 78])
   expect(forumPixel({ frame: hovered, x: 420, y: 639 })).toEqual([
     255, 194, 194,
