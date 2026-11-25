@@ -9,6 +9,7 @@ import {
 } from "./phase-skew-stroke-shader"
 import type { CircuitJson, RenderOptions } from "./types"
 
+/** Overlay strokes are drawn 10% wider than the copper, as KiCad does (diff_phase_skew_tool.cpp), so the colour fully covers the trace edges. */
 const OVERLAY_WIDTH_FACTOR = 1.1
 const FLOAT_BYTES = Float32Array.BYTES_PER_ELEMENT
 const FLOATS_PER_STROKE = 13
