@@ -27,7 +27,9 @@ test("the KiCad forum overlay at trace joints and during hover", async () => {
     frameOptions: (elements) => {
       const skew = elements.find(
         (element) => element.type === "pcb_differential_pair_phase_skew",
-      )!
+      )
+      if (skew === undefined)
+        throw new Error("Expected the forum board to emit phase skew")
       return [
         { showDifferentialPairPhaseSkew: true },
         { highlightedElementIds: [skew.negative_trace.pcb_trace_id] },
