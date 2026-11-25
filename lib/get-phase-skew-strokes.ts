@@ -88,10 +88,11 @@ function addTraceStrokes({
   let startJoin = ROUND_CAP
   for (const [index, segment] of trace.segments.entries()) {
     const layer = normalizeLayer(segment.layer)
-    const endJoin = getSharedCut({
-      incoming: segment,
-      outgoing: trace.segments[index + 1],
-    })
+    const outgoing = trace.segments.at(index + 1)
+    const endJoin =
+      outgoing === undefined
+        ? ROUND_CAP
+        : getSharedCut({ incoming: segment, outgoing })
     let strokes = byLayer.get(layer)
     if (strokes === undefined) {
       strokes = []
@@ -121,10 +122,9 @@ function getSharedCut({
   outgoing,
 }: {
   incoming: PcbDifferentialPairPhaseSkewSegment
-  outgoing: PcbDifferentialPairPhaseSkewSegment | undefined
+  outgoing: PcbDifferentialPairPhaseSkewSegment
 }): Point {
   if (
-    outgoing === undefined ||
     normalizeLayer(incoming.layer) !== normalizeLayer(outgoing.layer) ||
     incoming.end.x !== outgoing.start.x ||
     incoming.end.y !== outgoing.start.y
