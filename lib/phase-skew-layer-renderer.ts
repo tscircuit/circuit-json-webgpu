@@ -18,18 +18,15 @@ const END_COLOR_OFFSET = 8 * FLOAT_BYTES
 const WIDTH_OFFSET = 12 * FLOAT_BYTES
 
 type LayerBuffer = { buffer: GPUBuffer; count: number }
-type StrokePipeline = { pipeline: GPURenderPipeline; cameraGroup: GPUBindGroup }
 type StrokePipelineOptions = {
   device: GPUDevice
-  cameraUniformBuffer: GPUBuffer
-  sampleCount: number
-  blend: GPUBlendState
+  geometry: GPURenderPipelineDescriptor
 }
 
 /** Retains gradient strokes as an instance buffer for each copper layer. */
 export class PhaseSkewLayerRenderer {
   private paletteKey?: string
-  private strokePipeline?: StrokePipeline
+  private strokePipeline?: GPURenderPipeline
   private layerBuffers = new Map<PhaseSkewLayer, LayerBuffer>()
 
   constructor(private readonly options: StrokePipelineOptions) {}
@@ -65,11 +62,15 @@ export class PhaseSkewLayerRenderer {
   draw({
     pass,
     layer,
-  }: { pass: GPURenderPassEncoder; layer: PhaseSkewLayer }): void {
+    cameraGroup,
+  }: {
+    pass: GPURenderPassEncoder
+    layer: PhaseSkewLayer
+    cameraGroup: GPUBindGroup
+  }): void {
     const layerBuffer = this.layerBuffers.get(layer)
     if (!layerBuffer || !this.strokePipeline) return
-    const { pipeline, cameraGroup } = this.strokePipeline
-    pass.setPipeline(pipeline)
+    pass.setPipeline(this.strokePipeline)
     pass.setBindGroup(0, cameraGroup)
     pass.setVertexBuffer(0, layerBuffer.buffer)
     pass.draw(PHASE_SKEW_STROKE_VERTEX_COUNT, layerBuffer.count)
@@ -117,16 +118,14 @@ function uploadStrokes({
 /** Create the stroke pipeline for the same target and camera as copper. */
 function createStrokePipeline({
   device,
-  cameraUniformBuffer,
-  sampleCount,
-  blend,
-}: StrokePipelineOptions): StrokePipeline {
+  geometry,
+}: StrokePipelineOptions): GPURenderPipeline {
   const module = device.createShaderModule({ code: phaseSkewStrokeShader })
-  const pipeline = device.createRenderPipeline({
-    layout: "auto",
+  return device.createRenderPipeline({
+    ...geometry,
     vertex: {
+      ...geometry.vertex,
       module,
-      entryPoint: "vertexMain",
       buffers: [
         {
           arrayStride: FLOATS_PER_STROKE * FLOAT_BYTES,
@@ -148,16 +147,6 @@ function createStrokePipeline({
         },
       ],
     },
-    fragment: {
-      module,
-      entryPoint: "fragmentMain",
-      targets: [{ format: "rgba8unorm", blend }],
-    },
-    multisample: { count: sampleCount },
+    fragment: { ...geometry.fragment!, module },
   })
-  const cameraGroup = device.createBindGroup({
-    layout: pipeline.getBindGroupLayout(0),
-    entries: [{ binding: 0, resource: { buffer: cameraUniformBuffer } }],
-  })
-  return { pipeline, cameraGroup }
 }

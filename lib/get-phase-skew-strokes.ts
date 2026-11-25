@@ -14,22 +14,15 @@ export type PhaseSkewStroke = {
   endColor: Color
 }
 
-type PhaseSkewPalette = {
-  positive: Color
-  negative: Color
-  zero: Color
-}
+type PhaseSkewPalette = Record<
+  keyof NonNullable<RenderOptions["phaseSkewColors"]>,
+  Color
+>
 
 type PhaseSkewScale = {
   positivePeakMm: number
   negativePeakMm: number
   palette: PhaseSkewPalette
-}
-
-const DEFAULT_PALETTE: PhaseSkewPalette = {
-  positive: [0, 0, 1, 1],
-  negative: [1, 0, 0, 1],
-  zero: [1, 1, 1, 1],
 }
 
 /** Color the known segments using each trace's positive and negative peaks. */
@@ -42,13 +35,9 @@ export function getPhaseSkewStrokes({
 }): Map<PhaseSkewLayer, PhaseSkewStroke[]> {
   const byLayer = new Map<PhaseSkewLayer, PhaseSkewStroke[]>()
   const palette: PhaseSkewPalette = {
-    positive: colors?.positive
-      ? parseColor(colors.positive)
-      : DEFAULT_PALETTE.positive,
-    negative: colors?.negative
-      ? parseColor(colors.negative)
-      : DEFAULT_PALETTE.negative,
-    zero: colors?.zero ? parseColor(colors.zero) : DEFAULT_PALETTE.zero,
+    positive: parseColor(colors?.positive || "blue"),
+    negative: parseColor(colors?.negative || "red"),
+    zero: parseColor(colors?.zero || "white"),
   }
   for (const element of circuitJson) {
     if (element.type !== "pcb_differential_pair_phase_skew") continue

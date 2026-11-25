@@ -1,5 +1,5 @@
 import type { Point } from "circuit-json"
-import type { ReactElement } from "react"
+import { Fragment, type ReactElement } from "react"
 
 const FORUM_BOARD_WIDTH_MM = 22
 const FORUM_BOARD_HEIGHT_MM = 12
@@ -168,6 +168,10 @@ function Termination({
   topPin: 1 | 2
 }): ReactElement {
   const at = pcbPoint(x, topY + (1.65 * PIXELS_PER_MM) / 2)
+  const pads = [
+    { y: 0.825, pin: topPin },
+    { y: -0.825, pin: 3 - topPin },
+  ]
   return (
     <chip
       name={name}
@@ -177,24 +181,19 @@ function Termination({
       schY={at.y}
       footprint={
         <footprint>
-          <smtpad
-            shape="rect"
-            width={0.95}
-            height={0.8}
-            cornerRadius={0.2}
-            pcbX={0}
-            pcbY={0.825}
-            portHints={[`pin${topPin}`]}
-          />
-          <smtpad
-            shape="rect"
-            width={0.95}
-            height={0.8}
-            cornerRadius={0.2}
-            pcbX={0}
-            pcbY={-0.825}
-            portHints={[`pin${3 - topPin}`]}
-          />
+          {pads.map(({ y, pin }) => (
+            <Fragment key={pin}>
+              <smtpad
+                shape="rect"
+                width={0.95}
+                height={0.8}
+                cornerRadius={0.2}
+                pcbX={0}
+                pcbY={y}
+                portHints={[`pin${pin}`]}
+              />
+            </Fragment>
+          ))}
         </footprint>
       }
     />
@@ -206,6 +205,18 @@ function Termination({
  * topic 66611 post 13, with skew measured on the upper pair.
  */
 export function ForumExampleBoard(): ReactElement {
+  const terminations = [
+    { name: "R1", x: SOURCE_X, topY: POSITIVE_PAD_Y, topPin: 1 },
+    { name: "R2", x: LOAD_X, topY: POSITIVE_PAD_Y, topPin: 1 },
+    { name: "R3", x: SOURCE_X, topY: UPPER_STRAIGHT_PAD_Y, topPin: 2 },
+    { name: "R4", x: LOAD_X, topY: UPPER_STRAIGHT_PAD_Y, topPin: 2 },
+  ] as const
+  const traces = [
+    { name: "TRACE_P", from: "R1", to: "R2", pin: 1, path: POSITIVE_PATH },
+    { name: "TRACE_N", from: "R1", to: "R2", pin: 2, path: NEGATIVE_PATH },
+    { name: "TRACE3", from: "R3", to: "R4", pin: 2, path: [] },
+    { name: "TRACE2", from: "R3", to: "R4", pin: 1, path: [...VIA_PATH] },
+  ]
   return (
     <board
       width={FORUM_BOARD_WIDTH_MM}
@@ -215,48 +226,20 @@ export function ForumExampleBoard(): ReactElement {
       pcbStyle={{ viaPadDiameter: 0.6, viaHoleDiameter: 0.3 }}
       routeRemaining={false}
     >
-      <Termination name="R1" x={SOURCE_X} topY={POSITIVE_PAD_Y} topPin={1} />
-      <Termination name="R2" x={LOAD_X} topY={POSITIVE_PAD_Y} topPin={1} />
-      <Termination
-        name="R3"
-        x={SOURCE_X}
-        topY={UPPER_STRAIGHT_PAD_Y}
-        topPin={2}
-      />
-      <Termination
-        name="R4"
-        x={LOAD_X}
-        topY={UPPER_STRAIGHT_PAD_Y}
-        topPin={2}
-      />
-      <trace
-        name="TRACE_P"
-        from=".R1 > .pin1"
-        to=".R2 > .pin1"
-        thickness={TRACE_WIDTH_MM}
-        pcbPath={POSITIVE_PATH}
-      />
-      <trace
-        name="TRACE_N"
-        from=".R1 > .pin2"
-        to=".R2 > .pin2"
-        thickness={TRACE_WIDTH_MM}
-        pcbPath={NEGATIVE_PATH}
-      />
-      <trace
-        name="TRACE3"
-        from=".R3 > .pin2"
-        to=".R4 > .pin2"
-        thickness={TRACE_WIDTH_MM}
-        pcbPath={[]}
-      />
-      <trace
-        name="TRACE2"
-        from=".R3 > .pin1"
-        to=".R4 > .pin1"
-        thickness={TRACE_WIDTH_MM}
-        pcbPath={[...VIA_PATH]}
-      />
+      {terminations.map((termination) => (
+        <Termination key={termination.name} {...termination} />
+      ))}
+      {traces.map(({ name, from, to, pin, path }) => (
+        <Fragment key={name}>
+          <trace
+            name={name}
+            from={`.${from} > .pin${pin}`}
+            to={`.${to} > .pin${pin}`}
+            thickness={TRACE_WIDTH_MM}
+            pcbPath={path}
+          />
+        </Fragment>
+      ))}
       <differentialpair
         name="TRACE"
         positiveConnection="TRACE_P"

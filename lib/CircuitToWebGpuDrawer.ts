@@ -61,6 +61,7 @@ export class CircuitToWebGpuDrawer {
   private disposed = false
   adapterInfo?: GPUAdapterInfo
   private lost = false
+  private readonly paintDescriptor: GPURenderPipelineDescriptor
   private paintPipeline: GPURenderPipeline
   private erasePipeline: GPURenderPipeline
   private compositePipeline: GPURenderPipeline
@@ -174,7 +175,8 @@ export class CircuitToWebGpuDrawer {
       primitive: { topology: "triangle-list" },
       multisample: { count: config.sampleCount ?? 4 },
     })
-    this.paintPipeline = device.createRenderPipeline(geometry(over))
+    this.paintDescriptor = geometry(over)
+    this.paintPipeline = device.createRenderPipeline(this.paintDescriptor)
     this.erasePipeline = device.createRenderPipeline(
       geometry({
         color: { srcFactor: "zero", dstFactor: "one-minus-src-alpha" },
@@ -349,9 +351,7 @@ export class CircuitToWebGpuDrawer {
     if (showPhaseSkew && this.circuit) {
       this.phaseSkewRenderer ??= new PhaseSkewLayerRenderer({
         device: this.device,
-        cameraUniformBuffer: this.uniform,
-        sampleCount: this.config.sampleCount ?? 4,
-        blend: over,
+        geometry: this.paintDescriptor,
       })
       this.phaseSkewRenderer.update({
         circuitJson: this.circuit,
@@ -457,7 +457,11 @@ export class CircuitToWebGpuDrawer {
         [layer.erase, this.erasePipeline],
       ] as const) {
         if (showPhaseSkew && pipeline === this.erasePipeline)
-          this.phaseSkewRenderer?.draw({ pass, layer: layer.name })
+          this.phaseSkewRenderer?.draw({
+            pass,
+            layer: layer.name,
+            cameraGroup: this.cameraGroup!,
+          })
         if (!mesh.count) continue
         // Erase geometry (drills/cutouts) must retain its physical meaning in both passes.
         pass.setBindGroup(
