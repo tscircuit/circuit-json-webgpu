@@ -1,7 +1,6 @@
 import {
   getPhaseSkewStrokes,
   PHASE_SKEW_WIDTH_FACTOR,
-  type PcbTraceId,
   type PhaseSkewLayer,
   type PhaseSkewStroke,
 } from "./get-phase-skew-strokes"
@@ -9,7 +8,6 @@ import {
   PHASE_SKEW_STROKE_VERTEX_COUNT,
   phaseSkewStrokeShader,
 } from "./phase-skew-stroke-shader"
-import type { CircuitJson, RenderOptions } from "./types"
 
 const FLOAT_BYTES = Float32Array.BYTES_PER_ELEMENT
 const FLOATS_PER_STROKE = 18
@@ -18,7 +16,9 @@ const END_COLOR_OFFSET = 8 * FLOAT_BYTES
 const WIDTH_OFFSET = 12 * FLOAT_BYTES
 const JOINS_OFFSET = 13 * FLOAT_BYTES
 const HIGHLIGHT_INDEX_OFFSET = 17 * FLOAT_BYTES
+const UNINDEXED_TRACE = -1
 
+type HighlightIndices = ReadonlyMap<PhaseSkewStroke["pcb_trace_id"], number>
 type LayerBuffer = { buffer: GPUBuffer; count: number }
 type StrokePipelineOptions = {
   device: GPUDevice
@@ -38,10 +38,8 @@ export class PhaseSkewLayerRenderer {
     circuitJson,
     colors,
     highlightIndices,
-  }: {
-    circuitJson: CircuitJson
-    colors: RenderOptions["phaseSkewColors"]
-    highlightIndices: ReadonlyMap<PcbTraceId, number>
+  }: Parameters<typeof getPhaseSkewStrokes>[0] & {
+    highlightIndices: HighlightIndices
   }): void {
     const paletteKey = JSON.stringify([
       colors?.positive,
@@ -49,18 +47,18 @@ export class PhaseSkewLayerRenderer {
       colors?.zero,
     ])
     if (paletteKey === this.paletteKey) return
-    const byLayer = getPhaseSkewStrokes({
-      circuitJson,
-      colors,
-      highlightIndices,
-    })
+    const byLayer = getPhaseSkewStrokes({ circuitJson, colors })
     this.clear()
     if (byLayer.size > 0)
       this.strokePipeline ??= createStrokePipeline(this.options)
     for (const [layer, strokes] of byLayer) {
       this.layerBuffers.set(
         layer,
-        uploadStrokes({ device: this.options.device, strokes }),
+        uploadStrokes({
+          device: this.options.device,
+          strokes,
+          highlightIndices,
+        }),
       )
     }
     this.paletteKey = paletteKey
@@ -96,20 +94,18 @@ export class PhaseSkewLayerRenderer {
 function uploadStrokes({
   device,
   strokes,
+  highlightIndices,
 }: {
   device: GPUDevice
   strokes: PhaseSkewStroke[]
+  highlightIndices: HighlightIndices
 }): LayerBuffer {
   const attributes = new Float32Array(strokes.length * FLOATS_PER_STROKE)
   for (const [index, stroke] of strokes.entries()) {
-    const {
-      segment,
-      startColor,
-      endColor,
-      startJoin,
-      endJoin,
-      highlightIndex,
-    } = stroke
+    const { segment, startColor, endColor, startJoin, endJoin, pcb_trace_id } =
+      stroke
+    let highlightIndex = highlightIndices.get(pcb_trace_id)
+    if (highlightIndex === undefined) highlightIndex = UNINDEXED_TRACE
     attributes.set(
       [
         segment.start.x,
@@ -119,10 +115,10 @@ function uploadStrokes({
         ...startColor,
         ...endColor,
         segment.width * PHASE_SKEW_WIDTH_FACTOR,
-        startJoin?.x ?? 0,
-        startJoin?.y ?? 0,
-        endJoin?.x ?? 0,
-        endJoin?.y ?? 0,
+        startJoin.x,
+        startJoin.y,
+        endJoin.x,
+        endJoin.y,
         highlightIndex,
       ],
       index * FLOATS_PER_STROKE,

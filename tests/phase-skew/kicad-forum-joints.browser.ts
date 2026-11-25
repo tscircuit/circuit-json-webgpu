@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test"
+import type { Point } from "circuit-json"
 import type { PNG } from "pngjs"
 import { ForumExampleBoard } from "../fixtures/phase-skew/forum-example-board"
 import {
@@ -23,7 +24,7 @@ const VIEWPORT = {
   },
 }
 
-function forumPixel({ frame, x, y }: { frame: PNG; x: number; y: number }) {
+function forumPixel({ frame, x, y }: Point & { frame: PNG }) {
   const offset = ((y - CROP_TOP) * frame.width + x - CROP_LEFT) * 4
   return [...frame.data.subarray(offset, offset + 3)]
 }
@@ -35,7 +36,9 @@ test("the KiCad forum overlay at trace joints and during hover", async () => {
     frameOptions: (elements) => {
       const skew = elements.find(
         (element) => element.type === "pcb_differential_pair_phase_skew",
-      )!
+      )
+      if (skew === undefined)
+        throw new Error("Expected the forum board to emit phase skew")
       return [
         { showDifferentialPairPhaseSkew: true },
         { highlightedElementIds: [skew.negative_trace.pcb_trace_id] },

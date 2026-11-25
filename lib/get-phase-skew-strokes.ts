@@ -1,26 +1,29 @@
 import type {
   PcbDifferentialPairPhaseSkewSegment,
   PcbDifferentialPairPhaseSkewTrace,
+  Point,
 } from "circuit-json"
 import { normalizeLayer, parseColor } from "./colors"
-import type { CircuitJson, Color, Point, RenderOptions } from "./types"
+import type { CircuitJson, Color, RenderOptions } from "./types"
 
 export type PhaseSkewLayer = ReturnType<typeof normalizeLayer>
-export type PcbTraceId = PcbDifferentialPairPhaseSkewTrace["pcb_trace_id"]
 
 /** KiCad draws the overlay 10% wider to cover the copper edges. */
 export const PHASE_SKEW_WIDTH_FACTOR = 1.1
 const MIN_JOIN_LENGTH_MM = 1e-6
 const MIN_JOIN_DENOMINATOR = 1e-6
+const ROUND_CAP: Point = { x: 0, y: 0 }
 
 /** A PCB segment and the two colors that the stroke interpolates between. */
-export type PhaseSkewStroke = {
+export type PhaseSkewStroke = Pick<
+  PcbDifferentialPairPhaseSkewTrace,
+  "pcb_trace_id"
+> & {
   segment: PcbDifferentialPairPhaseSkewSegment
   startColor: Color
   endColor: Color
-  startJoin?: Point
-  endJoin?: Point
-  highlightIndex: number
+  startJoin: Point
+  endJoin: Point
 }
 
 type PhaseSkewPalette = Record<
@@ -38,11 +41,9 @@ type PhaseSkewScale = {
 export function getPhaseSkewStrokes({
   circuitJson,
   colors,
-  highlightIndices,
 }: {
   circuitJson: CircuitJson
   colors: RenderOptions["phaseSkewColors"]
-  highlightIndices: ReadonlyMap<PcbTraceId, number>
 }): Map<PhaseSkewLayer, PhaseSkewStroke[]> {
   const byLayer = new Map<PhaseSkewLayer, PhaseSkewStroke[]>()
   const palette: PhaseSkewPalette = {
@@ -52,14 +53,8 @@ export function getPhaseSkewStrokes({
   }
   for (const element of circuitJson) {
     if (element.type !== "pcb_differential_pair_phase_skew") continue
-    for (const trace of [element.positive_trace, element.negative_trace]) {
-      addTraceStrokes({
-        trace,
-        palette,
-        byLayer,
-        highlightIndex: highlightIndices.get(trace.pcb_trace_id) ?? -1,
-      })
-    }
+    addTraceStrokes({ trace: element.positive_trace, palette, byLayer })
+    addTraceStrokes({ trace: element.negative_trace, palette, byLayer })
   }
   return byLayer
 }
@@ -69,12 +64,10 @@ function addTraceStrokes({
   trace,
   palette,
   byLayer,
-  highlightIndex,
 }: {
   trace: PcbDifferentialPairPhaseSkewTrace
   palette: PhaseSkewPalette
   byLayer: Map<PhaseSkewLayer, PhaseSkewStroke[]>
-  highlightIndex: number
 }): void {
   let positivePeakMm = 0
   let negativePeakMm = 0
@@ -92,18 +85,23 @@ function addTraceStrokes({
     )
   }
   const scale = { positivePeakMm, negativePeakMm, palette }
-  let startJoin: Point | undefined
+  let startJoin = ROUND_CAP
   for (const [index, segment] of trace.segments.entries()) {
     const layer = normalizeLayer(segment.layer)
     const endJoin = getSharedCut({
       incoming: segment,
       outgoing: trace.segments[index + 1],
     })
-    const stroke = {
+    let strokes = byLayer.get(layer)
+    if (strokes === undefined) {
+      strokes = []
+      byLayer.set(layer, strokes)
+    }
+    strokes.push({
       segment,
       startJoin,
       endJoin,
-      highlightIndex,
+      pcb_trace_id: trace.pcb_trace_id,
       startColor: getEndpointColor({
         lengthDifferenceMm: segment.start_length_difference_mm,
         scale,
@@ -112,10 +110,7 @@ function addTraceStrokes({
         lengthDifferenceMm: segment.end_length_difference_mm,
         scale,
       }),
-    }
-    const strokes = byLayer.get(layer)
-    if (strokes) strokes.push(stroke)
-    else byLayer.set(layer, [stroke])
+    })
     startJoin = endJoin
   }
 }
@@ -126,15 +121,15 @@ function getSharedCut({
   outgoing,
 }: {
   incoming: PcbDifferentialPairPhaseSkewSegment
-  outgoing?: PcbDifferentialPairPhaseSkewSegment
-}): Point | undefined {
+  outgoing: PcbDifferentialPairPhaseSkewSegment | undefined
+}): Point {
   if (
-    !outgoing ||
+    outgoing === undefined ||
     normalizeLayer(incoming.layer) !== normalizeLayer(outgoing.layer) ||
     incoming.end.x !== outgoing.start.x ||
     incoming.end.y !== outgoing.start.y
   ) {
-    return
+    return ROUND_CAP
   }
   const ax = incoming.end.x - incoming.start.x
   const ay = incoming.end.y - incoming.start.y
@@ -142,13 +137,14 @@ function getSharedCut({
   const by = outgoing.end.y - outgoing.start.y
   const incomingLengthMm = Math.hypot(ax, ay)
   const outgoingLengthMm = Math.hypot(bx, by)
-  if (Math.min(incomingLengthMm, outgoingLengthMm) <= MIN_JOIN_LENGTH_MM) return
+  if (Math.min(incomingLengthMm, outgoingLengthMm) <= MIN_JOIN_LENGTH_MM)
+    return ROUND_CAP
 
   const x = -ay / incomingLengthMm - by / outgoingLengthMm
   const y = ax / incomingLengthMm + bx / outgoingLengthMm
   const denominator =
     1 + (ax * bx + ay * by) / (incomingLengthMm * outgoingLengthMm)
-  if (denominator <= MIN_JOIN_DENOMINATOR) return
+  if (denominator <= MIN_JOIN_DENOMINATOR) return ROUND_CAP
 
   // Keep neighboring cuts from crossing on very short segments or sharp turns.
   const along = Math.abs((x * ax + y * ay) / incomingLengthMm)
