@@ -14,6 +14,7 @@ const HEIGHT_PIXELS = 330
 const PIXELS_PER_MM = 30
 const MAX_CHANGED_PIXEL_FRACTION = 0.002
 const SNAPSHOT_PIXEL_THRESHOLD = 0.1
+const UPDATE_SNAPSHOTS = process.env.UPDATE_SNAPSHOTS === "1"
 const TRANSFORM = {
   a: PIXELS_PER_MM,
   b: 0,
@@ -99,7 +100,7 @@ export async function expectPhaseSkewSnapshot({
     import.meta.url,
   )
   const png = PNG.sync.write(frame)
-  if (process.env.UPDATE_SNAPSHOTS) {
+  if (UPDATE_SNAPSHOTS) {
     await mkdir(new URL(".", baseline), { recursive: true })
     await Bun.write(baseline, png)
     return
@@ -123,6 +124,7 @@ export async function expectPhaseSkewSnapshot({
       `../../actual/phase-skew/${name}.png`,
       import.meta.url,
     )
+    await mkdir(new URL(".", actual), { recursive: true })
     await Bun.write(actual, png)
   }
   expect(changedPixels).toBeLessThanOrEqual(

@@ -1,7 +1,8 @@
 import { Circuit } from "@tscircuit/core"
-import type { PcbPath } from "@tscircuit/props"
-import { Fragment, type ReactElement } from "react"
+import { type ComponentProps, Fragment, type ReactElement } from "react"
 import type { CircuitJson } from "../../../lib"
+
+type PcbPath = NonNullable<ComponentProps<"trace">["pcbPath"]>
 
 const BOARD_WIDTH_MM = 28
 const BOARD_HEIGHT_MM = 9
