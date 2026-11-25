@@ -1,4 +1,4 @@
-import { Circuit } from "tscircuit"
+import { Circuit } from "@tscircuit/core"
 
 // DDR_ODT coordinates, width and endpoints from the AM3352 board's TSX route.
 export async function createAm3352DdrOdtCircuit() {
