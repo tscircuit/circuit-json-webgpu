@@ -1,6 +1,7 @@
 import { compileCircuitJsonWithCopperPourCache } from "./compile-circuit"
 import { CopperPourTriangulations } from "./copper-pour-triangulations"
 import { normalizeLayer } from "./colors"
+import { PhaseSkewLayerRenderer } from "./phase-skew-layer-renderer"
 import { compositeShader, geometryShader } from "./shaders"
 import type {
   CircuitJson,
@@ -60,9 +61,11 @@ export class CircuitToWebGpuDrawer {
   private disposed = false
   adapterInfo?: GPUAdapterInfo
   private lost = false
+  private readonly paintDescriptor: GPURenderPipelineDescriptor
   private paintPipeline: GPURenderPipeline
   private erasePipeline: GPURenderPipeline
   private compositePipeline: GPURenderPipeline
+  private phaseSkewRenderer?: PhaseSkewLayerRenderer
   private sampler: GPUSampler
   private options: RenderOptions = {}
 
@@ -172,7 +175,8 @@ export class CircuitToWebGpuDrawer {
       primitive: { topology: "triangle-list" },
       multisample: { count: config.sampleCount ?? 4 },
     })
-    this.paintPipeline = device.createRenderPipeline(geometry(over))
+    this.paintDescriptor = geometry(over)
+    this.paintPipeline = device.createRenderPipeline(this.paintDescriptor)
     this.erasePipeline = device.createRenderPipeline(
       geometry({
         color: { srcFactor: "zero", dstFactor: "one-minus-src-alpha" },
@@ -285,6 +289,7 @@ export class CircuitToWebGpuDrawer {
       elementCount: scene.elementIds.length,
     }
     this.circuit = circuitJson
+    this.phaseSkewRenderer?.clear()
     this.size = ""
     this.stats.geometryUploads++
     this.stats.triangleCount = scene.triangleCount
@@ -342,6 +347,17 @@ export class CircuitToWebGpuDrawer {
     )
     const xRayIds = o.xRayElementIds ?? []
     const xRayActive = xRayIds.length > 0
+    const showPhaseSkew = o.showDifferentialPairPhaseSkew && !xRayActive
+    if (showPhaseSkew && this.circuit) {
+      this.phaseSkewRenderer ??= new PhaseSkewLayerRenderer({
+        device: this.device,
+        geometry: this.paintDescriptor,
+      })
+      this.phaseSkewRenderer.update({
+        circuitJson: this.circuit,
+        colors: o.phaseSkewColors,
+      })
+    }
     if (xRayActive)
       this.device.queue.writeBuffer(
         this.xRayUniform,
@@ -440,6 +456,12 @@ export class CircuitToWebGpuDrawer {
         [layer.paint, this.paintPipeline],
         [layer.erase, this.erasePipeline],
       ] as const) {
+        if (showPhaseSkew && pipeline === this.erasePipeline)
+          this.phaseSkewRenderer?.draw({
+            pass,
+            layer: layer.name,
+            cameraGroup: this.cameraGroup!,
+          })
         if (!mesh.count) continue
         // Erase geometry (drills/cutouts) must retain its physical meaning in both passes.
         pass.setBindGroup(
@@ -631,6 +653,7 @@ export class CircuitToWebGpuDrawer {
   dispose() {
     if (this.disposed) return
     this.disposed = true
+    this.phaseSkewRenderer?.clear()
     this.releaseLayers()
     this.sample?.destroy()
     this.uniform.destroy()
