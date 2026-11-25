@@ -1,5 +1,5 @@
+import { Circuit } from "@tscircuit/core"
 import { type ComponentProps, Fragment, type ReactElement } from "react"
-import { Circuit } from "tscircuit"
 import type { CircuitJson } from "../../../lib"
 
 type PcbPath = NonNullable<ComponentProps<"trace">["pcbPath"]>
