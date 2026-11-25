@@ -25,6 +25,9 @@ export type RenderOptions = {
   showFabricationNotes?: boolean
   showPcbNotes?: boolean
   showCourtyards?: boolean
+  /** Draw phase skew gradients on the copper layers. Defaults to false. */
+  showDifferentialPairPhaseSkew?: boolean
+  phaseSkewColors?: { positive?: string; negative?: string; zero?: string }
   highlightedElementIds?: readonly string[]
   /** Copper belonging to an inspected net. Supply resolved PCB element IDs.
    * Selected copper is opaque on every layer; other copper uses hiddenLayerOpacity.
