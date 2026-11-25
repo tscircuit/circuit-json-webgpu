@@ -5,7 +5,7 @@ import pixelmatch from "pixelmatch"
 import { PNG } from "pngjs"
 import type { ReactElement } from "react"
 import { createServer } from "vite"
-import type { RenderOptions } from "../../../lib"
+import type { CircuitJson, RenderOptions } from "../../../lib"
 import { launchWebGpuBrowser } from "../../../scripts/lib/launch-webgpu-browser"
 import { renderBoard } from "./example-boards"
 
@@ -23,14 +23,21 @@ const TRANSFORM = {
   e: WIDTH_PIXELS / 2,
   f: HEIGHT_PIXELS / 2,
 }
+const DEFAULT_VIEWPORT = {
+  width: WIDTH_PIXELS,
+  height: HEIGHT_PIXELS,
+  transform: TRANSFORM,
+}
 
 /** Render a TSX board once and capture each visibility setting from the GPU. */
 export async function renderPhaseSkewFrames({
   board,
   frameOptions,
+  viewport = DEFAULT_VIEWPORT,
 }: {
   board: ReactElement
-  frameOptions: RenderOptions[]
+  frameOptions: RenderOptions[] | ((elements: CircuitJson) => RenderOptions[])
+  viewport?: typeof DEFAULT_VIEWPORT
 }): Promise<PNG[]> {
   const elements = await renderBoard({ board })
   expect(
@@ -73,10 +80,11 @@ export async function renderPhaseSkewFrames({
       },
       {
         elements,
-        frameOptions,
-        width: WIDTH_PIXELS,
-        height: HEIGHT_PIXELS,
-        transform: TRANSFORM,
+        frameOptions:
+          typeof frameOptions === "function"
+            ? frameOptions(elements)
+            : frameOptions,
+        ...viewport,
       },
     )
     expect(errors).toEqual([])
