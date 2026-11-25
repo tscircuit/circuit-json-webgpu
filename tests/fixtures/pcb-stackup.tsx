@@ -1,4 +1,4 @@
-import { Circuit } from "tscircuit"
+import { Circuit } from "@tscircuit/core"
 
 export async function createStackupCircuit() {
   const circuit = new Circuit()
