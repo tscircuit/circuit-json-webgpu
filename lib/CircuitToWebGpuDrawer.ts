@@ -378,8 +378,11 @@ export class CircuitToWebGpuDrawer {
           1,
         ]),
       )
-    const ids = xRayActive ? [] : (o.highlightedElementIds ?? []),
-      key = JSON.stringify([ids, xRayIds])
+    const ids = xRayActive ? [] : (o.highlightedElementIds ?? [])
+    const unknownSkewIds = showPhaseSkew
+      ? (o.phaseSkewUnknownTraceIds ?? [])
+      : []
+    const key = JSON.stringify([ids, xRayIds, unknownSkewIds])
     if (key !== this.highlightKey) {
       const mask = new Uint32Array(Math.max(1, this.scene?.elementCount ?? 0))
       for (const id of ids) {
@@ -389,6 +392,10 @@ export class CircuitToWebGpuDrawer {
       for (const id of xRayIds) {
         const i = this.highlightIndices.get(id)
         if (i !== undefined) mask[i] |= 2
+      }
+      for (const id of unknownSkewIds) {
+        const i = this.highlightIndices.get(id)
+        if (i !== undefined) mask[i] |= 4
       }
       this.device.queue.writeBuffer(this.highlights, 0, mask)
       this.highlightKey = key
