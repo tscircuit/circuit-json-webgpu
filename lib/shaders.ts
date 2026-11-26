@@ -15,10 +15,14 @@ struct VertexOut {
   let pixel = vec2f(dot(camera.rowX.xyz, vec3f(p, 1)), dot(camera.rowY.xyz, vec3f(p, 1)));
   var out: VertexOut;
   out.position = vec4f(pixel.x / camera.viewport.x * 2 - 1, 1 - pixel.y / camera.viewport.y * 2, 0, 1);
-  let highlight = select(0.0, 1.0, (highlights[u32(element)] & 1u) != 0u);
-  out.color = vec4f(mix(color.rgb, min(vec3f(1), color.rgb * 1.5), highlight), color.a);
+  let mask = highlights[u32(element)];
+  let highlighted = (mask & 1u) != 0u;
+  let unknownSkew = (mask & 4u) != 0u && !highlighted;
+  // Known gradients are drawn over this copper using the phase-skew pass.
+  let baseColor = select(color.rgb, vec3f(0.5), unknownSkew);
+  out.color = vec4f(select(baseColor, min(vec3f(1), color.rgb * 1.5), highlighted), color.a);
   out.category = u32(category);
-  out.selected = highlights[u32(element)] & 2u;
+  out.selected = mask & 2u;
   return out;
 }
 @fragment fn fragmentMain(in: VertexOut) -> @location(0) vec4f {
