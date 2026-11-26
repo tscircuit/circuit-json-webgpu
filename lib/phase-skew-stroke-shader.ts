@@ -5,10 +5,11 @@ export const PHASE_SKEW_STROKE_VERTEX_COUNT = VERTICES_PER_QUAD * STROKE_QUADS
 const MIN_DIRECTION_LENGTH = 1e-6
 const COVERAGE_INTEGRATION_STEPS = 8
 
-/** Draw a capsule with constant cap colors and an interpolated body. */
+/** Draw a gradient stroke with optional round caps. */
 export const phaseSkewStrokeShader = /* wgsl */ `
 struct Camera { rowX: vec4f, rowY: vec4f, viewport: vec4f }
 @group(0) @binding(0) var<uniform> camera: Camera;
+@group(0) @binding(1) var<storage, read> highlights: array<u32>;
 
 struct VertexIn {
   @builtin(vertex_index) vertex: u32,
@@ -16,6 +17,8 @@ struct VertexIn {
   @location(1) startColor: vec4f,
   @location(2) endColor: vec4f,
   @location(3) widthMm: f32,
+  @location(4) roundCaps: vec2f,
+  @location(5) highlightIndex: f32,
 }
 struct VertexOut {
   @builtin(position) position: vec4f,
@@ -60,12 +63,20 @@ fn direction(delta: vec2f) -> vec2f {
     max(length(boardToCanvasLinear * boardTangent), MIN_DIRECTION_LENGTH);
   let radiusPixels = in.widthMm * pixelsPerMmAcrossStroke * 0.5;
   let marginPixels = radiusPixels + 1.0;
-  let boundaries = array<f32, 4>(-marginPixels, 0.0, lengthPixels, lengthPixels + marginPixels);
+  let boundaries = array<f32, 4>(
+    -marginPixels * in.roundCaps.x, 0.0,
+    lengthPixels, lengthPixels + marginPixels * in.roundCaps.y
+  );
   let strokePixels = vec2f(boundaries[boundary], corner.y * marginPixels);
   let pixel = startPixels + tangent * strokePixels.x + normal * strokePixels.y;
   let ndc = pixel / camera.viewport.xy * vec2f(2, -2) + vec2f(-1, 1);
   let color = select(in.startColor, in.endColor, boundary >= 2u);
-  return VertexOut(vec4f(ndc, 0, 1), strokePixels, lengthPixels, radiusPixels, color);
+  // Use the existing hover mask so pointer moves can reuse the stroke buffers.
+  let highlighted = in.highlightIndex >= 0 && (highlights[u32(in.highlightIndex)] & 1u) != 0u;
+  return VertexOut(
+    vec4f(select(ndc, vec2f(2), highlighted), 0, 1),
+    strokePixels, lengthPixels, radiusPixels, color
+  );
 }
 
 fn boxOverlap(centerPixels: f32, halfWidthPixels: f32) -> f32 {

@@ -7,12 +7,21 @@ import type { CircuitJson, Color, RenderOptions } from "./types"
 
 export type PhaseSkewLayer = ReturnType<typeof normalizeLayer>
 
+const JOINT_TOLERANCE_MM = 1e-6
+
 /** A PCB segment and the two colors that the stroke interpolates between. */
-export type PhaseSkewStroke = {
-  segment: PcbDifferentialPairPhaseSkewSegment
+export type PhaseSkewStroke = Pick<
+  PcbDifferentialPairPhaseSkewTrace,
+  "pcb_trace_id"
+> & {
+  segment: Pick<PcbDifferentialPairPhaseSkewSegment, "start" | "end" | "width">
   startColor: Color
   endColor: Color
+  roundStart: boolean
+  roundEnd: boolean
 }
+
+type LayerStrokes = { joints: PhaseSkewStroke[]; segments: PhaseSkewStroke[] }
 
 type PhaseSkewPalette = Record<
   keyof NonNullable<RenderOptions["phaseSkewColors"]>,
@@ -32,8 +41,8 @@ export function getPhaseSkewStrokes({
 }: {
   circuitJson: CircuitJson
   colors: RenderOptions["phaseSkewColors"]
-}): Map<PhaseSkewLayer, PhaseSkewStroke[]> {
-  const byLayer = new Map<PhaseSkewLayer, PhaseSkewStroke[]>()
+}): Map<PhaseSkewLayer, LayerStrokes> {
+  const byLayer = new Map<PhaseSkewLayer, LayerStrokes>()
   const palette: PhaseSkewPalette = {
     positive: parseColor(colors?.positive || "blue"),
     negative: parseColor(colors?.negative || "red"),
@@ -55,7 +64,7 @@ function addTraceStrokes({
 }: {
   trace: PcbDifferentialPairPhaseSkewTrace
   palette: PhaseSkewPalette
-  byLayer: Map<PhaseSkewLayer, PhaseSkewStroke[]>
+  byLayer: Map<PhaseSkewLayer, LayerStrokes>
 }): void {
   let positivePeakMm = 0
   let negativePeakMm = 0
@@ -73,10 +82,47 @@ function addTraceStrokes({
     )
   }
   const scale = { positivePeakMm, negativePeakMm, palette }
-  for (const segment of trace.segments) {
+  let roundStart = true
+  for (const [index, segment] of trace.segments.entries()) {
     const layer = normalizeLayer(segment.layer)
-    const stroke = {
+    const outgoing = trace.segments.at(index + 1)
+    const joinsOutgoing =
+      outgoing !== undefined &&
+      layer === normalizeLayer(outgoing.layer) &&
+      Math.hypot(
+        segment.end.x - outgoing.start.x,
+        segment.end.y - outgoing.start.y,
+      ) <= JOINT_TOLERANCE_MM
+
+    let strokes = byLayer.get(layer)
+    if (strokes === undefined) {
+      strokes = { joints: [], segments: [] }
+      byLayer.set(layer, strokes)
+    }
+    const pcb_trace_id = trace.pcb_trace_id
+    if (joinsOutgoing) {
+      const jointColor = getEndpointColor({
+        lengthDifferenceMm: outgoing.start_length_difference_mm,
+        scale,
+      })
+      strokes.joints.push({
+        segment: {
+          start: outgoing.start,
+          end: outgoing.start,
+          width: Math.max(segment.width, outgoing.width),
+        },
+        pcb_trace_id,
+        startColor: jointColor,
+        endColor: jointColor,
+        roundStart: true,
+        roundEnd: true,
+      })
+    }
+    strokes.segments.push({
       segment,
+      roundStart,
+      roundEnd: !joinsOutgoing,
+      pcb_trace_id,
       startColor: getEndpointColor({
         lengthDifferenceMm: segment.start_length_difference_mm,
         scale,
@@ -85,10 +131,8 @@ function addTraceStrokes({
         lengthDifferenceMm: segment.end_length_difference_mm,
         scale,
       }),
-    }
-    const strokes = byLayer.get(layer)
-    if (strokes) strokes.push(stroke)
-    else byLayer.set(layer, [stroke])
+    })
+    roundStart = !joinsOutgoing
   }
 }
 

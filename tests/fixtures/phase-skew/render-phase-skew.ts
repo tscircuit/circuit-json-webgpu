@@ -1,11 +1,13 @@
 import { expect } from "bun:test"
+import type { Point } from "circuit-json"
 import { mkdir } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import pixelmatch from "pixelmatch"
 import { PNG } from "pngjs"
 import type { ReactElement } from "react"
+import { applyToPoint } from "transformation-matrix"
 import { createServer } from "vite"
-import type { RenderOptions } from "../../../lib"
+import type { CircuitJson, RenderOptions } from "../../../lib"
 import { launchWebGpuBrowser } from "../../../scripts/lib/launch-webgpu-browser"
 import { renderBoard } from "./example-boards"
 
@@ -23,14 +25,21 @@ const TRANSFORM = {
   e: WIDTH_PIXELS / 2,
   f: HEIGHT_PIXELS / 2,
 }
+const DEFAULT_VIEWPORT = {
+  width: WIDTH_PIXELS,
+  height: HEIGHT_PIXELS,
+  transform: TRANSFORM,
+}
 
 /** Render a TSX board once and capture each visibility setting from the GPU. */
 export async function renderPhaseSkewFrames({
   board,
   frameOptions,
+  viewport = DEFAULT_VIEWPORT,
 }: {
   board: ReactElement
-  frameOptions: RenderOptions[]
+  frameOptions: RenderOptions[] | ((elements: CircuitJson) => RenderOptions[])
+  viewport?: typeof DEFAULT_VIEWPORT
 }): Promise<PNG[]> {
   const elements = await renderBoard({ board })
   expect(
@@ -73,10 +82,11 @@ export async function renderPhaseSkewFrames({
       },
       {
         elements,
-        frameOptions,
-        width: WIDTH_PIXELS,
-        height: HEIGHT_PIXELS,
-        transform: TRANSFORM,
+        frameOptions:
+          typeof frameOptions === "function"
+            ? frameOptions(elements)
+            : frameOptions,
+        ...viewport,
       },
     )
     expect(errors).toEqual([])
@@ -137,9 +147,23 @@ export function pixelAt({
   frame,
   x,
   y,
-}: { frame: PNG; x: number; y: number }): number[] {
-  const column = Math.floor(TRANSFORM.e + x * PIXELS_PER_MM)
-  const row = Math.floor(TRANSFORM.f - y * PIXELS_PER_MM)
-  const offset = (row * frame.width + column) * 4
+  transform = TRANSFORM,
+}: Point & { frame: PNG; transform?: typeof TRANSFORM }): number[] {
+  const { x: column, y: row } = applyToPoint(transform, { x, y })
+  const offset = (Math.floor(row) * frame.width + Math.floor(column)) * 4
   return [...frame.data.subarray(offset, offset + 3)]
+}
+
+const JOINT_PIXELS_PER_MM = 240
+export const JOINT_VIEWPORT = {
+  width: 600,
+  height: 480,
+  transform: {
+    a: JOINT_PIXELS_PER_MM,
+    b: 0,
+    c: 0,
+    d: -JOINT_PIXELS_PER_MM,
+    e: 300,
+    f: 350,
+  },
 }

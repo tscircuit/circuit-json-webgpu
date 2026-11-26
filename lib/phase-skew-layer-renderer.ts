@@ -7,16 +7,19 @@ import {
   PHASE_SKEW_STROKE_VERTEX_COUNT,
   phaseSkewStrokeShader,
 } from "./phase-skew-stroke-shader"
-import type { CircuitJson, RenderOptions } from "./types"
 
 /** Overlay strokes are drawn 10% wider than the copper, as KiCad does (diff_phase_skew_tool.cpp), so the colour fully covers the trace edges. */
 const OVERLAY_WIDTH_FACTOR = 1.1
 const FLOAT_BYTES = Float32Array.BYTES_PER_ELEMENT
-const FLOATS_PER_STROKE = 13
+const FLOATS_PER_STROKE = 16
 const START_COLOR_OFFSET = 4 * FLOAT_BYTES
 const END_COLOR_OFFSET = 8 * FLOAT_BYTES
 const WIDTH_OFFSET = 12 * FLOAT_BYTES
+const CAPS_OFFSET = 13 * FLOAT_BYTES
+const HIGHLIGHT_INDEX_OFFSET = 15 * FLOAT_BYTES
+const UNINDEXED_TRACE = -1
 
+type HighlightIndices = ReadonlyMap<PhaseSkewStroke["pcb_trace_id"], number>
 type LayerBuffer = { buffer: GPUBuffer; count: number }
 type StrokePipelineOptions = {
   device: GPUDevice
@@ -35,9 +38,9 @@ export class PhaseSkewLayerRenderer {
   update({
     circuitJson,
     colors,
-  }: {
-    circuitJson: CircuitJson
-    colors: RenderOptions["phaseSkewColors"]
+    highlightIndices,
+  }: Parameters<typeof getPhaseSkewStrokes>[0] & {
+    highlightIndices: HighlightIndices
   }): void {
     const paletteKey = JSON.stringify([
       colors?.positive,
@@ -49,10 +52,14 @@ export class PhaseSkewLayerRenderer {
     this.clear()
     if (byLayer.size > 0)
       this.strokePipeline ??= createStrokePipeline(this.options)
-    for (const [layer, strokes] of byLayer) {
+    for (const [layer, { joints, segments }] of byLayer) {
       this.layerBuffers.set(
         layer,
-        uploadStrokes({ device: this.options.device, strokes }),
+        uploadStrokes({
+          device: this.options.device,
+          strokes: joints.concat(segments),
+          highlightIndices,
+        }),
       )
     }
     this.paletteKey = paletteKey
@@ -88,12 +95,24 @@ export class PhaseSkewLayerRenderer {
 function uploadStrokes({
   device,
   strokes,
+  highlightIndices,
 }: {
   device: GPUDevice
   strokes: PhaseSkewStroke[]
+  highlightIndices: HighlightIndices
 }): LayerBuffer {
   const attributes = new Float32Array(strokes.length * FLOATS_PER_STROKE)
-  for (const [index, { segment, startColor, endColor }] of strokes.entries()) {
+  for (const [index, stroke] of strokes.entries()) {
+    const {
+      segment,
+      startColor,
+      endColor,
+      roundStart,
+      roundEnd,
+      pcb_trace_id,
+    } = stroke
+    let highlightIndex = highlightIndices.get(pcb_trace_id)
+    if (highlightIndex === undefined) highlightIndex = UNINDEXED_TRACE
     attributes.set(
       [
         segment.start.x,
@@ -103,6 +122,9 @@ function uploadStrokes({
         ...startColor,
         ...endColor,
         segment.width * OVERLAY_WIDTH_FACTOR,
+        Number(roundStart),
+        Number(roundEnd),
+        highlightIndex,
       ],
       index * FLOATS_PER_STROKE,
     )
@@ -143,6 +165,12 @@ function createStrokePipeline({
               format: "float32x4",
             },
             { shaderLocation: 3, offset: WIDTH_OFFSET, format: "float32" },
+            { shaderLocation: 4, offset: CAPS_OFFSET, format: "float32x2" },
+            {
+              shaderLocation: 5,
+              offset: HIGHLIGHT_INDEX_OFFSET,
+              format: "float32",
+            },
           ],
         },
       ],
