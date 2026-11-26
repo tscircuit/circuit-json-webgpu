@@ -72,7 +72,7 @@
     "@tscircuit/core": "0.0.2483",
     "@types/react": "19.1.12",
     "react": "19.1.0",
-    "tscircuit": "0.0.3293",
+    "tscircuit": "0.0.3295",
     "@tscircuit/circuit-json-util-reference": "npm:@tscircuit/circuit-json-util@0.0.99"
   },
   "overrides": {
