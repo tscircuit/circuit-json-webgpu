@@ -59,13 +59,19 @@ export function getPhaseSkewStrokes({
   const fullScaleMmBySourceBusId = getPhaseSkewFullScaleMmBySourceBusId({
     elements,
   })
+  const pcbTraceIds = new Set(
+    elements.flatMap((element) =>
+      element.type === "pcb_trace" ? [element.pcb_trace_id] : [],
+    ),
+  )
   for (const element of elements) {
     if (element.type !== "pcb_differential_pair_phase_skew") continue
     const fullScaleMm =
       fullScaleMmBySourceBusId[element.source_bus_id] ??
       DEFAULT_PHASE_SKEW_FULL_SCALE_MM
     for (const trace of [element.positive_trace, element.negative_trace])
-      addTraceStrokes({ trace, fullScaleMm, colors: palette, byLayer })
+      if (pcbTraceIds.has(trace.pcb_trace_id))
+        addTraceStrokes({ trace, fullScaleMm, colors: palette, byLayer })
   }
   return byLayer
 }
