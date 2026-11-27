@@ -62,6 +62,7 @@
     "@tscircuit/circuit-json-util": "https://pkg.pr.new/tscircuit/circuit-json-util/@tscircuit/circuit-json-util@f524ec4",
     "@tscircuit/math-utils": "^0.0.36",
     "bun-match-svg": "^0.0.14",
+    "circuit-json-to-gltf": "0.0.169",
     "circuit-json-to-connectivity-map": "^0.0.23",
     "circuit-to-svg": "0.0.451",
     "format-si-unit": "^0.0.12",
