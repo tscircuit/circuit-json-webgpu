@@ -1,5 +1,9 @@
 import { expect, test } from "bun:test"
-import { getPhaseSkewStrokes } from "../../lib/get-phase-skew-strokes"
+import {
+  getPhaseSkewFullScaleMmBySourceBusId,
+  getPhaseSkewStrokes,
+} from "../../lib/get-phase-skew-strokes"
+import type { RenderOptions } from "../../lib/types"
 import {
   renderBoard,
   SkewScaleBoard,
@@ -9,11 +13,19 @@ const white = [1, 1, 1, 1]
 const blue = [0, 0, 1, 1]
 const red = [1, 0, 0, 1]
 
-async function getStrokes(maxLengthSkew?: number, omitBus = false) {
+async function getStrokes({
+  maxLengthSkew,
+  omitBus = false,
+  colors,
+}: {
+  maxLengthSkew?: number
+  omitBus?: boolean
+  colors?: RenderOptions["phaseSkewColors"]
+}) {
   const board = await renderBoard({ board: SkewScaleBoard({ maxLengthSkew }) })
   const pair = board.find((e) => e.type === "pcb_differential_pair_phase_skew")!
   // The overlay precedes its bus, and the board also includes a separate 8 mm bus.
-  const circuitJson = board
+  const elements = board
     .toReversed()
     .filter(
       (e) =>
@@ -21,10 +33,9 @@ async function getStrokes(maxLengthSkew?: number, omitBus = false) {
         e.type !== "source_bus" ||
         e.source_bus_id !== pair.source_bus_id,
     )
-  const { segments, joints } = getPhaseSkewStrokes({
-    circuitJson,
-    colors: undefined,
-  }).get("top")!
+  const { segments, joints } = getPhaseSkewStrokes({ elements, colors }).get(
+    "top",
+  )!
   return {
     positive: segments.filter(
       (s) => s.pcb_trace_id === pair.positive_trace.pcb_trace_id,
@@ -37,7 +48,7 @@ async function getStrokes(maxLengthSkew?: number, omitBus = false) {
 }
 
 test("the 0 to 2 mm diagonal reaches full blue halfway at a 1 mm bus limit", async () => {
-  const { positive, negative, joints } = await getStrokes(1)
+  const { positive, negative, joints } = await getStrokes({ maxLengthSkew: 1 })
   const midpoint = positive[1].segment.end
   expect(midpoint.x).toBe(-8.5)
   expect(midpoint.y).toBeCloseTo(2.6, 12)
@@ -77,7 +88,7 @@ test("the 0 to 2 mm diagonal reaches full blue halfway at a 1 mm bus limit", asy
 test.each([false, true])(
   "the default scale is 2 mm (bus omitted: %s)",
   async (omitBus) => {
-    const { positive } = await getStrokes(undefined, omitBus)
+    const { positive } = await getStrokes({ omitBus })
     const ramp = positive[1]
     expect(ramp).toMatchObject({
       segment: { start: { x: -10, y: 0.6 }, end: { x: -7, y: 4.6 } },
@@ -91,7 +102,7 @@ test.each([false, true])(
 )
 
 test("a zero limit gives every nonzero part full color", async () => {
-  const { positive, negative } = await getStrokes(0)
+  const { positive, negative } = await getStrokes({ maxLengthSkew: 0 })
   expect(positive[0]).toMatchObject({ startColor: white, endColor: white })
   expect(positive[1]).toMatchObject({
     startColor: white,
@@ -104,4 +115,28 @@ test("a zero limit gives every nonzero part full color", async () => {
     bodyColorEndpoint: "start",
   })
   expect(negative.at(-1)).toMatchObject({ startColor: white, endColor: white })
+})
+
+test("phaseSkewColors sets the neutral and both full-scale colors", async () => {
+  const { positive, negative } = await getStrokes({
+    maxLengthSkew: 1,
+    colors: { zero: "yellow", positive: "lime", negative: "cyan" },
+  })
+  expect(positive[1]).toMatchObject({
+    startColor: [1, 1, 0, 1],
+    endColor: [0, 1, 0, 1],
+  })
+  expect(negative[1]).toMatchObject({
+    startColor: [1, 1, 0, 1],
+    endColor: [0, 1, 1, 1],
+  })
+})
+
+test("the full-scale lookup contains only source buses with a limit", async () => {
+  const elements = await renderBoard({ board: SkewScaleBoard() })
+  const buses = elements.filter((element) => element.type === "source_bus")
+  const limitedBus = buses.find((bus) => bus.name === "ALL_SIGNALS")!
+  expect(getPhaseSkewFullScaleMmBySourceBusId({ elements })).toEqual({
+    [limitedBus.source_bus_id]: 8,
+  })
 })

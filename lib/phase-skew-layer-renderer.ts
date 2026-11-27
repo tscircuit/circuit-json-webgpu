@@ -38,7 +38,7 @@ export class PhaseSkewLayerRenderer {
 
   /** Upload strokes when the circuit or palette changes. */
   update({
-    circuitJson,
+    elements,
     colors,
     highlightIndices,
   }: Parameters<typeof getPhaseSkewStrokes>[0] & {
@@ -50,7 +50,7 @@ export class PhaseSkewLayerRenderer {
       colors?.zero,
     ])
     if (paletteKey === this.paletteKey) return
-    const byLayer = getPhaseSkewStrokes({ circuitJson, colors })
+    const byLayer = getPhaseSkewStrokes({ elements, colors })
     this.clear()
     if (byLayer.size > 0)
       this.strokePipeline ??= createStrokePipeline(this.options)
