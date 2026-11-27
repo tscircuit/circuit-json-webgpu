@@ -22,10 +22,12 @@ function Pair({
   positivePath = [],
   negativePath = [],
   loadLayer = "top",
+  maxLengthSkew,
 }: {
   positivePath?: PcbPath | null
   negativePath?: PcbPath
   loadLayer?: "top" | "bottom"
+  maxLengthSkew?: number
 }): ReactElement {
   const legs = [
     { name: "PAIR_P", y: PAIR_HALF_SPACING_MM, path: positivePath },
@@ -63,6 +65,7 @@ function Pair({
       ))}
       <differentialpair
         name="PAIR"
+        maxLengthSkew={maxLengthSkew}
         positiveConnection="PAIR_P"
         negativeConnection="PAIR_N"
         pcbTraceGap={2 * PAIR_HALF_SPACING_MM - TRACE_WIDTH_MM}
@@ -104,6 +107,34 @@ export function TuningBumpBoard(): ReactElement {
       routeRemaining={false}
     >
       <Pair positivePath={detour({ x: 2, height: 2.2 })} />
+    </board>
+  )
+}
+
+/** Each 3-4-5 diagonal adds 2 mm relative to the straight trace. */
+export function SkewScaleBoard({
+  maxLengthSkew,
+}: { maxLengthSkew?: number } = {}): ReactElement {
+  return (
+    <board width={BOARD_WIDTH_MM} height={12} routeRemaining={false}>
+      <Pair
+        maxLengthSkew={maxLengthSkew}
+        positivePath={[
+          { x: 2, y: 0 },
+          { x: 5, y: 4 },
+          { x: 8, y: 0 },
+        ]}
+        negativePath={[
+          { x: 16, y: 0 },
+          { x: 19, y: -4 },
+          { x: 22, y: 0 },
+        ]}
+      />
+      <bus
+        name="ALL_SIGNALS"
+        connections={["PAIR_P", "PAIR_N"]}
+        maxLengthSkew={8}
+      />
     </board>
   )
 }

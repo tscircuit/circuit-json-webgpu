@@ -46,9 +46,9 @@ test("the KiCad forum overlay at trace joints and during hover", async () => {
       ]
     },
   })
-  // The incoming ramp reaches blue at the bend without flattening early.
-  expect(forumPixel({ frame: rest, x: 405, y: 796 })).toEqual([234, 234, 255])
-  expect(forumPixel({ frame: rest, x: 424, y: 796 })).toEqual([222, 222, 255])
+  // The incoming ramp deepens toward blue at the bend without flattening early.
+  expect(forumPixel({ frame: rest, x: 405, y: 796 })).toEqual([239, 239, 255])
+  expect(forumPixel({ frame: rest, x: 424, y: 796 })).toEqual([229, 229, 255])
   // Sample the diagonal where the interior round cap used to create a step.
   const crossing = { x: 773, y: 447 }
   const rampStart = 753
@@ -68,7 +68,7 @@ test("the KiCad forum overlay at trace joints and during hover", async () => {
   }
   expect(forumPixel({ frame: hovered, ...crossing })).toEqual([255, 78, 78])
   expect(forumPixel({ frame: hovered, x: 420, y: 639 })).toEqual([
-    255, 194, 194,
+    255, 207, 207,
   ])
   expect(unhovered.data.equals(rest.data)).toBe(true)
   await expectPhaseSkewSnapshot({ name: "kicad-forum-joints", frame: rest })

@@ -19,6 +19,7 @@ struct VertexIn {
   @location(3) widthMm: f32,
   @location(4) roundCaps: vec2f,
   @location(5) highlightIndex: f32,
+  @location(6) bodyColorEndpoint: f32,
 }
 struct VertexOut {
   @builtin(position) position: vec4f,
@@ -50,7 +51,8 @@ fn direction(delta: vec2f) -> vec2f {
     vec2f(0, 1), vec2f(1, -1), vec2f(1, 1)
   );
   let corner = corners[in.vertex % VERTICES_PER_QUAD];
-  let boundary = in.vertex / VERTICES_PER_QUAD + u32(corner.x);
+  let quad = in.vertex / VERTICES_PER_QUAD;
+  let boundary = quad + u32(corner.x);
   let startPixels = boardToCanvas(in.boardEndpointsMm.xy);
   let deltaPixels = boardToCanvas(in.boardEndpointsMm.zw) - startPixels;
   let lengthPixels = length(deltaPixels);
@@ -70,7 +72,10 @@ fn direction(delta: vec2f) -> vec2f {
   let strokePixels = vec2f(boundaries[boundary], corner.y * marginPixels);
   let pixel = startPixels + tangent * strokePixels.x + normal * strokePixels.y;
   let ndc = pixel / camera.viewport.xy * vec2f(2, -2) + vec2f(-1, 1);
-  let color = select(in.startColor, in.endColor, boundary >= 2u);
+  // At a zero limit, only the endpoint itself and its cap can be neutral.
+  let solidBody = quad == 1u && in.bodyColorEndpoint != 0.0;
+  let useEndColor = select(boundary >= 2u, in.bodyColorEndpoint > 0.0, solidBody);
+  let color = select(in.startColor, in.endColor, useEndColor);
   // Use the existing hover mask so pointer moves can reuse the stroke buffers.
   let highlighted = in.highlightIndex >= 0 && (highlights[u32(in.highlightIndex)] & 1u) != 0u;
   return VertexOut(

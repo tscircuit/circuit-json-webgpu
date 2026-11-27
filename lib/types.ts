@@ -27,6 +27,7 @@ export type RenderOptions = {
   showCourtyards?: boolean
   /** Draw phase skew gradients on the copper layers. Defaults to false. */
   showDifferentialPairPhaseSkew?: boolean
+  /** Colors fade from zero to full intensity at the source bus max_length_skew (default 2 mm). */
   phaseSkewColors?: { positive?: string; negative?: string; zero?: string }
   highlightedElementIds?: readonly string[]
   /** Copper belonging to an inspected net. Supply resolved PCB element IDs.
