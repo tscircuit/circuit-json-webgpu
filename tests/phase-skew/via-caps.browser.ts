@@ -18,9 +18,9 @@ test("each copper layer keeps its round cap at the via", async () => {
   const transform = JOINT_VIEWPORT.transform
   // Each point is on the far side of the via center from the respective run.
   expect(pixelAt({ frame: top, x: 0.11, y: 0.62, transform })).toEqual([
-    0, 0, 255,
+    139, 139, 255,
   ])
   expect(pixelAt({ frame: bottom, x: -0.11, y: 0.62, transform })).toEqual([
-    0, 0, 255,
+    139, 139, 255,
   ])
 }, 30_000)

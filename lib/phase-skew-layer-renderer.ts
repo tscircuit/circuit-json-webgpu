@@ -11,12 +11,14 @@ import {
 /** Overlay strokes are drawn 10% wider than the copper, as KiCad does (diff_phase_skew_tool.cpp), so the colour fully covers the trace edges. */
 const OVERLAY_WIDTH_FACTOR = 1.1
 const FLOAT_BYTES = Float32Array.BYTES_PER_ELEMENT
-const FLOATS_PER_STROKE = 16
+const FLOATS_PER_STROKE = 17
 const START_COLOR_OFFSET = 4 * FLOAT_BYTES
 const END_COLOR_OFFSET = 8 * FLOAT_BYTES
 const WIDTH_OFFSET = 12 * FLOAT_BYTES
 const CAPS_OFFSET = 13 * FLOAT_BYTES
 const HIGHLIGHT_INDEX_OFFSET = 15 * FLOAT_BYTES
+const BODY_COLOR_ENDPOINT_OFFSET = 16 * FLOAT_BYTES
+const BODY_COLOR_ENDPOINT = { start: -1, end: 1 }
 const UNINDEXED_TRACE = -1
 
 type HighlightIndices = ReadonlyMap<PhaseSkewStroke["pcb_trace_id"], number>
@@ -36,7 +38,7 @@ export class PhaseSkewLayerRenderer {
 
   /** Upload strokes when the circuit or palette changes. */
   update({
-    circuitJson,
+    elements,
     colors,
     highlightIndices,
   }: Parameters<typeof getPhaseSkewStrokes>[0] & {
@@ -48,7 +50,7 @@ export class PhaseSkewLayerRenderer {
       colors?.zero,
     ])
     if (paletteKey === this.paletteKey) return
-    const byLayer = getPhaseSkewStrokes({ circuitJson, colors })
+    const byLayer = getPhaseSkewStrokes({ elements, colors })
     this.clear()
     if (byLayer.size > 0)
       this.strokePipeline ??= createStrokePipeline(this.options)
@@ -107,6 +109,7 @@ function uploadStrokes({
       segment,
       startColor,
       endColor,
+      bodyColorEndpoint,
       roundStart,
       roundEnd,
       pcb_trace_id,
@@ -125,6 +128,7 @@ function uploadStrokes({
         Number(roundStart),
         Number(roundEnd),
         highlightIndex,
+        bodyColorEndpoint ? BODY_COLOR_ENDPOINT[bodyColorEndpoint] : 0,
       ],
       index * FLOATS_PER_STROKE,
     )
@@ -169,6 +173,11 @@ function createStrokePipeline({
             {
               shaderLocation: 5,
               offset: HIGHLIGHT_INDEX_OFFSET,
+              format: "float32",
+            },
+            {
+              shaderLocation: 6,
+              offset: BODY_COLOR_ENDPOINT_OFFSET,
               format: "float32",
             },
           ],

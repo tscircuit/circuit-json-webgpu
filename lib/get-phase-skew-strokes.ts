@@ -7,6 +7,8 @@ import type { CircuitJson, Color, RenderOptions } from "./types"
 
 export type PhaseSkewLayer = ReturnType<typeof normalizeLayer>
 
+export const DEFAULT_PHASE_SKEW_FULL_SCALE_MM = 2
+
 const JOINT_TOLERANCE_MM = 1e-6
 
 /** A PCB segment and the two colors that the stroke interpolates between. */
@@ -17,6 +19,8 @@ export type PhaseSkewStroke = Pick<
   segment: Pick<PcbDifferentialPairPhaseSkewSegment, "start" | "end" | "width">
   startColor: Color
   endColor: Color
+  /** At a zero skew limit the body uses one endpoint color, while each cap keeps its own. */
+  bodyColorEndpoint?: "start" | "end"
   roundStart: boolean
   roundEnd: boolean
 }
@@ -28,18 +32,22 @@ type PhaseSkewPalette = Record<
   Color
 >
 
-type PhaseSkewScale = {
-  positivePeakMm: number
-  negativePeakMm: number
-  palette: PhaseSkewPalette
+export function getPhaseSkewFullScaleMmBySourceBusId({
+  elements,
+}: { elements: CircuitJson }): Record<string, number> {
+  const fullScaleMmBySourceBusId: Record<string, number> = Object.create(null)
+  for (const element of elements) {
+    if (element.type === "source_bus" && element.max_length_skew !== undefined)
+      fullScaleMmBySourceBusId[element.source_bus_id] = element.max_length_skew
+  }
+  return fullScaleMmBySourceBusId
 }
 
-/** Color the known segments using each trace's positive and negative peaks. */
 export function getPhaseSkewStrokes({
-  circuitJson,
+  elements,
   colors,
 }: {
-  circuitJson: CircuitJson
+  elements: CircuitJson
   colors: RenderOptions["phaseSkewColors"]
 }): Map<PhaseSkewLayer, LayerStrokes> {
   const byLayer = new Map<PhaseSkewLayer, LayerStrokes>()
@@ -48,10 +56,16 @@ export function getPhaseSkewStrokes({
     negative: parseColor(colors?.negative || "red"),
     zero: parseColor(colors?.zero || "white"),
   }
-  for (const element of circuitJson) {
+  const fullScaleMmBySourceBusId = getPhaseSkewFullScaleMmBySourceBusId({
+    elements,
+  })
+  for (const element of elements) {
     if (element.type !== "pcb_differential_pair_phase_skew") continue
-    addTraceStrokes({ trace: element.positive_trace, palette, byLayer })
-    addTraceStrokes({ trace: element.negative_trace, palette, byLayer })
+    const fullScaleMm =
+      fullScaleMmBySourceBusId[element.source_bus_id] ??
+      DEFAULT_PHASE_SKEW_FULL_SCALE_MM
+    for (const trace of [element.positive_trace, element.negative_trace])
+      addTraceStrokes({ trace, fullScaleMm, colors: palette, byLayer })
   }
   return byLayer
 }
@@ -59,33 +73,23 @@ export function getPhaseSkewStrokes({
 /** Append strokes from one trace to their copper layers. */
 function addTraceStrokes({
   trace,
-  palette,
+  fullScaleMm,
+  colors,
   byLayer,
 }: {
   trace: PcbDifferentialPairPhaseSkewTrace
-  palette: PhaseSkewPalette
+  fullScaleMm: number
+  colors: PhaseSkewPalette
   byLayer: Map<PhaseSkewLayer, LayerStrokes>
 }): void {
-  let positivePeakMm = 0
-  let negativePeakMm = 0
-  for (const segment of trace.segments) {
-    const { start_length_difference_mm, end_length_difference_mm } = segment
-    positivePeakMm = Math.max(
-      positivePeakMm,
-      start_length_difference_mm,
-      end_length_difference_mm,
-    )
-    negativePeakMm = Math.min(
-      negativePeakMm,
-      start_length_difference_mm,
-      end_length_difference_mm,
-    )
-  }
-  const scale = { positivePeakMm, negativePeakMm, palette }
+  const segments = trace.segments.flatMap((segment) =>
+    splitPhaseSkewSegmentAtFullScale({ segment, fullScaleMm }),
+  )
+  const { pcb_trace_id } = trace
   let roundStart = true
-  for (const [index, segment] of trace.segments.entries()) {
+  for (const [index, segment] of segments.entries()) {
     const layer = normalizeLayer(segment.layer)
-    const outgoing = trace.segments.at(index + 1)
+    const outgoing = segments.at(index + 1)
     const joinsOutgoing =
       outgoing !== undefined &&
       layer === normalizeLayer(outgoing.layer) &&
@@ -99,11 +103,11 @@ function addTraceStrokes({
       strokes = { joints: [], segments: [] }
       byLayer.set(layer, strokes)
     }
-    const pcb_trace_id = trace.pcb_trace_id
     if (joinsOutgoing) {
-      const jointColor = getEndpointColor({
+      const jointColor = getPhaseSkewColor({
         lengthDifferenceMm: outgoing.start_length_difference_mm,
-        scale,
+        fullScaleMm,
+        colors,
       })
       strokes.joints.push({
         segment: {
@@ -118,38 +122,75 @@ function addTraceStrokes({
         roundEnd: true,
       })
     }
-    strokes.segments.push({
+
+    const start = segment.start_length_difference_mm
+    const stroke: PhaseSkewStroke = {
       segment,
       roundStart,
       roundEnd: !joinsOutgoing,
       pcb_trace_id,
-      startColor: getEndpointColor({
-        lengthDifferenceMm: segment.start_length_difference_mm,
-        scale,
+      startColor: getPhaseSkewColor({
+        lengthDifferenceMm: start,
+        fullScaleMm,
+        colors,
       }),
-      endColor: getEndpointColor({
+      endColor: getPhaseSkewColor({
         lengthDifferenceMm: segment.end_length_difference_mm,
-        scale,
+        fullScaleMm,
+        colors,
       }),
-    })
+    }
+    if (fullScaleMm === 0)
+      stroke.bodyColorEndpoint = start === 0 ? "end" : "start"
+    strokes.segments.push(stroke)
     roundStart = !joinsOutgoing
   }
 }
 
-/** Interpolate from zero to the full color of the endpoint's sign. */
-function getEndpointColor({
+/** Split only interior crossings. A segment's two differences have the same sign. */
+export function splitPhaseSkewSegmentAtFullScale({
+  segment,
+  fullScaleMm,
+}: {
+  segment: PcbDifferentialPairPhaseSkewSegment
+  fullScaleMm: number
+}): PcbDifferentialPairPhaseSkewSegment[] {
+  const startMm = segment.start_length_difference_mm
+  const endMm = segment.end_length_difference_mm
+  const limitMm = startMm < 0 || endMm < 0 ? -fullScaleMm : fullScaleMm
+  if (
+    limitMm <= Math.min(startMm, endMm) ||
+    limitMm >= Math.max(startMm, endMm)
+  )
+    return [segment]
+
+  const t = (limitMm - startMm) / (endMm - startMm)
+  const { start, end } = segment
+  const point = {
+    x: start.x + t * (end.x - start.x),
+    y: start.y + t * (end.y - start.y),
+  }
+  return [
+    { ...segment, end: point, end_length_difference_mm: limitMm },
+    { ...segment, start: point, start_length_difference_mm: limitMm },
+  ]
+}
+
+export function getPhaseSkewColor({
   lengthDifferenceMm,
-  scale,
+  fullScaleMm,
+  colors,
 }: {
   lengthDifferenceMm: number
-  scale: PhaseSkewScale
+  fullScaleMm: number
+  colors: PhaseSkewPalette
 }): Color {
-  const { positivePeakMm, negativePeakMm, palette } = scale
-  if (lengthDifferenceMm === 0) return palette.zero
-  const peakMm = lengthDifferenceMm > 0 ? positivePeakMm : negativePeakMm
-  const peakColor = lengthDifferenceMm > 0 ? palette.positive : palette.negative
-  const fraction = lengthDifferenceMm / peakMm
-  const [red, green, blue, alpha] = palette.zero
+  if (lengthDifferenceMm === 0) return colors.zero
+  const peakColor = lengthDifferenceMm > 0 ? colors.positive : colors.negative
+  const magnitude = Math.abs(lengthDifferenceMm)
+  if (magnitude >= fullScaleMm) return peakColor
+  const fraction = magnitude / fullScaleMm
+  const [red, green, blue, alpha] = colors.zero
   return [
     red + (peakColor[0] - red) * fraction,
     green + (peakColor[1] - green) * fraction,

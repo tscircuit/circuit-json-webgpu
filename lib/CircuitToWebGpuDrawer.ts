@@ -354,7 +354,7 @@ export class CircuitToWebGpuDrawer {
         geometry: this.paintDescriptor,
       })
       this.phaseSkewRenderer.update({
-        circuitJson: this.circuit,
+        elements: this.circuit,
         colors: o.phaseSkewColors,
         highlightIndices: this.highlightIndices,
       })
