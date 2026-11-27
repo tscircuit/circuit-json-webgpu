@@ -59,7 +59,7 @@
     "vite": "^6.3.5",
     "@napi-rs/canvas": "^0.1.84",
     "@resvg/resvg-js": "^2.6.2",
-    "@tscircuit/circuit-json-util": "https://pkg.pr.new/tscircuit/circuit-json-util/@tscircuit/circuit-json-util@f524ec4",
+    "@tscircuit/circuit-json-util": "0.0.136",
     "@tscircuit/math-utils": "^0.0.36",
     "bun-match-svg": "^0.0.14",
     "circuit-json-to-gltf": "0.0.169",
