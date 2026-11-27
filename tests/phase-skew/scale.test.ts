@@ -1,8 +1,5 @@
 import { expect, test } from "bun:test"
-import {
-  getPhaseSkewFullScaleMmBySourceBusId,
-  getPhaseSkewStrokes,
-} from "../../lib/get-phase-skew-strokes"
+import { getPhaseSkewStrokes } from "../../lib/get-phase-skew-strokes"
 import type { RenderOptions } from "../../lib/types"
 import {
   renderBoard,
@@ -132,11 +129,13 @@ test("phaseSkewColors sets the neutral and both full-scale colors", async () => 
   })
 })
 
-test("the full-scale lookup contains only source buses with a limit", async () => {
-  const elements = await renderBoard({ board: SkewScaleBoard() })
-  const buses = elements.filter((element) => element.type === "source_bus")
-  const limitedBus = buses.find((bus) => bus.name === "ALL_SIGNALS")!
-  expect(getPhaseSkewFullScaleMmBySourceBusId({ elements })).toEqual({
-    [limitedBus.source_bus_id]: 8,
-  })
+test("removing either trace removes the pair's overlay", async () => {
+  const board = await renderBoard({ board: SkewScaleBoard() })
+  const pair = board.find((e) => e.type === "pcb_differential_pair_phase_skew")!
+  for (const { pcb_trace_id } of [pair.positive_trace, pair.negative_trace]) {
+    const elements = board.filter(
+      (e) => e.type !== "pcb_trace" || e.pcb_trace_id !== pcb_trace_id,
+    )
+    expect(getPhaseSkewStrokes({ elements, colors: undefined }).size).toBe(0)
+  }
 })

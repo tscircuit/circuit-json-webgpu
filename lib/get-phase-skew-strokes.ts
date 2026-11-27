@@ -1,3 +1,4 @@
+import { createPcbPhaseSkewIndex } from "@tscircuit/circuit-json-util"
 import type {
   PcbDifferentialPairPhaseSkewSegment,
   PcbDifferentialPairPhaseSkewTrace,
@@ -32,17 +33,6 @@ type PhaseSkewPalette = Record<
   Color
 >
 
-export function getPhaseSkewFullScaleMmBySourceBusId({
-  elements,
-}: { elements: CircuitJson }): Record<string, number> {
-  const fullScaleMmBySourceBusId: Record<string, number> = Object.create(null)
-  for (const element of elements) {
-    if (element.type === "source_bus" && element.max_length_skew !== undefined)
-      fullScaleMmBySourceBusId[element.source_bus_id] = element.max_length_skew
-  }
-  return fullScaleMmBySourceBusId
-}
-
 export function getPhaseSkewStrokes({
   elements,
   colors,
@@ -56,16 +46,15 @@ export function getPhaseSkewStrokes({
     negative: parseColor(colors?.negative || "red"),
     zero: parseColor(colors?.zero || "white"),
   }
-  const fullScaleMmBySourceBusId = getPhaseSkewFullScaleMmBySourceBusId({
+  for (const { trace, maxLengthSkew } of createPcbPhaseSkewIndex(
     elements,
-  })
-  for (const element of elements) {
-    if (element.type !== "pcb_differential_pair_phase_skew") continue
-    const fullScaleMm =
-      fullScaleMmBySourceBusId[element.source_bus_id] ??
-      DEFAULT_PHASE_SKEW_FULL_SCALE_MM
-    for (const trace of [element.positive_trace, element.negative_trace])
-      addTraceStrokes({ trace, fullScaleMm, colors: palette, byLayer })
+  ).values()) {
+    addTraceStrokes({
+      trace,
+      fullScaleMm: maxLengthSkew ?? DEFAULT_PHASE_SKEW_FULL_SCALE_MM,
+      colors: palette,
+      byLayer,
+    })
   }
   return byLayer
 }
