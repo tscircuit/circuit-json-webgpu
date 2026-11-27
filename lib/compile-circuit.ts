@@ -297,13 +297,21 @@ export function compileCircuitJsonWithCopperPourCache({
             b.route_type === "via" &&
             [b.from_layer, b.to_layer].includes(a.layer)
           )
-            get(a.layer, index).line(a, b, a.width)
+            getTrace(a.layer, index, getCoveringPourId(a, b)).line(
+              a,
+              b,
+              a.width,
+            )
           else if (
             a.route_type === "via" &&
             b.route_type === "wire" &&
             [a.from_layer, a.to_layer].includes(b.layer)
           )
-            get(b.layer, index).line(a, b, b.width)
+            getTrace(b.layer, index, getCoveringPourId(b, a)).line(
+              a,
+              b,
+              b.width,
+            )
         }
       } else if (type === "pcb_copper_pour") {
         get(e.layer, index, false, COPPER_POUR_CATEGORY).polygon(
