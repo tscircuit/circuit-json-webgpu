@@ -10,10 +10,7 @@ test("a sub-width chamfer covers copper and keeps the incoming gradient", async 
   const [copper, overlay] = await renderPhaseSkewFrames({
     board: ShortChamferBoard(),
     viewport: JOINT_VIEWPORT,
-    frameOptions: [
-      {},
-      { showDifferentialPairPhaseSkew: true, phaseSkewFullScaleMm: 2 },
-    ],
+    frameOptions: [{}, { showDifferentialPairPhaseSkew: true }],
   })
   const transform = JOINT_VIEWPORT.transform
   const outerCorner = { x: 0.15, y: 0.65, transform }

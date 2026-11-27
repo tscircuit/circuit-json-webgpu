@@ -1,28 +1,29 @@
-import { expect, expectTypeOf, test } from "bun:test"
-import {
-  CircuitToWebGpuDrawer,
-  getPhaseSkewColor,
-  getPhaseSkewStrokes,
-  type RenderOptions,
-} from "../../lib"
+import { expect, test } from "bun:test"
+import { getPhaseSkewStrokes } from "../../lib/get-phase-skew-strokes"
 import {
   renderBoard,
   SkewScaleBoard,
-  TwoPairScaleBoard,
 } from "../fixtures/phase-skew/example-boards"
 
 const white = [1, 1, 1, 1]
-const blue = [0, 0, 1, 1] as const
+const blue = [0, 0, 1, 1]
 const red = [1, 0, 0, 1]
 
-async function getStrokes({ fullScaleMm }: { fullScaleMm: number }) {
-  const elements = await renderBoard({ board: SkewScaleBoard() })
-  const pair = elements.find(
-    (e) => e.type === "pcb_differential_pair_phase_skew",
-  )!
+async function getStrokes(maxLengthSkew?: number, omitBus = false) {
+  const board = await renderBoard({ board: SkewScaleBoard({ maxLengthSkew }) })
+  const pair = board.find((e) => e.type === "pcb_differential_pair_phase_skew")!
+  // The overlay precedes its bus, and the board also includes a separate 8 mm bus.
+  const circuitJson = board
+    .toReversed()
+    .filter(
+      (e) =>
+        !omitBus ||
+        e.type !== "source_bus" ||
+        e.source_bus_id !== pair.source_bus_id,
+    )
   const { segments, joints } = getPhaseSkewStrokes({
-    elements,
-    fullScaleMm,
+    circuitJson,
+    colors: undefined,
   }).get("top")!
   return {
     positive: segments.filter(
@@ -35,8 +36,8 @@ async function getStrokes({ fullScaleMm }: { fullScaleMm: number }) {
   }
 }
 
-test("the 0 to 2 mm diagonal reaches full blue halfway at 1 mm full scale", async () => {
-  const { positive, negative, joints } = await getStrokes({ fullScaleMm: 1 })
+test("the 0 to 2 mm diagonal reaches full blue halfway at a 1 mm bus limit", async () => {
+  const { positive, negative, joints } = await getStrokes(1)
   const midpoint = positive[1].segment.end
   expect(midpoint.x).toBe(-8.5)
   expect(midpoint.y).toBeCloseTo(2.6, 12)
@@ -73,8 +74,24 @@ test("the 0 to 2 mm diagonal reaches full blue halfway at 1 mm full scale", asyn
   })
 })
 
+test.each([false, true])(
+  "the default scale is 2 mm (bus omitted: %s)",
+  async (omitBus) => {
+    const { positive } = await getStrokes(undefined, omitBus)
+    const ramp = positive[1]
+    expect(ramp).toMatchObject({
+      segment: { start: { x: -10, y: 0.6 }, end: { x: -7, y: 4.6 } },
+      startColor: white,
+      endColor: blue,
+    })
+    expect(
+      ramp.startColor.map((channel, i) => (channel + ramp.endColor[i]) / 2),
+    ).toEqual([0.5, 0.5, 1, 1])
+  },
+)
+
 test("a zero limit gives every nonzero part full color", async () => {
-  const { positive, negative } = await getStrokes({ fullScaleMm: 0 })
+  const { positive, negative } = await getStrokes(0)
   expect(positive[0]).toMatchObject({ startColor: white, endColor: white })
   expect(positive[1]).toMatchObject({
     startColor: white,
@@ -87,90 +104,4 @@ test("a zero limit gives every nonzero part full color", async () => {
     bodyColorEndpoint: "start",
   })
   expect(negative.at(-1)).toMatchObject({ startColor: white, endColor: white })
-})
-
-test("one board shows 1 mm of skew at full color on the mapped pair and half color on the other", async () => {
-  const elements = await renderBoard({ board: TwoPairScaleBoard() })
-  const pairs = elements.filter(
-    (e) => e.type === "pcb_differential_pair_phase_skew",
-  )
-  expect(pairs).toHaveLength(2)
-  const [mapped, fallback] = pairs
-  expect(mapped.source_bus_id).not.toBe(fallback.source_bus_id)
-  const { segments } = getPhaseSkewStrokes({
-    elements,
-    fullScaleMm: 2,
-    fullScaleMmBySourceBusId: { [mapped.source_bus_id]: 1 },
-  }).get("top")!
-  for (const [pair, expected] of [
-    [mapped, blue],
-    [fallback, [0.5, 0.5, 1, 1]],
-  ] as const) {
-    const diagonal = pair.positive_trace.segments.find(
-      (s) => s.end_length_difference_mm === 1,
-    )!
-    expect(
-      segments.find(
-        (s) =>
-          s.pcb_trace_id === pair.positive_trace.pcb_trace_id &&
-          s.segment.end.x === diagonal.end.x &&
-          s.segment.end.y === diagonal.end.y,
-      )?.endColor,
-    ).toEqual(expected)
-  }
-})
-
-test("all three custom colors interpolate and saturate at full scale", () => {
-  const colors = { zero: "black", positive: "lime", negative: "aqua" }
-  const differences = [0, 1, -1, 3, -3]
-  expect(
-    differences.map((lengthDifferenceMm) =>
-      getPhaseSkewColor({ lengthDifferenceMm, fullScaleMm: 2, colors }),
-    ),
-  ).toEqual([
-    [0, 0, 0, 1],
-    [0, 0.5, 0, 1],
-    [0, 0.5, 0.5, 1],
-    [0, 1, 0, 1],
-    [0, 1, 1, 1],
-  ])
-})
-
-test("enabling the overlay requires a finite, nonnegative scale", () => {
-  expectTypeOf<{
-    showDifferentialPairPhaseSkew: boolean
-    phaseSkewFullScaleMm: number
-  }>().toMatchTypeOf<RenderOptions>()
-  // An empty canvas exercises the public option validation without a GPU device.
-  const drawer: CircuitToWebGpuDrawer = Object.assign(
-    Object.create(CircuitToWebGpuDrawer.prototype),
-    { canvas: { width: 0, height: 0 } },
-  )
-  expect(() =>
-    // @ts-expect-error Enabling the overlay requires an explicit full scale.
-    drawer.render({ showDifferentialPairPhaseSkew: true }),
-  ).toThrow("phaseSkewFullScaleMm")
-  for (const phaseSkewFullScaleMm of [-1, NaN, Infinity]) {
-    expect(() =>
-      drawer.render({
-        showDifferentialPairPhaseSkew: true,
-        phaseSkewFullScaleMm,
-      }),
-    ).toThrow("phaseSkewFullScaleMm")
-    expect(() =>
-      drawer.render({
-        showDifferentialPairPhaseSkew: true,
-        phaseSkewFullScaleMm: 2,
-        phaseSkewFullScaleMmBySourceBusId: { unused: phaseSkewFullScaleMm },
-      }),
-    ).toThrow("phaseSkewFullScaleMmBySourceBusId[unused]")
-  }
-  drawer.render({
-    showDifferentialPairPhaseSkew: true,
-    phaseSkewFullScaleMm: 0,
-  })
-  expect(() => drawer.render({ phaseSkewFullScaleMm: NaN })).toThrow(
-    "phaseSkewFullScaleMm",
-  )
-  drawer.render()
 })

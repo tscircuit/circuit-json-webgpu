@@ -19,31 +19,19 @@ const WIDE_TRACE_WIDTH_MM = 0.5
 
 /** Two explicitly routed traces declared as a differential pair. */
 function Pair({
-  name = "PAIR",
-  centerY = 0,
   positivePath = [],
   negativePath = [],
   loadLayer = "top",
   maxLengthSkew,
 }: {
-  name?: string
-  centerY?: number
   positivePath?: PcbPath | null
   negativePath?: PcbPath
   loadLayer?: "top" | "bottom"
   maxLengthSkew?: number
 }): ReactElement {
   const legs = [
-    {
-      name: `${name}_P`,
-      y: centerY + PAIR_HALF_SPACING_MM,
-      path: positivePath,
-    },
-    {
-      name: `${name}_N`,
-      y: centerY - PAIR_HALF_SPACING_MM,
-      path: negativePath,
-    },
+    { name: "PAIR_P", y: PAIR_HALF_SPACING_MM, path: positivePath },
+    { name: "PAIR_N", y: -PAIR_HALF_SPACING_MM, path: negativePath },
   ]
   return (
     <>
@@ -76,10 +64,10 @@ function Pair({
         </Fragment>
       ))}
       <differentialpair
-        name={name}
+        name="PAIR"
         maxLengthSkew={maxLengthSkew}
-        positiveConnection={`${name}_P`}
-        negativeConnection={`${name}_N`}
+        positiveConnection="PAIR_P"
+        negativeConnection="PAIR_N"
         pcbTraceGap={2 * PAIR_HALF_SPACING_MM - TRACE_WIDTH_MM}
       />
     </>
@@ -124,10 +112,13 @@ export function TuningBumpBoard(): ReactElement {
 }
 
 /** Each 3-4-5 diagonal adds 2 mm relative to the straight trace. */
-export function SkewScaleBoard(): ReactElement {
+export function SkewScaleBoard({
+  maxLengthSkew,
+}: { maxLengthSkew?: number } = {}): ReactElement {
   return (
     <board width={BOARD_WIDTH_MM} height={12} routeRemaining={false}>
       <Pair
+        maxLengthSkew={maxLengthSkew}
         positivePath={[
           { x: 2, y: 0 },
           { x: 5, y: 4 },
@@ -139,30 +130,10 @@ export function SkewScaleBoard(): ReactElement {
           { x: 22, y: 0 },
         ]}
       />
-    </board>
-  )
-}
-
-/** Both pairs gain 1 mm on their first diagonal and declare the same routing constraint. */
-export function TwoPairScaleBoard(): ReactElement {
-  const positivePath = [
-    { x: 2, y: 0 },
-    { x: 3.5, y: 2 },
-    { x: 5, y: 0 },
-  ]
-  return (
-    <board width={BOARD_WIDTH_MM} height={14} routeRemaining={false}>
-      <Pair
-        name="A"
-        centerY={3}
-        positivePath={positivePath}
-        maxLengthSkew={4}
-      />
-      <Pair
-        name="B"
-        centerY={-3}
-        positivePath={positivePath}
-        maxLengthSkew={4}
+      <bus
+        name="ALL_SIGNALS"
+        connections={["PAIR_P", "PAIR_N"]}
+        maxLengthSkew={8}
       />
     </board>
   )

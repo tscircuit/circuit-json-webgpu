@@ -10,10 +10,7 @@ test("a width transition covers the wide copper at the outside of the joint", as
   const [copper, overlay] = await renderPhaseSkewFrames({
     board: WidthChangeBoard(),
     viewport: JOINT_VIEWPORT,
-    frameOptions: [
-      {},
-      { showDifferentialPairPhaseSkew: true, phaseSkewFullScaleMm: 2 },
-    ],
+    frameOptions: [{}, { showDifferentialPairPhaseSkew: true }],
   })
   const wideCorner = { x: 0.15, y: 0.46, transform: JOINT_VIEWPORT.transform }
   expect(pixelAt({ frame: copper, ...wideCorner })).toEqual([200, 52, 52])

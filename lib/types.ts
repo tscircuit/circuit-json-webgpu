@@ -10,27 +10,7 @@ export type Matrix = {
   f: number
 }
 export type Color = readonly [number, number, number, number]
-export type PhaseSkewColors = {
-  positive?: string
-  negative?: string
-  zero?: string
-}
-export type PhaseSkewRenderOptions = (
-  | {
-      showDifferentialPairPhaseSkew?: false
-      phaseSkewFullScaleMm?: number
-    }
-  | {
-      showDifferentialPairPhaseSkew: true
-      /** Full color at this absolute skew in mm for pairs without an override. Zero saturates every nonzero skew. */
-      phaseSkewFullScaleMm: number
-    }
-) & {
-  /** Full scale in mm for each listed phase-skew element's source_bus_id. */
-  phaseSkewFullScaleMmBySourceBusId?: Record<string, number>
-  phaseSkewColors?: PhaseSkewColors
-}
-export type RenderOptions = PhaseSkewRenderOptions & {
+export type RenderOptions = {
   transform?: Matrix
   layers?: readonly string[]
   selectedLayer?: string
@@ -45,6 +25,10 @@ export type RenderOptions = PhaseSkewRenderOptions & {
   showFabricationNotes?: boolean
   showPcbNotes?: boolean
   showCourtyards?: boolean
+  /** Draw phase skew gradients on the copper layers. Defaults to false. */
+  showDifferentialPairPhaseSkew?: boolean
+  /** Colors fade from zero to full intensity at the source bus max_length_skew (default 2 mm). */
+  phaseSkewColors?: { positive?: string; negative?: string; zero?: string }
   highlightedElementIds?: readonly string[]
   /** Copper belonging to an inspected net. Supply resolved PCB element IDs.
    * Selected copper is opaque on every layer; other copper uses hiddenLayerOpacity.

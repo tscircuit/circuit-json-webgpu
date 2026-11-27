@@ -11,16 +11,8 @@ test("each copper layer keeps its round cap at the via", async () => {
     board: LayerChangeBoard(),
     viewport: JOINT_VIEWPORT,
     frameOptions: [
-      {
-        showDifferentialPairPhaseSkew: true,
-        phaseSkewFullScaleMm: 2,
-        layers: ["top"],
-      },
-      {
-        showDifferentialPairPhaseSkew: true,
-        phaseSkewFullScaleMm: 2,
-        layers: ["bottom"],
-      },
+      { showDifferentialPairPhaseSkew: true, layers: ["top"] },
+      { showDifferentialPairPhaseSkew: true, layers: ["bottom"] },
     ],
   })
   const transform = JOINT_VIEWPORT.transform

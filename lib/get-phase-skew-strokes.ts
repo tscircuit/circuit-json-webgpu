@@ -3,9 +3,11 @@ import type {
   PcbDifferentialPairPhaseSkewTrace,
 } from "circuit-json"
 import { normalizeLayer, parseColor } from "./colors"
-import type { CircuitJson, Color, PhaseSkewColors } from "./types"
+import type { CircuitJson, Color, RenderOptions } from "./types"
 
 export type PhaseSkewLayer = ReturnType<typeof normalizeLayer>
+
+export const DEFAULT_PHASE_SKEW_SCALE_MM = 2
 
 const JOINT_TOLERANCE_MM = 1e-6
 
@@ -25,25 +27,35 @@ export type PhaseSkewStroke = Pick<
 
 type LayerStrokes = { joints: PhaseSkewStroke[]; segments: PhaseSkewStroke[] }
 
-type ColorScale = { fullScaleMm: number; colors?: PhaseSkewColors }
+type PhaseSkewPalette = Record<
+  keyof NonNullable<RenderOptions["phaseSkewColors"]>,
+  Color
+>
 
 export function getPhaseSkewStrokes({
-  elements,
-  fullScaleMm,
-  fullScaleMmBySourceBusId,
+  circuitJson,
   colors,
 }: {
-  elements: CircuitJson
-  fullScaleMmBySourceBusId?: Record<string, number>
-} & ColorScale): Map<PhaseSkewLayer, LayerStrokes> {
+  circuitJson: CircuitJson
+  colors: RenderOptions["phaseSkewColors"]
+}): Map<PhaseSkewLayer, LayerStrokes> {
   const byLayer = new Map<PhaseSkewLayer, LayerStrokes>()
-  const colorAt = createPhaseSkewColorScale({ colors })
-  for (const element of elements) {
+  const palette: PhaseSkewPalette = {
+    positive: parseColor(colors?.positive || "blue"),
+    negative: parseColor(colors?.negative || "red"),
+    zero: parseColor(colors?.zero || "white"),
+  }
+  const busScales = new Map<string, number>()
+  for (const element of circuitJson) {
+    if (element.type === "source_bus" && element.max_length_skew !== undefined)
+      busScales.set(element.source_bus_id, element.max_length_skew)
+  }
+  for (const element of circuitJson) {
     if (element.type !== "pcb_differential_pair_phase_skew") continue
-    const pairFullScaleMm =
-      fullScaleMmBySourceBusId?.[element.source_bus_id] ?? fullScaleMm
+    const scaleMm =
+      busScales.get(element.source_bus_id) ?? DEFAULT_PHASE_SKEW_SCALE_MM
     for (const trace of [element.positive_trace, element.negative_trace])
-      addTraceStrokes({ trace, fullScaleMm: pairFullScaleMm, colorAt, byLayer })
+      addTraceStrokes({ trace, scaleMm, palette, byLayer })
   }
   return byLayer
 }
@@ -51,19 +63,21 @@ export function getPhaseSkewStrokes({
 /** Append strokes from one trace to their copper layers. */
 function addTraceStrokes({
   trace,
-  fullScaleMm,
-  colorAt,
+  scaleMm,
+  palette,
   byLayer,
 }: {
   trace: PcbDifferentialPairPhaseSkewTrace
-  fullScaleMm: number
-  colorAt: ReturnType<typeof createPhaseSkewColorScale>
+  scaleMm: number
+  palette: PhaseSkewPalette
   byLayer: Map<PhaseSkewLayer, LayerStrokes>
 }): void {
   const segments = trace.segments.flatMap((segment) =>
-    splitPhaseSkewSegmentAtFullScale({ segment, fullScaleMm }),
+    splitAtLimit(segment, scaleMm),
   )
   const { pcb_trace_id } = trace
+  const colorAt = (differenceMm: number) =>
+    getEndpointColor(differenceMm, scaleMm, palette)
   let roundStart = true
   for (const [index, segment] of segments.entries()) {
     const layer = normalizeLayer(segment.layer)
@@ -82,10 +96,7 @@ function addTraceStrokes({
       byLayer.set(layer, strokes)
     }
     if (joinsOutgoing) {
-      const jointColor = colorAt({
-        lengthDifferenceMm: outgoing.start_length_difference_mm,
-        fullScaleMm,
-      })
+      const jointColor = colorAt(outgoing.start_length_difference_mm)
       strokes.joints.push({
         segment: {
           start: outgoing.start,
@@ -106,38 +117,28 @@ function addTraceStrokes({
       roundStart,
       roundEnd: !joinsOutgoing,
       pcb_trace_id,
-      startColor: colorAt({
-        lengthDifferenceMm: start,
-        fullScaleMm,
-      }),
-      endColor: colorAt({
-        lengthDifferenceMm: segment.end_length_difference_mm,
-        fullScaleMm,
-      }),
+      startColor: colorAt(start),
+      endColor: colorAt(segment.end_length_difference_mm),
     }
-    if (fullScaleMm === 0)
-      stroke.bodyColorEndpoint = start === 0 ? "end" : "start"
+    if (scaleMm === 0) stroke.bodyColorEndpoint = start === 0 ? "end" : "start"
     strokes.segments.push(stroke)
     roundStart = !joinsOutgoing
   }
 }
 
 /** Split only interior crossings. A segment's two differences have the same sign. */
-export function splitPhaseSkewSegmentAtFullScale({
-  segment,
-  fullScaleMm,
-}: {
-  segment: PcbDifferentialPairPhaseSkewSegment
-  fullScaleMm: number
-}): PcbDifferentialPairPhaseSkewSegment[] {
+function splitAtLimit(
+  segment: PcbDifferentialPairPhaseSkewSegment,
+  scaleMm: number,
+) {
   const startMm = segment.start_length_difference_mm
   const endMm = segment.end_length_difference_mm
-  const limitMm = startMm < 0 || endMm < 0 ? -fullScaleMm : fullScaleMm
+  const limitMm = startMm < 0 || endMm < 0 ? -scaleMm : scaleMm
   if (
     limitMm <= Math.min(startMm, endMm) ||
     limitMm >= Math.max(startMm, endMm)
   )
-    return [segment]
+    return segment
 
   const t = (limitMm - startMm) / (endMm - startMm)
   const { start, end } = segment
@@ -151,37 +152,21 @@ export function splitPhaseSkewSegmentAtFullScale({
   ]
 }
 
-export function getPhaseSkewColor({
-  lengthDifferenceMm,
-  fullScaleMm,
-  colors,
-}: { lengthDifferenceMm: number } & ColorScale): Color {
-  return createPhaseSkewColorScale({ colors })({
-    lengthDifferenceMm,
-    fullScaleMm,
-  })
-}
-
-/** Parse the three CSS colors once for all endpoints in an overlay. */
-function createPhaseSkewColorScale({ colors }: { colors?: PhaseSkewColors }) {
-  const zero = parseColor(colors?.zero || "white")
-  const positive = parseColor(colors?.positive || "blue")
-  const negative = parseColor(colors?.negative || "red")
-  return ({
-    lengthDifferenceMm,
-    fullScaleMm,
-  }: { lengthDifferenceMm: number; fullScaleMm: number }): Color => {
-    if (lengthDifferenceMm === 0) return zero
-    const peak = lengthDifferenceMm > 0 ? positive : negative
-    const magnitude = Math.abs(lengthDifferenceMm)
-    if (magnitude >= fullScaleMm) return peak
-    const fraction = magnitude / fullScaleMm
-    const [r, g, b, a] = zero
-    return [
-      r + (peak[0] - r) * fraction,
-      g + (peak[1] - g) * fraction,
-      b + (peak[2] - b) * fraction,
-      a + (peak[3] - a) * fraction,
-    ]
-  }
+function getEndpointColor(
+  lengthDifferenceMm: number,
+  scaleMm: number,
+  palette: PhaseSkewPalette,
+): Color {
+  if (lengthDifferenceMm === 0) return palette.zero
+  const peakColor = lengthDifferenceMm > 0 ? palette.positive : palette.negative
+  const magnitude = Math.abs(lengthDifferenceMm)
+  if (magnitude >= scaleMm) return peakColor
+  const fraction = magnitude / scaleMm
+  const [red, green, blue, alpha] = palette.zero
+  return [
+    red + (peakColor[0] - red) * fraction,
+    green + (peakColor[1] - green) * fraction,
+    blue + (peakColor[2] - blue) * fraction,
+    alpha + (peakColor[3] - alpha) * fraction,
+  ]
 }
