@@ -10,7 +10,7 @@ test("matched differential pair renders white", async () => {
   const [matched, overridden] = await renderPhaseSkewFrames({
     board: MatchedPairBoard(),
     frameOptions: [
-      { showDifferentialPairPhaseSkew: true },
+      { showDifferentialPairPhaseSkew: true, phaseSkewFullScaleMm: 2 },
       { phaseSkewColors: { zero: "#00ff00" } },
     ],
   })

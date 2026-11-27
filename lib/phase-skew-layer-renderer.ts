@@ -30,27 +30,28 @@ type StrokePipelineOptions = {
 
 /** Retains gradient strokes as an instance buffer for each copper layer. */
 export class PhaseSkewLayerRenderer {
-  private paletteKey?: string
+  private scaleAndColorsKey?: string
   private strokePipeline?: GPURenderPipeline
   private layerBuffers = new Map<PhaseSkewLayer, LayerBuffer>()
 
   constructor(private readonly options: StrokePipelineOptions) {}
 
-  /** Upload strokes when the circuit or palette changes. */
+  /** Upload strokes when the circuit, full scale, or colors change. */
   update({
-    circuitJson,
-    colors,
     highlightIndices,
+    ...options
   }: Parameters<typeof getPhaseSkewStrokes>[0] & {
     highlightIndices: HighlightIndices
   }): void {
-    const paletteKey = JSON.stringify([
-      colors?.positive,
-      colors?.negative,
-      colors?.zero,
+    const scaleAndColorsKey = JSON.stringify([
+      options.fullScaleMm,
+      options.fullScaleMmBySourceBusId,
+      options.colors?.positive,
+      options.colors?.negative,
+      options.colors?.zero,
     ])
-    if (paletteKey === this.paletteKey) return
-    const byLayer = getPhaseSkewStrokes({ circuitJson, colors })
+    if (scaleAndColorsKey === this.scaleAndColorsKey) return
+    const byLayer = getPhaseSkewStrokes(options)
     this.clear()
     if (byLayer.size > 0)
       this.strokePipeline ??= createStrokePipeline(this.options)
@@ -64,7 +65,7 @@ export class PhaseSkewLayerRenderer {
         }),
       )
     }
-    this.paletteKey = paletteKey
+    this.scaleAndColorsKey = scaleAndColorsKey
   }
 
   /** Draw before the copper layer's erase pass so drills cut through the overlay. */
@@ -85,9 +86,9 @@ export class PhaseSkewLayerRenderer {
     pass.draw(PHASE_SKEW_STROKE_VERTEX_COUNT, layerBuffer.count)
   }
 
-  /** Discard the palette key and release the uploaded stroke buffers. */
+  /** Release the uploaded stroke buffers. */
   clear(): void {
-    this.paletteKey = undefined
+    this.scaleAndColorsKey = undefined
     for (const { buffer } of this.layerBuffers.values()) buffer.destroy()
     this.layerBuffers.clear()
   }

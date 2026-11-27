@@ -10,7 +10,7 @@ test("the overlay follows copper visibility and leaves drills visible", async ()
   const [visible, hidden] = await renderPhaseSkewFrames({
     board: LayerChangeBoard(),
     frameOptions: [
-      { showDifferentialPairPhaseSkew: true },
+      { showDifferentialPairPhaseSkew: true, phaseSkewFullScaleMm: 2 },
       { layers: ["top", "drill", "edge_cuts"] },
     ],
   })

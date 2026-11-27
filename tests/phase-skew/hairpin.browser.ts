@@ -10,7 +10,10 @@ test("the overlay covers the outer edge of a 170-degree hairpin", async () => {
   const [copper, overlay] = await renderPhaseSkewFrames({
     board: HairpinBoard(),
     viewport: JOINT_VIEWPORT,
-    frameOptions: [{}, { showDifferentialPairPhaseSkew: true }],
+    frameOptions: [
+      {},
+      { showDifferentialPairPhaseSkew: true, phaseSkewFullScaleMm: 2 },
+    ],
   })
   const outerCorner = { x: 0.09, y: 0.55, transform: JOINT_VIEWPORT.transform }
   expect(pixelAt({ frame: copper, ...outerCorner })).toEqual([200, 52, 52])

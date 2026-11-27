@@ -11,7 +11,7 @@ test("the opt-in overlay shows a tuning bump and its gradient", async () => {
     board: TuningBumpBoard(),
     frameOptions: [
       {},
-      { showDifferentialPairPhaseSkew: true },
+      { showDifferentialPairPhaseSkew: true, phaseSkewFullScaleMm: 2 },
       { showDifferentialPairPhaseSkew: false },
     ],
   })

@@ -306,8 +306,25 @@ export class CircuitToWebGpuDrawer {
 
   render(options: RenderOptions = {}) {
     this.assertLive()
-    this.options = { ...this.options, ...options }
-    const o = this.options
+    const o = { ...this.options, ...options }
+    if (o.showDifferentialPairPhaseSkew) {
+      if (
+        !Number.isFinite(o.phaseSkewFullScaleMm) ||
+        o.phaseSkewFullScaleMm < 0
+      )
+        throw new Error(
+          "phaseSkewFullScaleMm must be a finite, nonnegative number",
+        )
+      for (const [id, scale] of Object.entries(
+        o.phaseSkewFullScaleMmBySourceBusId ?? {},
+      )) {
+        if (!Number.isFinite(scale) || scale < 0)
+          throw new Error(
+            `phaseSkewFullScaleMmBySourceBusId[${id}] must be a finite, nonnegative number`,
+          )
+      }
+    }
+    this.options = o
     if (o.transform) this.realToCanvasMat = o.transform
     const t = this.realToCanvasMat,
       width = this.canvas.width,
@@ -354,7 +371,9 @@ export class CircuitToWebGpuDrawer {
         geometry: this.paintDescriptor,
       })
       this.phaseSkewRenderer.update({
-        circuitJson: this.circuit,
+        elements: this.circuit,
+        fullScaleMm: o.phaseSkewFullScaleMm,
+        fullScaleMmBySourceBusId: o.phaseSkewFullScaleMmBySourceBusId,
         colors: o.phaseSkewColors,
         highlightIndices: this.highlightIndices,
       })

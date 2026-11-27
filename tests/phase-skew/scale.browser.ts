@@ -5,27 +5,32 @@ import {
   renderPhaseSkewFrames,
 } from "../fixtures/phase-skew/render-phase-skew"
 
-test.each([
-  {
-    scale: "1 mm bus limit",
-    maxLengthSkew: 1,
-    halfLimitX: -9.25,
-    limitX: -8.5,
-  },
-  {
-    scale: "2 mm fallback",
-    maxLengthSkew: undefined,
-    halfLimitX: -8.5,
-    limitX: -7,
-  },
-])(
-  "the overlay reaches full color at the $scale",
-  async ({ maxLengthSkew, halfLimitX, limitX }) => {
-    const [frame] = await renderPhaseSkewFrames({
-      board: SkewScaleBoard({ maxLengthSkew }),
-      frameOptions: [{ showDifferentialPairPhaseSkew: true }],
-    })
-    // On the straight leg, skew grows from 0 to -4 mm over 6 mm of copper.
+test("changing the fallback or per-pair scale recolors the retained circuit", async () => {
+  const [two, mapped, restored, one, zero] = await renderPhaseSkewFrames({
+    board: SkewScaleBoard(),
+    frameOptions: (elements) => {
+      const pair = elements.find(
+        (e) => e.type === "pcb_differential_pair_phase_skew",
+      )!
+      return [
+        { showDifferentialPairPhaseSkew: true, phaseSkewFullScaleMm: 2 },
+        { phaseSkewFullScaleMmBySourceBusId: { [pair.source_bus_id]: 1 } },
+        { phaseSkewFullScaleMmBySourceBusId: {} },
+        { phaseSkewFullScaleMm: 1 },
+        {
+          phaseSkewFullScaleMmBySourceBusId: { [pair.source_bus_id]: 0 },
+          phaseSkewColors: { zero: "yellow", negative: "lime" },
+        },
+      ]
+    },
+  })
+  expect(restored.data.equals(two.data)).toBe(true)
+  expect(mapped.data.equals(one.data)).toBe(true)
+  // On the straight leg, skew grows from 0 to -4 mm over 6 mm of copper.
+  for (const [frame, halfLimitX, limitX] of [
+    [two, -8.5, -7],
+    [one, -9.25, -8.5],
+  ] as const) {
     const pixel = (x: number) => pixelAt({ frame, x, y: -0.6 })
     expect(pixel(-11)).toEqual([255, 255, 255])
     const [r, g, b] = pixel(halfLimitX)
@@ -34,22 +39,8 @@ test.each([
     expect(b).toBe(g)
     expect(pixel(limitX)).toEqual([255, 0, 0])
     expect(pixel(-5)).toEqual([255, 0, 0])
-  },
-  30_000,
-)
-
-test("a zero bus limit switches immediately between neutral and the configured full color", async () => {
-  const [frame] = await renderPhaseSkewFrames({
-    board: SkewScaleBoard({ maxLengthSkew: 0 }),
-    frameOptions: [
-      {
-        showDifferentialPairPhaseSkew: true,
-        phaseSkewColors: { zero: "yellow", negative: "lime" },
-      },
-    ],
-  })
-  const pixel = (x: number) => pixelAt({ frame, x, y: -0.6 })
-  expect(pixel(-10.1)).toEqual([255, 255, 0])
-  expect(pixel(-9.9)).toEqual([0, 255, 0])
-  expect(pixel(-4)).toEqual([0, 255, 0])
+  }
+  expect(pixelAt({ frame: zero, x: -10.1, y: -0.6 })).toEqual([255, 255, 0])
+  expect(pixelAt({ frame: zero, x: -9.9, y: -0.6 })).toEqual([0, 255, 0])
+  expect(pixelAt({ frame: zero, x: -4, y: -0.6 })).toEqual([0, 255, 0])
 }, 30_000)

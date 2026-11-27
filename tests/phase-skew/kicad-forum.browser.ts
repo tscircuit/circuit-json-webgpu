@@ -8,7 +8,9 @@ import {
 test("the KiCad forum board shows skew on the upper differential pair", async () => {
   const [frame] = await renderPhaseSkewFrames({
     board: ForumExampleBoard(),
-    frameOptions: [{ showDifferentialPairPhaseSkew: true }],
+    frameOptions: [
+      { showDifferentialPairPhaseSkew: true, phaseSkewFullScaleMm: 2 },
+    ],
   })
   await expectPhaseSkewSnapshot({ name: "kicad-forum", frame })
 }, 30_000)
