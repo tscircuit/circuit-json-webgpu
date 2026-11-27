@@ -36,12 +36,14 @@ export async function renderPhaseSkewFrames({
   board,
   frameOptions,
   viewport = DEFAULT_VIEWPORT,
+  editElements = (elements) => elements,
 }: {
   board: ReactElement
   frameOptions: RenderOptions[] | ((elements: CircuitJson) => RenderOptions[])
   viewport?: typeof DEFAULT_VIEWPORT
+  editElements?: (elements: CircuitJson) => CircuitJson
 }): Promise<PNG[]> {
-  const elements = await renderBoard({ board })
+  const elements = editElements(await renderBoard({ board }))
   expect(
     elements.filter(
       (element) => element.type === "pcb_differential_pair_phase_skew",
