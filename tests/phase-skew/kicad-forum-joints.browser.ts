@@ -4,6 +4,7 @@ import type { CircuitJson } from "../../lib"
 import type { PNG } from "pngjs"
 import { ForumExampleBoard } from "../fixtures/phase-skew/forum-example-board"
 import {
+  CAPTION_HEIGHT,
   expectPhaseSkewSnapshot,
   renderPhaseSkewFrames,
 } from "../fixtures/phase-skew/render-phase-skew"
@@ -26,7 +27,8 @@ const VIEWPORT = {
 }
 
 function forumPixel({ frame, x, y }: Point & { frame: PNG }) {
-  const offset = ((y - CROP_TOP) * frame.width + x - CROP_LEFT) * 4
+  const offset =
+    ((y - CROP_TOP + CAPTION_HEIGHT) * frame.width + x - CROP_LEFT) * 4
   return [...frame.data.subarray(offset, offset + 3)]
 }
 
@@ -46,6 +48,7 @@ test("the KiCad forum overlay at trace joints", async () => {
   const [rest] = await renderPhaseSkewFrames({
     board: ForumExampleBoard(),
     viewport: VIEWPORT,
+    caption: true,
     frameOptions: () => [{ showDifferentialPairPhaseSkew: true }],
   })
   // The incoming ramp deepens toward blue at the bend without flattening early.
@@ -67,7 +70,11 @@ test("the KiCad forum overlay at trace joints", async () => {
       expect(Math.abs(intensity - ramp[index][channel])).toBeLessThanOrEqual(2)
     }
   }
-  await expectPhaseSkewSnapshot({ name: "kicad-forum-joints", frame: rest })
+  await expectPhaseSkewSnapshot({
+    name: "kicad-forum-joints",
+    frame: rest,
+    captioned: true,
+  })
 }, 30_000)
 
 // Hovering the negative trace replaces its skew coloring with hover copper.
@@ -77,6 +84,7 @@ test.failing(
     const [rest, hovered, unhovered] = await renderPhaseSkewFrames({
       board: ForumExampleBoard(),
       viewport: VIEWPORT,
+      caption: true,
       frameOptions: (elements) => [
         { showDifferentialPairPhaseSkew: true },
         { highlightedElementIds: [negativeTraceId(elements)] },
@@ -84,7 +92,11 @@ test.failing(
       ],
     })
     expect(unhovered.data.equals(rest.data)).toBe(true)
-    await expectPhaseSkewSnapshot({ name: "kicad-forum-hover", frame: hovered })
+    await expectPhaseSkewSnapshot({
+      name: "kicad-forum-hover",
+      frame: hovered,
+      captioned: true,
+    })
     for (const point of [CROSSING, { x: 420, y: 639 }]) {
       expect(forumPixel({ frame: hovered, ...point })).toEqual(
         forumPixel({ frame: rest, ...point }),
