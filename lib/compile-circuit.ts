@@ -8,6 +8,7 @@ import { drawKeepout } from "./draw-keepout"
 import { drawPcbDimension } from "./pcb-dimension/draw-pcb-dimension"
 import { drawText } from "./text/draw-text"
 import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
+import { shouldApplyPathColor } from "./should-apply-path-color"
 import type { CopperPourTriangulations } from "./copper-pour-triangulations"
 import {
   adaptiveCircle,
@@ -363,9 +364,9 @@ export function compileCircuitJsonWithCopperPourCache({
         ) {
           const points =
             e.route ?? e.points ?? e.outline ?? [e.start, e.end].filter(Boolean)
-          const isFabricationPath = type === "pcb_fabrication_note_path"
-          if (isFabricationPath && e.color) mesh.color = parseColor(e.color)
-          if (isFabricationPath) {
+          if (e.color && shouldApplyPathColor(type, group))
+            mesh.color = parseColor(e.color)
+          if (type === "pcb_fabrication_note_path") {
             mesh.fabricationPath(
               points,
               e.has_stroke === false ? 0 : (e.stroke_width ?? 0.05),
