@@ -11,17 +11,14 @@ import {
 /** Overlay strokes are drawn 10% wider than the copper, as KiCad does (diff_phase_skew_tool.cpp), so the colour fully covers the trace edges. */
 const OVERLAY_WIDTH_FACTOR = 1.1
 const FLOAT_BYTES = Float32Array.BYTES_PER_ELEMENT
-const FLOATS_PER_STROKE = 17
+const FLOATS_PER_STROKE = 16
 const START_COLOR_OFFSET = 4 * FLOAT_BYTES
 const END_COLOR_OFFSET = 8 * FLOAT_BYTES
 const WIDTH_OFFSET = 12 * FLOAT_BYTES
 const CAPS_OFFSET = 13 * FLOAT_BYTES
-const HIGHLIGHT_INDEX_OFFSET = 15 * FLOAT_BYTES
-const BODY_COLOR_ENDPOINT_OFFSET = 16 * FLOAT_BYTES
+const BODY_COLOR_ENDPOINT_OFFSET = 15 * FLOAT_BYTES
 const BODY_COLOR_ENDPOINT = { start: -1, end: 1 }
-const UNINDEXED_TRACE = -1
 
-type HighlightIndices = ReadonlyMap<PhaseSkewStroke["pcb_trace_id"], number>
 type LayerBuffer = { buffer: GPUBuffer; count: number }
 type StrokePipelineOptions = {
   device: GPUDevice
@@ -40,10 +37,7 @@ export class PhaseSkewLayerRenderer {
   update({
     elements,
     colors,
-    highlightIndices,
-  }: Parameters<typeof getPhaseSkewStrokes>[0] & {
-    highlightIndices: HighlightIndices
-  }): void {
+  }: Parameters<typeof getPhaseSkewStrokes>[0]): void {
     const paletteKey = JSON.stringify([
       colors?.positive,
       colors?.negative,
@@ -60,7 +54,6 @@ export class PhaseSkewLayerRenderer {
         uploadStrokes({
           device: this.options.device,
           strokes: joints.concat(segments),
-          highlightIndices,
         }),
       )
     }
@@ -97,11 +90,9 @@ export class PhaseSkewLayerRenderer {
 function uploadStrokes({
   device,
   strokes,
-  highlightIndices,
 }: {
   device: GPUDevice
   strokes: PhaseSkewStroke[]
-  highlightIndices: HighlightIndices
 }): LayerBuffer {
   const attributes = new Float32Array(strokes.length * FLOATS_PER_STROKE)
   for (const [index, stroke] of strokes.entries()) {
@@ -112,10 +103,7 @@ function uploadStrokes({
       bodyColorEndpoint,
       roundStart,
       roundEnd,
-      pcb_trace_id,
     } = stroke
-    let highlightIndex = highlightIndices.get(pcb_trace_id)
-    if (highlightIndex === undefined) highlightIndex = UNINDEXED_TRACE
     attributes.set(
       [
         segment.start.x,
@@ -127,7 +115,6 @@ function uploadStrokes({
         segment.width * OVERLAY_WIDTH_FACTOR,
         Number(roundStart),
         Number(roundEnd),
-        highlightIndex,
         bodyColorEndpoint ? BODY_COLOR_ENDPOINT[bodyColorEndpoint] : 0,
       ],
       index * FLOATS_PER_STROKE,
@@ -141,7 +128,11 @@ function uploadStrokes({
   return { buffer, count: strokes.length }
 }
 
-/** Create the stroke pipeline for the same target and camera as copper. */
+/**
+ * Create the stroke pipeline for the same target and camera as copper. It
+ * reuses copper's pipeline layout so the camera bind group is shared, which
+ * still binds the hover mask at binding 1 though this shader never reads it.
+ */
 function createStrokePipeline({
   device,
   geometry,
@@ -172,11 +163,6 @@ function createStrokePipeline({
             { shaderLocation: 4, offset: CAPS_OFFSET, format: "float32x2" },
             {
               shaderLocation: 5,
-              offset: HIGHLIGHT_INDEX_OFFSET,
-              format: "float32",
-            },
-            {
-              shaderLocation: 6,
               offset: BODY_COLOR_ENDPOINT_OFFSET,
               format: "float32",
             },

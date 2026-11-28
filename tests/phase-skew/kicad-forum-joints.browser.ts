@@ -77,31 +77,26 @@ test("the KiCad forum overlay at trace joints", async () => {
   })
 }, 30_000)
 
-// Hovering the negative trace replaces its skew coloring with hover copper.
-test.failing(
-  "hovering a pair trace keeps its skew coloring",
-  async () => {
-    const [rest, hovered, unhovered] = await renderPhaseSkewFrames({
-      board: ForumExampleBoard(),
-      viewport: VIEWPORT,
-      caption: true,
-      frameOptions: (elements) => [
-        { showDifferentialPairPhaseSkew: true },
-        { highlightedElementIds: [negativeTraceId(elements)] },
-        { highlightedElementIds: [] },
-      ],
-    })
-    expect(unhovered.data.equals(rest.data)).toBe(true)
-    await expectPhaseSkewSnapshot({
-      name: "kicad-forum-hover",
-      frame: hovered,
-      captioned: true,
-    })
-    for (const point of [CROSSING, { x: 420, y: 639 }]) {
-      expect(forumPixel({ frame: hovered, ...point })).toEqual(
-        forumPixel({ frame: rest, ...point }),
-      )
-    }
-  },
-  30_000,
-)
+test("hovering a pair trace keeps its skew coloring", async () => {
+  const [rest, hovered, unhovered] = await renderPhaseSkewFrames({
+    board: ForumExampleBoard(),
+    viewport: VIEWPORT,
+    caption: true,
+    frameOptions: (elements) => [
+      { showDifferentialPairPhaseSkew: true },
+      { highlightedElementIds: [negativeTraceId(elements)] },
+      { highlightedElementIds: [] },
+    ],
+  })
+  expect(unhovered.data.equals(rest.data)).toBe(true)
+  await expectPhaseSkewSnapshot({
+    name: "kicad-forum-hover",
+    frame: hovered,
+    captioned: true,
+  })
+  for (const point of [CROSSING, { x: 420, y: 639 }]) {
+    expect(forumPixel({ frame: hovered, ...point })).toEqual(
+      forumPixel({ frame: rest, ...point }),
+    )
+  }
+}, 30_000)

@@ -356,7 +356,6 @@ export class CircuitToWebGpuDrawer {
       this.phaseSkewRenderer.update({
         elements: this.circuit,
         colors: o.phaseSkewColors,
-        highlightIndices: this.highlightIndices,
       })
     }
     if (xRayActive)
