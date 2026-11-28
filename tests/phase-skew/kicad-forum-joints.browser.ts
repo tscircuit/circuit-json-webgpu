@@ -84,6 +84,7 @@ test.failing(
       ],
     })
     expect(unhovered.data.equals(rest.data)).toBe(true)
+    await expectPhaseSkewSnapshot({ name: "kicad-forum-hover", frame: hovered })
     for (const point of [CROSSING, { x: 420, y: 639 }]) {
       expect(forumPixel({ frame: hovered, ...point })).toEqual(
         forumPixel({ frame: rest, ...point }),
