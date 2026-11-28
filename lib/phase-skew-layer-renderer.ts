@@ -11,27 +11,26 @@ import {
 /** Overlay strokes are drawn 10% wider than the copper, as KiCad does (diff_phase_skew_tool.cpp), so the colour fully covers the trace edges. */
 const OVERLAY_WIDTH_FACTOR = 1.1
 const FLOAT_BYTES = Float32Array.BYTES_PER_ELEMENT
-const FLOATS_PER_STROKE = 17
+const FLOATS_PER_STROKE = 16
 const START_COLOR_OFFSET = 4 * FLOAT_BYTES
 const END_COLOR_OFFSET = 8 * FLOAT_BYTES
 const WIDTH_OFFSET = 12 * FLOAT_BYTES
 const CAPS_OFFSET = 13 * FLOAT_BYTES
-const HIGHLIGHT_INDEX_OFFSET = 15 * FLOAT_BYTES
-const BODY_COLOR_ENDPOINT_OFFSET = 16 * FLOAT_BYTES
+const BODY_COLOR_ENDPOINT_OFFSET = 15 * FLOAT_BYTES
 const BODY_COLOR_ENDPOINT = { start: -1, end: 1 }
-const UNINDEXED_TRACE = -1
 
-type HighlightIndices = ReadonlyMap<PhaseSkewStroke["pcb_trace_id"], number>
 type LayerBuffer = { buffer: GPUBuffer; count: number }
 type StrokePipelineOptions = {
   device: GPUDevice
   geometry: GPURenderPipelineDescriptor
+  camera: GPUBuffer
 }
+type StrokePipeline = { pipeline: GPURenderPipeline; cameraGroup: GPUBindGroup }
 
 /** Retains gradient strokes as an instance buffer for each copper layer. */
 export class PhaseSkewLayerRenderer {
   private paletteKey?: string
-  private strokePipeline?: GPURenderPipeline
+  private strokePipeline?: StrokePipeline
   private layerBuffers = new Map<PhaseSkewLayer, LayerBuffer>()
 
   constructor(private readonly options: StrokePipelineOptions) {}
@@ -40,10 +39,7 @@ export class PhaseSkewLayerRenderer {
   update({
     elements,
     colors,
-    highlightIndices,
-  }: Parameters<typeof getPhaseSkewStrokes>[0] & {
-    highlightIndices: HighlightIndices
-  }): void {
+  }: Parameters<typeof getPhaseSkewStrokes>[0]): void {
     const paletteKey = JSON.stringify([
       colors?.positive,
       colors?.negative,
@@ -60,7 +56,6 @@ export class PhaseSkewLayerRenderer {
         uploadStrokes({
           device: this.options.device,
           strokes: joints.concat(segments),
-          highlightIndices,
         }),
       )
     }
@@ -71,16 +66,14 @@ export class PhaseSkewLayerRenderer {
   draw({
     pass,
     layer,
-    cameraGroup,
   }: {
     pass: GPURenderPassEncoder
     layer: PhaseSkewLayer
-    cameraGroup: GPUBindGroup
   }): void {
     const layerBuffer = this.layerBuffers.get(layer)
     if (!layerBuffer || !this.strokePipeline) return
-    pass.setPipeline(this.strokePipeline)
-    pass.setBindGroup(0, cameraGroup)
+    pass.setPipeline(this.strokePipeline.pipeline)
+    pass.setBindGroup(0, this.strokePipeline.cameraGroup)
     pass.setVertexBuffer(0, layerBuffer.buffer)
     pass.draw(PHASE_SKEW_STROKE_VERTEX_COUNT, layerBuffer.count)
   }
@@ -97,11 +90,9 @@ export class PhaseSkewLayerRenderer {
 function uploadStrokes({
   device,
   strokes,
-  highlightIndices,
 }: {
   device: GPUDevice
   strokes: PhaseSkewStroke[]
-  highlightIndices: HighlightIndices
 }): LayerBuffer {
   const attributes = new Float32Array(strokes.length * FLOATS_PER_STROKE)
   for (const [index, stroke] of strokes.entries()) {
@@ -112,10 +103,7 @@ function uploadStrokes({
       bodyColorEndpoint,
       roundStart,
       roundEnd,
-      pcb_trace_id,
     } = stroke
-    let highlightIndex = highlightIndices.get(pcb_trace_id)
-    if (highlightIndex === undefined) highlightIndex = UNINDEXED_TRACE
     attributes.set(
       [
         segment.start.x,
@@ -127,7 +115,6 @@ function uploadStrokes({
         segment.width * OVERLAY_WIDTH_FACTOR,
         Number(roundStart),
         Number(roundEnd),
-        highlightIndex,
         bodyColorEndpoint ? BODY_COLOR_ENDPOINT[bodyColorEndpoint] : 0,
       ],
       index * FLOATS_PER_STROKE,
@@ -145,10 +132,12 @@ function uploadStrokes({
 function createStrokePipeline({
   device,
   geometry,
-}: StrokePipelineOptions): GPURenderPipeline {
+  camera,
+}: StrokePipelineOptions): StrokePipeline {
   const module = device.createShaderModule({ code: phaseSkewStrokeShader })
-  return device.createRenderPipeline({
+  const pipeline = device.createRenderPipeline({
     ...geometry,
+    layout: "auto",
     vertex: {
       ...geometry.vertex,
       module,
@@ -172,11 +161,6 @@ function createStrokePipeline({
             { shaderLocation: 4, offset: CAPS_OFFSET, format: "float32x2" },
             {
               shaderLocation: 5,
-              offset: HIGHLIGHT_INDEX_OFFSET,
-              format: "float32",
-            },
-            {
-              shaderLocation: 6,
               offset: BODY_COLOR_ENDPOINT_OFFSET,
               format: "float32",
             },
@@ -186,4 +170,9 @@ function createStrokePipeline({
     },
     fragment: { ...geometry.fragment!, module },
   })
+  const cameraGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [{ binding: 0, resource: { buffer: camera } }],
+  })
+  return { pipeline, cameraGroup }
 }

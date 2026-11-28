@@ -9,7 +9,6 @@ const COVERAGE_INTEGRATION_STEPS = 8
 export const phaseSkewStrokeShader = /* wgsl */ `
 struct Camera { rowX: vec4f, rowY: vec4f, viewport: vec4f }
 @group(0) @binding(0) var<uniform> camera: Camera;
-@group(0) @binding(1) var<storage, read> highlights: array<u32>;
 
 struct VertexIn {
   @builtin(vertex_index) vertex: u32,
@@ -18,8 +17,7 @@ struct VertexIn {
   @location(2) endColor: vec4f,
   @location(3) widthMm: f32,
   @location(4) roundCaps: vec2f,
-  @location(5) highlightIndex: f32,
-  @location(6) bodyColorEndpoint: f32,
+  @location(5) bodyColorEndpoint: f32,
 }
 struct VertexOut {
   @builtin(position) position: vec4f,
@@ -76,10 +74,8 @@ fn direction(delta: vec2f) -> vec2f {
   let solidBody = quad == 1u && in.bodyColorEndpoint != 0.0;
   let useEndColor = select(boundary >= 2u, in.bodyColorEndpoint > 0.0, solidBody);
   let color = select(in.startColor, in.endColor, useEndColor);
-  // Use the existing hover mask so pointer moves can reuse the stroke buffers.
-  let highlighted = in.highlightIndex >= 0 && (highlights[u32(in.highlightIndex)] & 1u) != 0u;
   return VertexOut(
-    vec4f(select(ndc, vec2f(2), highlighted), 0, 1),
+    vec4f(ndc, 0, 1),
     strokePixels, lengthPixels, radiusPixels, color
   );
 }
