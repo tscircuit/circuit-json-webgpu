@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All courtyard types — WebGPU reproduction</title>
+<style>
+  body { margin: 24px auto; padding: 0 20px; max-width: 960px; font: 15px/1.5 system-ui; color: #e8edf5; background: #151820; }
+  h1 { font-size: 24px; margin-bottom: 8px; }
+  h2 { font-size: 18px; margin-bottom: 8px; }
+  p { max-width: 85ch; }
+  canvas, svg { display: block; width: 100%; height: auto; background: #090c12; }
+  .labels { display: grid; grid-template-columns: repeat(5, 1fr); padding: 0 30px; text-align: center; color: #bac7da; }
+  pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #222734; padding: 12px; }
+  label { display: inline-block; margin: 10px 0; }
+</style>
+<h1>All courtyard types — WebGPU reproduction</h1>
+<p>Top row: top layer. Bottom row: bottom layer. All five geometry types use schema-valid Circuit JSON.
+  Rect/circle colors are ignored; polygon/pill geometry is missing. Outline is a working control.</p>
+<p>Run <code>bun run dev</code>, then open <code>/tests/repro/courtyards.html</code>.
+  Compiler repro: <code>COURTYARD_REPRO_STRICT=1 bun test tests/courtyard-support.test.ts</code>.</p>
+<h2>Expected geometry and schema colors</h2>
+<p>This diagram expresses the desired schema behavior; it is not a screenshot of another renderer.
+  Outline has no schema color field and uses the default layer color.</p>
+<div class="labels"><span>Rect · 30°</span><span>Circle</span><span>Concave outline</span><span>Concave polygon</span><span>Pill · r=0.35</span></div>
+<svg id="expected" viewBox="0 0 880 420" role="img" aria-label="Five expected courtyard boundaries on each layer"></svg>
+<h2>Actual WebGPU</h2>
+<label><input id="visible" type="checkbox" checked> Show courtyards</label>
+<div class="labels"><span>Rect · 30°</span><span>Circle</span><span>Concave outline</span><span>Concave polygon</span><span>Pill · r=0.35</span></div>
+<canvas width="880" height="420" aria-label="Actual courtyard output from WebGPU"></canvas>
+<pre id="status" role="status">Loading WebGPU…</pre>
+<script type="module" src="./courtyards.ts"></script>
+</html>
