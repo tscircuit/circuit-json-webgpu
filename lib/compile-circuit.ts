@@ -4,13 +4,14 @@ import {
   getWireTaperSegments,
   hasWireTaper,
 } from "./get-wire-taper-polygon"
+import { drawCourtyardShape } from "./draw-courtyard-shape"
 import { drawKeepout } from "./draw-keepout"
+import { getAdaptiveViaShape } from "./get-adaptive-via-shape"
 import { drawPcbDimension } from "./pcb-dimension/draw-pcb-dimension"
 import { drawText } from "./text/draw-text"
 import { DEFAULT_LAYER_COLORS, normalizeLayer, parseColor } from "./colors"
 import type { CopperPourTriangulations } from "./copper-pour-triangulations"
 import {
-  adaptiveCircle,
   COPPER_POUR_CATEGORY,
   ellipse,
   expandBrepRing,
@@ -220,12 +221,12 @@ export function compileCircuitJsonWithCopperPourCache({
         }
         const copperRings =
           type === "pcb_via" && useAdaptiveViaTessellation
-            ? getAdaptiveViaShape({ element: e })
+            ? getAdaptiveViaShape(center(e), e.outer_diameter)
             : shape(e)
         for (const layer of layers) get(layer, index).polygon(copperRings)
         const openingRings =
           type === "pcb_via" && useAdaptiveViaTessellation
-            ? getAdaptiveViaShape({ element: e, hole: true })
+            ? getAdaptiveViaShape(center(e), e.hole_diameter)
             : shape(e, true)
         openings.push({ rings: openingRings, index, layers })
         for (const side of ["top", "bottom"])
@@ -332,6 +333,7 @@ export function compileCircuitJsonWithCopperPourCache({
           type === "pcb_silkscreen_text" ? `${layer}_text` : layer,
           index,
         )
+        if (group === "courtyard" && e.color) mesh.color = parseColor(e.color)
         if (
           input.type === "pcb_note_dimension" ||
           input.type === "pcb_fabrication_note_dimension"
@@ -394,6 +396,11 @@ export function compileCircuitJsonWithCopperPourCache({
           const points = ellipse(center(e), (e.radius ?? 0) * 2)
           if (e.is_filled) mesh.polygon([points])
           else mesh.path(points, e.stroke_width ?? 0.05, true)
+        } else if (
+          input.type === "pcb_courtyard_polygon" ||
+          input.type === "pcb_courtyard_pill"
+        ) {
+          drawCourtyardShape({ mesh, element: input })
         } else throw new Error("Unsupported annotation geometry")
       } else if (type === "pcb_keepout") {
         keepouts.push({
@@ -489,15 +496,4 @@ export function compileCircuitJsonWithCopperPourCache({
       0,
     ),
   }
-}
-
-function getAdaptiveViaShape({
-  element,
-  hole = false,
-}: {
-  element: Element
-  hole?: boolean
-}): Point[][] {
-  const diameterMm = hole ? element.hole_diameter : element.outer_diameter
-  return [adaptiveCircle({ center: center(element), diameterMm })]
 }
