@@ -101,9 +101,14 @@ export async function renderPhaseSkewFrames({
           drawer.render(options)
           await drawer.flush()
           state = { ...state, ...options }
+          const png = canvas.toDataURL("image/png")
+          if (captionHeight === 0) {
+            frames.push(png.split(",")[1]!)
+            continue
+          }
           // Copy the WebGPU frame through a PNG; drawImage of the canvas itself is blank.
           const board = new Image()
-          board.src = canvas.toDataURL("image/png")
+          board.src = png
           await board.decode()
           const hovered = (state.highlightedElementIds ?? []).map(traceName)
           const text = `Phase skew overlay ${state.showDifferentialPairPhaseSkew ? "on" : "off"} · ${hovered.length > 0 ? `hovering the ${hovered.join(", ")}` : "nothing hovered"}`
