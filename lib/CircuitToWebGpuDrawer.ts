@@ -352,6 +352,7 @@ export class CircuitToWebGpuDrawer {
       this.phaseSkewRenderer ??= new PhaseSkewLayerRenderer({
         device: this.device,
         geometry: this.paintDescriptor,
+        camera: this.uniform,
       })
       this.phaseSkewRenderer.update({
         elements: this.circuit,
@@ -460,7 +461,6 @@ export class CircuitToWebGpuDrawer {
           this.phaseSkewRenderer?.draw({
             pass,
             layer: layer.name,
-            cameraGroup: this.cameraGroup!,
           })
         if (!mesh.count) continue
         // Erase geometry (drills/cutouts) must retain its physical meaning in both passes.

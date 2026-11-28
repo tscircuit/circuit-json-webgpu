@@ -23,12 +23,14 @@ type LayerBuffer = { buffer: GPUBuffer; count: number }
 type StrokePipelineOptions = {
   device: GPUDevice
   geometry: GPURenderPipelineDescriptor
+  camera: GPUBuffer
 }
+type StrokePipeline = { pipeline: GPURenderPipeline; cameraGroup: GPUBindGroup }
 
 /** Retains gradient strokes as an instance buffer for each copper layer. */
 export class PhaseSkewLayerRenderer {
   private paletteKey?: string
-  private strokePipeline?: GPURenderPipeline
+  private strokePipeline?: StrokePipeline
   private layerBuffers = new Map<PhaseSkewLayer, LayerBuffer>()
 
   constructor(private readonly options: StrokePipelineOptions) {}
@@ -64,16 +66,14 @@ export class PhaseSkewLayerRenderer {
   draw({
     pass,
     layer,
-    cameraGroup,
   }: {
     pass: GPURenderPassEncoder
     layer: PhaseSkewLayer
-    cameraGroup: GPUBindGroup
   }): void {
     const layerBuffer = this.layerBuffers.get(layer)
     if (!layerBuffer || !this.strokePipeline) return
-    pass.setPipeline(this.strokePipeline)
-    pass.setBindGroup(0, cameraGroup)
+    pass.setPipeline(this.strokePipeline.pipeline)
+    pass.setBindGroup(0, this.strokePipeline.cameraGroup)
     pass.setVertexBuffer(0, layerBuffer.buffer)
     pass.draw(PHASE_SKEW_STROKE_VERTEX_COUNT, layerBuffer.count)
   }
@@ -128,18 +128,16 @@ function uploadStrokes({
   return { buffer, count: strokes.length }
 }
 
-/**
- * Create the stroke pipeline for the same target and camera as copper. It
- * reuses copper's pipeline layout so the camera bind group is shared, which
- * still binds the hover mask at binding 1 though this shader never reads it.
- */
+/** Create the stroke pipeline for the same target and camera as copper. */
 function createStrokePipeline({
   device,
   geometry,
-}: StrokePipelineOptions): GPURenderPipeline {
+  camera,
+}: StrokePipelineOptions): StrokePipeline {
   const module = device.createShaderModule({ code: phaseSkewStrokeShader })
-  return device.createRenderPipeline({
+  const pipeline = device.createRenderPipeline({
     ...geometry,
+    layout: "auto",
     vertex: {
       ...geometry.vertex,
       module,
@@ -172,4 +170,9 @@ function createStrokePipeline({
     },
     fragment: { ...geometry.fragment!, module },
   })
+  const cameraGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [{ binding: 0, resource: { buffer: camera } }],
+  })
+  return { pipeline, cameraGroup }
 }
