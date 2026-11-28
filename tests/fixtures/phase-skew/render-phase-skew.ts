@@ -25,21 +25,29 @@ const TRANSFORM = {
   e: WIDTH_PIXELS / 2,
   f: HEIGHT_PIXELS / 2,
 }
+/** Rows above the board that hold the caption; snapshots skip them because fonts differ by OS. */
+export const CAPTION_HEIGHT = 36
 const DEFAULT_VIEWPORT = {
   width: WIDTH_PIXELS,
   height: HEIGHT_PIXELS,
   transform: TRANSFORM,
 }
 
-/** Render a TSX board once and capture each visibility setting from the GPU. */
+/**
+ * Render a TSX board once and capture each visibility setting from the GPU.
+ * With `caption`, each frame gets a band on top that describes the overlay and
+ * hover state it was rendered with.
+ */
 export async function renderPhaseSkewFrames({
   board,
   frameOptions,
   viewport = DEFAULT_VIEWPORT,
+  caption = false,
 }: {
   board: ReactElement
   frameOptions: RenderOptions[] | ((elements: CircuitJson) => RenderOptions[])
   viewport?: typeof DEFAULT_VIEWPORT
+  caption?: boolean
 }): Promise<PNG[]> {
   const elements = await renderBoard({ board })
   expect(
@@ -62,7 +70,14 @@ export async function renderPhaseSkewFrames({
     await page.goto(server.resolvedUrls!.local[0])
     await page.waitForFunction(() => window.gpuTest)
     const result = await page.evaluate(
-      async ({ elements, frameOptions, width, height, transform }) => {
+      async ({
+        elements,
+        frameOptions,
+        width,
+        height,
+        transform,
+        captionHeight,
+      }) => {
         const canvas = document.querySelector("canvas")!
         const { drawer } = window.gpuTest
         canvas.width = width
@@ -72,11 +87,44 @@ export async function renderPhaseSkewFrames({
           background: [0, 0, 0, 1],
           hiddenLayerOpacity: 1,
         })
+        const skew = elements.find(
+          (element) => element.type === "pcb_differential_pair_phase_skew",
+        )
+        const traceName = (id: string) => {
+          if (id === skew?.positive_trace.pcb_trace_id) return "positive trace"
+          if (id === skew?.negative_trace.pcb_trace_id) return "negative trace"
+          return id
+        }
         const frames: string[] = []
+        let state: RenderOptions = {}
         for (const options of frameOptions) {
           drawer.render(options)
           await drawer.flush()
-          frames.push(canvas.toDataURL("image/png").split(",")[1]!)
+          state = { ...state, ...options }
+          const png = canvas.toDataURL("image/png")
+          if (captionHeight === 0) {
+            frames.push(png.split(",")[1]!)
+            continue
+          }
+          // Copy the WebGPU frame through a PNG; drawImage of the canvas itself is blank.
+          const board = new Image()
+          board.src = png
+          await board.decode()
+          const hovered = (state.highlightedElementIds ?? []).map(traceName)
+          const text = `Phase skew overlay ${state.showDifferentialPairPhaseSkew ? "on" : "off"} · ${hovered.length > 0 ? `hovering the ${hovered.join(", ")}` : "nothing hovered"}`
+          const output = document.createElement("canvas")
+          output.width = width
+          output.height = height + captionHeight
+          const context = output.getContext("2d")!
+          context.fillStyle = "#000"
+          context.fillRect(0, 0, output.width, output.height)
+          context.fillStyle = "#fff"
+          context.font = "16px sans-serif"
+          context.textAlign = "center"
+          context.textBaseline = "middle"
+          context.fillText(text, width / 2, captionHeight / 2)
+          context.drawImage(board, 0, captionHeight)
+          frames.push(output.toDataURL("image/png").split(",")[1]!)
         }
         return { frames, diagnostics: drawer.diagnostics }
       },
@@ -87,6 +135,7 @@ export async function renderPhaseSkewFrames({
             ? frameOptions(elements)
             : frameOptions,
         ...viewport,
+        captionHeight: caption ? CAPTION_HEIGHT : 0,
       },
     )
     expect(errors).toEqual([])
@@ -104,7 +153,8 @@ export async function renderPhaseSkewFrames({
 export async function expectPhaseSkewSnapshot({
   name,
   frame,
-}: { name: string; frame: PNG }): Promise<void> {
+  captioned = false,
+}: { name: string; frame: PNG; captioned?: boolean }): Promise<void> {
   const baseline = new URL(
     `../../snapshots/phase-skew/${name}.png`,
     import.meta.url,
@@ -119,17 +169,21 @@ export async function expectPhaseSkewSnapshot({
     Buffer.from(await Bun.file(baseline).arrayBuffer()),
   )
   expect([frame.width, frame.height]).toEqual([expected.width, expected.height])
+  const skippedRows = captioned ? CAPTION_HEIGHT : 0
+  const comparedHeight = frame.height - skippedRows
   const changedPixels = pixelmatch(
-    frame.data,
-    expected.data,
+    frame.data.subarray(skippedRows * frame.width * 4),
+    expected.data.subarray(skippedRows * frame.width * 4),
     undefined,
     frame.width,
-    frame.height,
+    comparedHeight,
     {
       threshold: SNAPSHOT_PIXEL_THRESHOLD,
     },
   )
-  if (changedPixels > frame.width * frame.height * MAX_CHANGED_PIXEL_FRACTION) {
+  const allowedPixels =
+    frame.width * comparedHeight * MAX_CHANGED_PIXEL_FRACTION
+  if (changedPixels > allowedPixels) {
     const actual = new URL(
       `../../actual/phase-skew/${name}.png`,
       import.meta.url,
@@ -137,9 +191,7 @@ export async function expectPhaseSkewSnapshot({
     await mkdir(new URL(".", actual), { recursive: true })
     await Bun.write(actual, png)
   }
-  expect(changedPixels).toBeLessThanOrEqual(
-    frame.width * frame.height * MAX_CHANGED_PIXEL_FRACTION,
-  )
+  expect(changedPixels).toBeLessThanOrEqual(allowedPixels)
 }
 
 /** Return the RGB channels at a PCB coordinate in a captured frame. */
